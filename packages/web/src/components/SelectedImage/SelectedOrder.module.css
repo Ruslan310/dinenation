@@ -1,0 +1,25 @@
+.container {
+  width: 150px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+
+  & .orderImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  & .selectImage {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+  }
+
+  & .selectImageIcon {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+  }
+}

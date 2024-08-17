@@ -1,0 +1,36 @@
+{
+  "name": "web",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "sst bind vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@aws-amplify/ui-react": "^6.1.14",
+    "@dinenation-postgresql/graphql": "0.0.0",
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
+    "@vis.gl/react-google-maps": "^1.1.0",
+    "antd": "^5.16.1",
+    "aws-amplify": "^6.4.3",
+    "axios": "^1.6.8",
+    "classnames": "^2.5.1",
+    "graphql": "^16.8.1",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-icons": "^5.0.1",
+    "react-router-dom": "^6.22.3",
+    "urql": "^4.0.6"
+  },
+  "devDependencies": {
+    "@types/google-map-react": "^2.1.10",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@vitejs/plugin-react": "^1.3.2",
+    "sst": "^2.41.4",
+    "typescript": "^4.6.3",
+    "vite": "^2.9.15"
+  }
+}

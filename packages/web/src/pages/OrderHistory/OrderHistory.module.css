@@ -1,0 +1,20 @@
+.page {
+    padding: 20px;
+    display: flex;
+    height: 100vh;
+}
+
+.table {
+    width: 100%;
+    background-color: var(--color-navbar);
+    border-radius: 16px;
+    overflow: hidden;
+
+    & td {
+        color: var(--color-base-light-black);
+    }
+    & tr:nth-child(2n){
+        background-color: #FAFAFA;
+    }
+}
+

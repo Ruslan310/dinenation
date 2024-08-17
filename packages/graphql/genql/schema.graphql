@@ -1,0 +1,156 @@
+type Boxes {
+  combo_id: Int!
+  id: Int!
+  image: String!
+  office: String
+  order_id: Int!
+  sauce: String
+  side_dish: String
+  side_dish_type: String
+  status: String!
+  sticker: String!
+  type: String!
+  week_day: String!
+}
+
+type Combo {
+  coupon_id: Int!
+  description: String
+  id: Int!
+  image: String!
+  price: String!
+  products: [Product!]!
+  status: String!
+  title: String!
+  type: String!
+  week_day: String!
+}
+
+type ComboProduct {
+  combo_id: Int!
+  dish_type: String!
+  price: String!
+  product_id: Int!
+}
+
+type Coupons {
+  expiration_date: String
+  id: Int!
+  status: String!
+  title: String!
+}
+
+type Mutation {
+  addCombo(coupon_id: Int!, description: String, image: String!, price: String!, status: String!, title: String!, type: String!, week_day: String!): Combo!
+  addComboProducts(combo_id: Int!, dish_type: String!, price: String!, product_id: Int!): ComboProduct!
+  addCoupon(expiration_date: String, status: String!, title: String!): Coupons!
+  addOffice(coupon_id: Int!, title: String!): Office!
+  addSauce(status: String!, title: String!): Sauces!
+  addSideDish(status: String!, title: String!, type: String!): SideDish!
+  addUser(address: String, coupon: String!, domain_id: Int!, email: String!, full_name: String!, phone: String!): Users!
+  createBox(combo_id: Int!, image: String!, office: String, order_id: Int!, sauce: String, side_dish: String, side_dish_type: String, sticker: String!, type: String!, week_day: String!): Boxes!
+  createOrder(address: String, comment: String, coupon_id: Int!, customer_id: Int!, price: String!, status: String!): Orders!
+  createProduct(allergens: String, calories: String, categories: String!, description: String, dish_type: String!, image: String!, price: String!, sauces: String, status: String!, title: String!, week_day: String!): Product!
+  deleteBox(id: Int!): Boxes
+  deleteBoxCombo(combo_id: Int!): Boxes
+  deleteCombo(id: Int!): Combo
+  deleteComboProduct(combo_id: Int!): ComboProduct
+  deleteCoupon(id: Int!): Coupons
+  deleteOffice(coupon_id: Int!): Office
+  deleteOrder(id: Int!): Orders
+  deleteProduct(id: Int!): Product
+  deleteSauces(id: Int!): Sauces
+  deleteSideDish(id: Int!): SideDish
+  deleteUser(id: Int!): Users
+  updateBox(combo_id: Int!, id: Int!, image: String!, office: String, order_id: Int!, sauce: String, side_dish: String, side_dish_type: String, status: String!, sticker: String!, type: String!, week_day: String!): Boxes!
+  updateCombo(coupon_id: Int!, description: String, id: Int!, image: String!, price: String!, status: String!, title: String!, type: String!, week_day: String!): Combo!
+  updateCoupon(expiration_date: String, id: Int!, status: String!, title: String!): Coupons!
+  updateOffice(coupon_id: Int!, id: Int!, title: String!): Office!
+  updateOrder(address: String, comment: String, coupon_id: Int!, customer_id: Int!, id: Int!, number: String!, price: String!, status: String!): Orders!
+  updateProduct(allergens: String, calories: String, categories: String!, description: String, dish_type: String!, id: Int!, image: String!, price: String!, sauces: String, status: String!, title: String!, week_day: String!): Product!
+  updateSauces(id: Int!, status: String!, title: String!): Sauces!
+  updateSideDish(id: Int!, status: String!, title: String!, type: String!): SideDish!
+  updateUser(address: String, coupon: String!, domain_id: Int!, email: String!, full_name: String!, id: Int!, phone: String!): Users!
+}
+
+type Office {
+  coupon_id: Int!
+  id: Int!
+  title: String!
+}
+
+type Orders {
+  address: String
+  comment: String
+  coupon_id: Int!
+  customer_id: Int!
+  date_created: String!
+  id: Int!
+  number: String!
+  price: String!
+  products: [Boxes!]!
+  status: String!
+}
+
+type Product {
+  allergens: String
+  calories: String
+  categories: String!
+  description: String
+  dish_type: String!
+  id: Int!
+  image: String!
+  price: String!
+  sauces: String
+  status: String!
+  title: String!
+  week_day: String!
+}
+
+type Query {
+  box(id: Int!): Boxes!
+  boxes: [Boxes!]!
+  comboById(id: Int!): Combo!
+  combosByCoupon(coupon_id: Int!): [Combo!]!
+  combosList: [Combo!]!
+  coupon(id: Int!): Coupons!
+  coupons: [Coupons!]!
+  office(id: Int!): Office!
+  offices: [Office!]!
+  officesByCoupon(coupon_id: Int!): [Office!]!
+  order(id: Int!): Orders!
+  orderCustomerId(customer_id: Int!, id: Int!): Orders!
+  orders: [Orders!]!
+  ordersByCustomerId(customer_id: Int!): [Orders!]!
+  product(id: Int!): Product!
+  products: [Product!]!
+  sauce(id: Int!): Sauces!
+  sauces: [Sauces!]!
+  sideDish(id: Int!): SideDish!
+  sideDishes: [SideDish!]!
+  user(email: String!): Users!
+  users: [Users!]!
+}
+
+type Sauces {
+  id: Int!
+  status: String!
+  title: String!
+}
+
+type SideDish {
+  id: Int!
+  status: String!
+  title: String!
+  type: String!
+}
+
+type Users {
+  address: String
+  coupon: String!
+  domain_id: Int!
+  email: String!
+  full_name: String!
+  id: Int!
+  phone: String!
+}

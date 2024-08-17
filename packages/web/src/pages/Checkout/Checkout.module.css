@@ -1,0 +1,253 @@
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    --widthPage: 1270px;
+    --heightHeader: 131px;
+}
+
+.headerContainer, .footerContainer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.headerContainer {
+    background-color: var(--color-base-white);
+    height: var(--heightHeader);
+}
+
+.footerContainer {
+    background-color: var(--color-navbar);
+    height: calc(100vh - var(--heightHeader));
+}
+
+.contentBlock {
+    width: 100%;
+    max-width: var(--widthPage);
+}
+
+.orderHeaderTitleContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 9px;
+}
+
+.daysHeaderBlock {
+    display: flex;
+    align-items: center;
+
+    & p {
+        margin-right: 8px;
+        font-weight: var(--font-weight-bolt);
+    }
+}
+
+.headerText {
+    font-size: 18px;
+    font-weight: var(--font-weight-bolt);
+    line-height: 27px;
+    &::first-letter {
+        text-transform: uppercase;
+    }
+}
+
+.headerBlock {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: var(--font-weight-bolt);
+
+    & h1 {
+        line-height: 48px;
+        font-size: 32px;
+    }
+
+    & span {
+        line-height: 27px;
+        font-size: 18px;
+    }
+}
+
+.footerBlock {
+    padding-top: 22px;
+    padding-bottom: 50px;
+    overflow-x: auto;
+    &::-webkit-scrollbar {
+        width: 0;
+    }
+}
+
+.starIcon {
+    margin: 0 6px 0 19px;
+    color: #40C677;
+    font-size: 19px;
+}
+
+.orderBlock {
+    display: flex;
+    /*justify-content: space-between;*/
+    flex-wrap: wrap;
+}
+
+.orderItem {
+    /*margin-bottom: 32px;*/
+}
+
+.removeOrder {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    color: var(--color-sub-text);
+    line-height: 21px;
+    font-weight: var(--font-weight-bolt);
+    padding: 0 32px;
+    background-color: var(--color-base-white);
+    margin-left: 16px;
+    border-radius: 32px;
+    cursor: pointer;
+
+    &:hover {
+        box-shadow: 0 0 8px 0 #A8B6C78F;
+    }
+}
+
+.orderItemContent {
+    background-color: var(--color-base-white);
+    padding: 16px;
+    border-radius: 8px;
+    min-width: 340px;
+    max-width: fit-content;
+    margin-bottom: 32px;
+
+
+    &:nth-child(1),
+    &:nth-child(2) {
+        margin-right: 16px;
+    }
+}
+
+.orderHeaderBlock {
+    font-weight: var(--font-weight-bolt);
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+
+    & h3 {
+        color: var(--color-select);
+        margin-left: 8px;
+    }
+
+    & p {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: var(--color-active);
+        color: var(--color-base-white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+}
+
+.subTitleSauce {
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.orderItemBlock {
+    display: flex;
+    font-weight: var(--font-weight-bolt);
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.itemRow {
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.itemRowDish {
+    display: flex;
+    align-items: center;
+    padding: 5px 0;
+}
+
+.sideBlock {
+    border: 1px solid var(--color-navbar);
+    border-radius: 8px;
+    height: 60px;
+    padding: 2px 16px;
+    & span {
+        line-height: 16px;
+        color: var(--color-sub-text);
+        font-weight: var(--font-weight-lithg);
+    }
+}
+
+.orderImageBlock {
+    width: 150px;
+    height: 90px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+
+    & .orderImage {
+        width: 100%;
+        height: 100%;
+    }
+
+    & .orderImageChecked {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+    }
+}
+
+.footerButtonBlock {
+    position: absolute;
+    z-index: 2;
+    bottom: 22px;
+    right: 22px;
+}
+
+.submitButton {
+    height: 60px;
+}
+
+.buyButtonContainer {
+    padding: 21px 32px;
+    line-height: 21px;
+    font-weight: var(--font-weight-wbolt);
+    display: flex;
+    align-items: center;
+}
+
+.buyButtonCountDay {
+    line-height: 18px;
+    color: var(--color-base-black);
+    background-color: white;
+    border-radius: 8px;
+    padding: 0 8px;
+    font-size: 12px;
+    font-weight: var(--font-weight-lithg);
+    margin-left: 8px;
+}
+
+.messageContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    & button {
+        margin-top: 20px;
+        width: 200px;
+    }
+}

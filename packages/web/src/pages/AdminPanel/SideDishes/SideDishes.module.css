@@ -1,0 +1,57 @@
+.page {
+    padding: 20px;
+    display: flex;
+    height: 100vh;
+}
+
+.form {
+    flex-direction: column;
+    width: 100%;
+    max-width: 600px;
+    margin: 30px;
+}
+
+.field {
+    width: 100%;
+    max-width: 600px;
+}
+
+.numberField {
+    display: inline-block;
+    width: 100px;
+}
+
+.sauceItemBlock {
+    display: flex;
+    max-width: 600px;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.sauceItem {
+    margin-right: 20px;
+    cursor: pointer;
+    padding: 7px 20px;
+    border-radius: 30px;
+    border: 1px solid gray;
+    display: flex;
+    width: fit-content;
+    font-size: 18px;
+    font-weight: bold;
+
+    & p {
+        margin-right: 10px;
+    }
+
+    &:hover {
+        background-color: var(--color-navbar);
+        box-shadow: 0 0 8px 0 #A8B6C78F;
+    }
+}
+
+.button {
+    margin: 30px 0;
+    display: flex;
+    justify-content: center;
+}
+

@@ -1,0 +1,25 @@
+// pages/index.ts
+export { default as WeeklyMenu } from '../pages/WeeklyMenu/WeeklyMenu';
+export { default as Checkout } from '../pages/Checkout/Checkout';
+export { default as Profile } from '../pages/Profile/Profile';
+export { default as Address } from '../pages/Address/Address';
+export { default as Reviews } from '../pages/Reviews/Reviews';
+export { default as OrderHistory } from '../pages/OrderHistory/OrderHistory';
+export { default as OrderHistoryView } from '../pages/OrderHistoryView/OrderHistoryView';
+export { default as ContactUs } from '../pages/ContactUs/ContactUs';
+export { default as Auth } from '../pages/Auth/Auth';
+export { default as AddComboMenu } from '../pages/AdminPanel/Combo/AddComboMenu';
+export { default as UpdateCombo } from '../pages/AdminPanel/Combo/UpdateCombo';
+export { default as Combo } from '../pages/AdminPanel/Combo/Combo';
+export { default as Product } from '../pages/AdminPanel/Product/Product';
+export { default as AddProduct } from '../pages/AdminPanel/Product/AddProduct';
+export { default as UpdateProduct } from '../pages/AdminPanel/Product/UpdateProduct';
+export { default as Sauces } from '../pages/AdminPanel/Sauces/Sauces';
+export { default as AddSauces } from '../pages/AdminPanel/Sauces/AddSauces';
+export { default as UpdateSauces } from '../pages/AdminPanel/Sauces/UpdateSauces';
+export { default as SideDishes } from '../pages/AdminPanel/SideDishes/SideDishes';
+export { default as AddSideDish } from '../pages/AdminPanel/SideDishes/AddSideDish';
+export { default as UpdateSideDish } from '../pages/AdminPanel/SideDishes/UpdateSideDish';
+export { default as Coupons } from '../pages/AdminPanel/Coupons/Coupons';
+export { default as AddCoupon } from '../pages/AdminPanel/Coupons/AddCoupon';
+export { default as UpdateCoupon } from '../pages/AdminPanel/Coupons/UpdateCoupon';

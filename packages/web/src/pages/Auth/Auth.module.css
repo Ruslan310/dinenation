@@ -1,0 +1,109 @@
+.page {
+    display: flex;
+    height: 100vh;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.formBlock {
+    flex: 1;
+    width: 100%;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin: 5% 0;
+}
+
+.form {
+    width: 292px;
+    height: 60%;
+}
+
+.formContent {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.imageMainBlock {
+    padding: 19px 15px;
+    flex: 1;
+    height: auto;
+    max-width: 100%;
+    min-width: 500px;
+    overflow: hidden;
+}
+
+.imageMain {
+    height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.logoImg {
+    height: auto;
+    max-width: 100%;
+}
+
+.subText {
+    margin: 24px 0;
+    font-weight: var(--font-weight-bolt);
+    line-height: 18px;
+    color: var(--color-sub-text);
+}
+
+.submitButton {
+    width: 100%;
+    height: 60px;
+    background-color: var(--color-select);
+
+    &:hover {
+        background-color: var(--color-select);
+        -webkit-box-shadow: 0px 0px 16px 0px #00000040;
+        box-shadow: 0px 0px 16px 0px #00000040;
+    }
+
+    p {
+        font-size: 14px;
+        margin-left: 18px;
+        font-weight: var(--font-weight-wbolt);
+    }
+}.submitButton {
+    width: 100%;
+    height: 60px;
+    background-color: var(--color-select);
+
+    &:hover {
+        background-color: var(--color-select);
+        -webkit-box-shadow: 0px 0px 16px 0px #00000040;
+        box-shadow: 0px 0px 16px 0px #00000040;
+    }
+
+    p {
+        font-size: 14px;
+        margin-left: 18px;
+        font-weight: var(--font-weight-wbolt);
+    }
+}
+
+.sendCodeButton {
+    width: 100%;
+    height: 60px;
+    background-color: var(--color-navbar);
+    margin-top: 15px;
+
+    &:hover {
+        background-color: var(--color-navbar);
+        -webkit-box-shadow: 0px 0px 16px 0px #00000040;
+        box-shadow: 0px 0px 16px 0px #00000040;
+    }
+
+    p {
+        color: black;
+        font-size: 14px;
+        margin-left: 18px;
+        font-weight: var(--font-weight-wbolt);
+    }
+}
