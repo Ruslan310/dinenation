@@ -1,31 +1,31 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import styles from "./Checkout.module.css";
-import classNames from "classnames";
-import logo from "../../assets/image/Logo.svg";
-import {StarFilled} from '@ant-design/icons';
 import {Modal, Select} from "antd";
 import {ComponentType, DaysList, DishType, EStatusType, EWEEK_DAY, WEEKDAY_ORDER} from "../../utils/utils";
 import SelectedOrder from "../../components/SelectedImage/SelectedOrder";
 import SideDishSvg from "../../components/svg/SideDishSvg";
 import CartSvg from "../../components/svg/CartSvg";
 import {MainContext} from "../../contexts/MainProvider";
-import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/urql";
+import {useTypedMutation} from "@dinenation-postgresql/graphql/urql";
 import Button from "../../components/Button/Button";
 import {CartList} from "../WeeklyMenu/WeeklyMenu";
 import {useNavigate} from "react-router-dom";
 import Loader from "../../components/Loader/Loader";
-import arrowRight from "../../assets/image/arrowRight.svg";
 import {colorTheme} from "../../utils/theme";
-import {currency} from "../../utils/handle";
+import {currency, encryptData} from "../../utils/handle";
+import ArrowsSwg from "../../components/svg/ArrowsSWG";
+import LogoSvg, {logoType} from "../../components/svg/LogoSvg";
 
 const today = new Date();
 const currentDay = DaysList[today.getDay()-1]
 
 interface OrderCreate {
   status: string,
-  price: string,
+  price: number,
+  combo_price: number,
   coupon_id: number,
   customer_id: number,
+  address: string | null | undefined,
   comment: string | null | undefined,
 }
 
@@ -35,6 +35,7 @@ interface BoxCreate {
   week_day: string,
   image: string,
   office: string | null | undefined,
+  price: number,
   side_dish: string | null | undefined,
   side_dish_type: string | null | undefined,
   sauce: string | null | undefined,
@@ -63,18 +64,6 @@ const Checkout = () => {
     }
   }, [cartList])
 
-  const [office] = useTypedQuery({
-    query: {
-      officesByCoupon: {
-        __args: {
-          coupon_id: coupon_id
-        },
-        id: true,
-        title: true,
-      },
-    },
-  });
-
   const [order, addOrder] = useTypedMutation((opts: OrderCreate) => ({
     createOrder: {
       __args: opts,
@@ -89,11 +78,11 @@ const Checkout = () => {
     },
   }));
 
-  const isHasOffice = () => !!office.data?.officesByCoupon.length && filteredCartList.every(order => order.office);
+  const isHasOffice = () => !!userData?.coupon.office.length && filteredCartList.every(order => order.office);
 
   const handleOffice = (value: string, day: EWEEK_DAY) => {
     setCartList((prevCartList: CartList[]) => {
-      return prevCartList.map(cartItem => {
+      const updatedCartList = prevCartList.map(cartItem => {
         if (cartItem.day === day) {
           return {
             ...cartItem,
@@ -102,11 +91,21 @@ const Checkout = () => {
         }
         return cartItem;
       });
+      const jsonData = JSON.stringify(updatedCartList);
+      const encryptedData = encryptData(jsonData);
+      localStorage.setItem('cartList', encryptedData);
+      return updatedCartList;
     });
   };
 
   const removeDay = (id: number) => {
-    setCartList(prevOrders => prevOrders.filter(cartItem => cartItem.id !== id));
+    setCartList(prevOrders => {
+      const updatedCartList = prevOrders.filter(cartItem => cartItem.id !== id);
+      const jsonData = JSON.stringify(updatedCartList);
+      const encryptedData = encryptData(jsonData);
+      localStorage.setItem('cartList', encryptedData);
+      return updatedCartList;
+    });
     setRemoveModal(undefined);
   };
 
@@ -119,17 +118,17 @@ const Checkout = () => {
       if (dayObject) {
         // Суммируем цену на первом уровне, если она есть
         if (dayObject.price) {
-          total += parseFloat(dayObject.price || "0");
+          total += dayObject.price || 0;
         }
 
         // Проверяем, есть ли объект 'products' с десертом и суммируем цену десерта
         if (dayObject.products && dayObject.products.Desert && dayObject.products.Desert.price) {
-          total += parseFloat(dayObject.products.Desert.price || "0");
+          total += dayObject.products.Desert.price || 0;
         }
       }
     }
 
-    return total.toFixed(2);;
+    return total;
   }, [filteredCartList]);
 
   const createBox = async (data: BoxCreate) => {
@@ -146,8 +145,10 @@ const Checkout = () => {
           status: EStatusType.PROCESSING,
           // status: EStatusType.COMPLETED,
           price: sumPrices,
+          combo_price: sumPrices,
           coupon_id: coupon_id,
           customer_id: userData?.id,
+          address: userData?.coupon.address,
           comment: '',
         })
         console.log('----newOrder----', data)
@@ -162,6 +163,7 @@ const Checkout = () => {
                 week_day: day,
                 image: product.image,
                 office: office,
+                price: product.price,
                 side_dish: isMain ? cartItem[DishType.SIDE]?.title : '',
                 side_dish_type: isMain ? cartItem[DishType.SIDE]?.type : '',
                 sauce: isMain ? Sauce : '',
@@ -212,19 +214,20 @@ const Checkout = () => {
           <Button onClick={() => {
             setMessage('')
             navigate('/history')
+            localStorage.setItem('cartList', '');
             setCartList([])
           }}>OK</Button>
         </div>
       </Modal>
       {/* header  */}
       <div className={styles.headerContainer}>
-        <div className={classNames(styles.contentBlock, styles.headerBlock)}>
+        <div className={`${styles.contentBlock} ${styles.headerBlock}`}>
           <div>
             <h1>Checkout</h1>
             <span>Your Price </span>
             <span style={{color: colorTheme.active}}>{currency(sumPrices)}</span>
           </div>
-          <img src={logo} alt="Logo"/>
+          <LogoSvg type={logoType.HORIZONTAL} />
         </div>
       </div>
       <div className={styles.footerContainer}>
@@ -232,24 +235,21 @@ const Checkout = () => {
         {filteredCartList?.length &&
           <div className={styles.footerButtonBlock}>
             <Button
-              onClick={() => setSubmitModal(true)}
+              onClick={() => navigate('/')}
               iconPosition='left'
               className={styles.submitButton}
-              icon={<img src={arrow} alt="" />}>
+              icon={<ArrowsSwg type='left' color={colorTheme.white} />}>
               <div className={styles.buyButtonContainer}>
-                <CartSvg color={colorTheme.white} style={{marginRight: '8px'}}/>
-                <p>Total ( {currency(sumPrices)} ) Place Order</p>
-                <p className={styles.buyButtonCountDay}>{Object.keys(filteredCartList)?.length} days</p>
+                <p>Back</p>
               </div>
             </Button>
             <Button
               disabled={!isHasOffice()}
               onClick={() => setSubmitModal(true)}
-              iconPosition='right'
+              iconPosition='left'
               className={styles.submitButton}
-              icon={<img src={arrowRight} alt="" />}>
+              icon={<CartSvg color={colorTheme.white} />}>
               <div className={styles.buyButtonContainer}>
-                <CartSvg color={colorTheme.white} style={{marginRight: '8px'}}/>
                 <p>Total ( {currency(sumPrices)} ) Place Order</p>
                 <p className={styles.buyButtonCountDay}>{Object.keys(filteredCartList)?.length} days</p>
               </div>
@@ -257,7 +257,7 @@ const Checkout = () => {
           </div>
         }
         {/* list  */}
-        <div className={classNames(styles.contentBlock, styles.footerBlock)}>
+        <div className={`${styles.contentBlock} ${styles.footerBlock}`}>
           {filteredCartList
             .sort((a, b) =>
               WEEKDAY_ORDER.indexOf(a.day) - WEEKDAY_ORDER.indexOf(b.day))
@@ -266,29 +266,29 @@ const Checkout = () => {
                 <div className={styles.orderHeaderTitleContainer}>
                   <div className={styles.daysHeaderBlock}>
                     <p className={styles.headerText}>{cartItem.day}</p>
-                    {cartItem.day?.toLowerCase() === currentDay?.toLowerCase() ?
-                      <>
-                        <StarFilled className={styles.starIcon}/>
-                        <p className={styles.headerText} style={{color: '#40C677'}}>Today</p>
-                      </> :
+                    {/*{cartItem.day?.toLowerCase() === currentDay?.toLowerCase() ?*/}
+                    {/*  <>*/}
+                    {/*    <StarFilled className={styles.starIcon}/>*/}
+                    {/*    <p className={styles.headerText} style={{color: '#40C677'}}>Today</p>*/}
+                    {/*  </> :*/}
                       <div onClick={() => setRemoveModal(cartItem)} className={styles.removeOrder}>
                         <span>Remove</span>
                       </div>
-                    }
+                    {/*}*/}
                   </div>
-                  {office.data?.officesByCoupon.length &&
+                  {userData?.coupon.office.length &&
                     <div className={styles.daysHeaderBlock}>
                       <p>Choose an address</p>
                       <Select<string, { value: string; children: string }>
                         style={{width: '204px'}}
                         value={cartItem.office}
-                        placeholder="Select your address"
+                        placeholder="Select office"
                         onChange={(value) => handleOffice(value, cartItem.day)}
                         filterOption={(input, option) =>
                           option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
                         }
                       >
-                        {office.data?.officesByCoupon
+                        {userData?.coupon.office
                           .map(({id, title}) => <Select.Option key={id} value={title}>{title}</Select.Option>)}
                       </Select>
                     </div>

@@ -1,8 +1,8 @@
-import {getOfficesByCoupon, Office} from "@dinenation-postgresql/core/office";
+import {Office} from "@dinenation-postgresql/core/office";
 import {SQL} from "@dinenation-postgresql/core/sql";
 import {builder} from "../builder";
 
-const OfficeType = builder.objectRef<SQL.Row["office"]>("Office").implement({
+export const OfficeType = builder.objectRef<SQL.Row["office"]>("Office").implement({
   fields: (t) => ({
     id: t.exposeInt("id"),
     coupon_id: t.exposeInt("coupon_id"),
@@ -65,8 +65,7 @@ builder.mutationFields((t) => ({
     ),
   }),
   deleteOffice: t.field({
-    type: OfficeType,
-    nullable: true,
+    type: 'Boolean',
     args: {
       coupon_id: t.arg.int({required: true}),
     },

@@ -29,7 +29,7 @@ const OrderHistory = () => {
     query: {
       ordersByCustomerId: {
         __args: {
-          customer_id: userData?.id
+          customer_id: userData?.id || 0
         },
         id: true,
         number: true,
@@ -40,8 +40,6 @@ const OrderHistory = () => {
       },
     },
   });
-
-  console.log('-----orders---', orders)
 
   const columns: ColumnsType<IColumnsType> = [
     {

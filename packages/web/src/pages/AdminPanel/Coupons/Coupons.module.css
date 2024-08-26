@@ -58,3 +58,7 @@
 .collapse {
     background: var(--color-base-white);
 }
+
+.dateSwitch {
+    display: flex;
+}

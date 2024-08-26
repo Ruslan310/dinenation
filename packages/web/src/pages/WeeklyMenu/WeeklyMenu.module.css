@@ -1,16 +1,16 @@
 .home {
     display: flex;
-    flex-direction: row;
 }
 
 .navbar {
     background-color: var(--color-navbar);
-    width: 166px;
+    min-width: 160px;
     height: 100vh;
-    padding: 32px 8px 32px 8px;
+    padding: 32px 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .daysBlock {
@@ -32,7 +32,7 @@
         box-shadow: 0 0 8px 0 #A8B6C78F;
     }
     img {
-        transition: all 0.5s ease; /* Плавный переход для всех свойств */
+        transition: all 0.5s ease;
         width: 0;
     }
 }
@@ -140,7 +140,7 @@
     cursor: pointer;
     position: relative;
     p {
-        margin-top: 3px;
+        margin-top: 5px;
     }
 }
 
@@ -150,6 +150,11 @@
     border-radius: var(--border-radius);
     overflow: hidden;
     transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    }
 }
 
 .activeImageProduct {
@@ -175,22 +180,22 @@
 .imageActive {
     z-index: 1;
     position: absolute;
-    bottom: 17px;
+    bottom: 19px;
     right: 0;
 }
 
 .imageSelect {
     z-index: 1;
     position: absolute;
-    bottom: 19px;
-    right: 1px;
+    bottom: 21px;
+    right: 2px;
 }
 
 .imageResizeBlock {
     z-index: 1;
     position: absolute;
-    right: 6px;
-    top: 6px;
+    right: 8px;
+    top: 8px;
     width: 20px;
     height: 20px;
     border-radius: 50%;
@@ -228,6 +233,38 @@
     justify-content: space-between;
 }
 
+.allergenHover {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.allergenHover .tooltip {
+    visibility: hidden;
+    width: 120px;
+    background-color: var(--color-base-active);
+    color: var(--color-base-white);
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%; /* Положение всплывающего окна */
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.allergenHover:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.allergenHover:hover .imageAllergen {
+    fill: var(--color-base-active);
+}
+
 .titlePopover {
     font-size: 12px;
     font-weight: var(--font-weight-bolt);
@@ -263,6 +300,7 @@
     flex-wrap: wrap;
     margin-top: 16px;
     flex-direction: column;
+    position: relative;
 }
 
 .imageAllergen {
@@ -279,6 +317,7 @@
 .imageAllergen:nth-last-child(-n+5) {
     margin-bottom: 16px;
 }
+
 
 .sideDishBlock {
     margin: 16px 0 14px;
@@ -345,13 +384,21 @@
     right: 22px;
 }
 
+.buttonContainer {
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    & p {
+        margin-right: 10px;
+    }
+}
+
 .nextButton {
     z-index: 20;
     background-color: var(--color-navbar);
-    color: var(--color-base-black);
     margin-right: 26px;
-    padding: 0 20px;
-    height: 40px;
+    padding: 21px 32px;
+    height: 50px;
     &:hover {
         background-color: var(--color-navbar);
     }
@@ -362,7 +409,7 @@
     background-color: var(--color-base-active);
     margin-right: 26px;
     padding: 0 20px;
-    height: 40px;
+    height: 50px;
 }
 
 

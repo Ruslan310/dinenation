@@ -6,7 +6,7 @@ export const ProductType = builder.objectRef<SQL.Row["product"]>("Product").impl
   fields: (t) => ({
     id: t.exposeInt("id"),
     title: t.exposeString("title"),
-    price: t.exposeString("price"),
+    price: t.exposeFloat("price"),
     allergens: t.exposeString("allergens", {nullable: true}),
     sauces: t.exposeString("sauces", {nullable: true}),
     categories: t.exposeString("categories"),
@@ -46,7 +46,7 @@ builder.mutationFields((t) => ({
     type: ProductType,
     args: {
       title: t.arg.string({required: true}),
-      price: t.arg.string({required: true}),
+      price: t.arg.float({required: true}),
       allergens: t.arg.string({required: false}),
       sauces: t.arg.string({required: false}),
       categories: t.arg.string({required: true}),
@@ -76,7 +76,7 @@ builder.mutationFields((t) => ({
     args: {
       id: t.arg.int({required: true}),
       title: t.arg.string({required: true}),
-      price: t.arg.string({required: true}),
+      price: t.arg.float({required: true}),
       allergens: t.arg.string({required: false}),
       sauces: t.arg.string({required: false}),
       categories: t.arg.string({required: true}),
@@ -103,8 +103,7 @@ builder.mutationFields((t) => ({
     ),
   }),
   deleteProduct: t.field({
-    type: ProductType,
-    nullable: true,
+    type: 'Boolean',
     args: {
       id: t.arg.int({required: true}),
     },

@@ -14,27 +14,16 @@ import {
 import Loading from "../../../components/Loader/Loading";
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
 import UploadPicture from "../../../components/Form/UploadPicture";
+import {NotFound} from "../../index";
+import {ProductForm} from "../../../utils/type";
 const {TextArea} = Input;
 
-export interface ProductForm {
-  id: number
-  title: string;
-  price: string;
-  allergens: EAllergensList;
-  sauces: string;
-  categories: string;
-  dish_type: string;
-  image: string;
-  description: string;
-  week_day: string;
-  status: string;
-  calories: string;
-}
+
 
 interface ProductData {
   id: number;
   title: string;
-  price: string;
+  price: number;
   categories: string;
   dish_type: string;
   description: string;
@@ -55,6 +44,15 @@ export default function UpdateProduct() {
   const navigate = useNavigate();
   const currentId= useParams();
   const currentProductId = Number(currentId.id) as number
+
+  const isValidId = (id: string | undefined): boolean => {
+    return id !== undefined && /^\d+$/.test(id);
+  };
+
+  if (!isValidId(currentId.id)) {
+    return <NotFound />;
+  }
+
   const [_, updateProduct] = useTypedMutation((opts: ProductForm) => ({
     updateProduct: {
       __args: opts,
@@ -231,7 +229,7 @@ export default function UpdateProduct() {
                 const {data} = await updateProduct({
                   id: currentProductId,
                   title,
-                  price: price.toString(),
+                  price,
                   allergens: allergens?.join(',').trim(),
                   sauces: sauces?.join(',').trim(),
                   categories,

@@ -6,10 +6,13 @@ import styles from "./SideDishes.module.css";
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
 import Loading from "../../../components/Loader/Loading";
 import {EColorSideDishList, ProductStatus} from "../../../utils/utils";
+import {NotFound} from "../../index";
 
-interface SauceForm {
-  id: string;
+interface SideDishForm {
+  id: number;
   title: string;
+  type: string;
+  status: string;
 }
 
 const key = 'updatable';
@@ -20,6 +23,15 @@ const UpdateSideDish = () => {
   const currentDishId = Number(currentId?.id) as number
   const navigate = useNavigate();
   const [form] = Form.useForm();
+
+  const isValidId = (id: string | undefined): boolean => {
+    return id !== undefined && /^\d+$/.test(id);
+  };
+
+  if (!isValidId(currentId.id)) {
+    return <NotFound />;
+  }
+
   const [sideDish] = useTypedQuery({
     query: {
       sideDish: {
@@ -33,7 +45,7 @@ const UpdateSideDish = () => {
       },
     },
   });
-  const [_, updateDishes] = useTypedMutation((opts: SauceForm) => ({
+  const [_, updateSideDish] = useTypedMutation((opts: SideDishForm) => ({
     updateSideDish: {
       __args: opts,
       id: true,
@@ -88,7 +100,7 @@ const UpdateSideDish = () => {
               try {
                 await form.validateFields();
                 message.loading({content: 'Saving component...', key});
-                const {data} = await updateDishes({
+                const {data} = await updateSideDish({
                   id: currentDishId,
                   ...form.getFieldsValue(),
                 });

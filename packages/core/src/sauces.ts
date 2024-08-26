@@ -1,4 +1,3 @@
-import {int} from "aws-sdk/clients/datapipeline";
 export * as Sauces from "./sauces";
 import { SQL } from "./sql";
 import {sql} from "kysely";
@@ -19,7 +18,7 @@ export async function addSauce(
 }
 
 export async function updateSauces(
-  id: int,
+  id: number,
   title: string,
   status: string,
 ) {
@@ -35,11 +34,11 @@ export async function updateSauces(
   return result;
 }
 
-export async function deleteSauces(id: int) {
-  return await SQL.DB.deleteFrom("sauces")
+export async function deleteSauces(id: number) {
+  await SQL.DB.deleteFrom("sauces")
     .where('id', '=', id)
-    .returningAll()
-    .executeTakeFirst();
+    .execute();
+  return true;
 }
 
 export function sauces() {
@@ -49,7 +48,7 @@ export function sauces() {
     .execute();
 }
 
-export async function getSauces(id: int) {
+export async function getSauces(id: number) {
   const [result] = await SQL.DB.selectFrom("sauces")
     .selectAll()
     .where("id", "=", id)

@@ -1,24 +1,26 @@
-import {int} from "aws-sdk/clients/datapipeline";
 export * as Users from "./users";
 import {SQL} from "./sql";
 import {sql} from "kysely";
+import {ROLE} from "web/src/utils/utils";
 
 export async function addUser(
-  full_name: string,
+  first_name: string,
+  last_name: string,
   email: string,
   address: string | null | undefined,
   phone: string,
-  coupon: string,
-  domain_id: int,
+  coupon_id: number,
 ) {
   const [result] = await SQL.DB.insertInto("users")
     .values({
-      full_name,
+      first_name,
+      last_name,
       email,
       address,
       phone,
-      coupon,
-      domain_id,
+      coupon_id,
+      role: ROLE.PUBLIC,
+      // role: ROLE.ADMIN,
       date_updated: sql`now()`,
     })
     .returningAll()
@@ -27,22 +29,26 @@ export async function addUser(
 }
 
 export async function updateUser(
-  id: int,
-  full_name: string,
+  id: number,
+  first_name: string,
+  last_name: string,
   email: string,
   address: string | null | undefined,
+  image: string | null | undefined,
   phone: string,
-  coupon: string,
-  domain_id: int,
+  coupon_id: number,
+  role: string,
 ) {
   const [result] = await SQL.DB.updateTable("users")
     .set({
-      full_name,
+      first_name,
+      last_name,
       email,
       address,
+      image,
       phone,
-      coupon,
-      domain_id,
+      coupon_id,
+      role,
       date_updated: sql`now()`,
     })
     .where("id", "=", id)
@@ -51,11 +57,23 @@ export async function updateUser(
   return result;
 }
 
-export async function deleteUser(id: int) {
-  return await SQL.DB.deleteFrom("users")
-    .where('id', '=', id)
+export async function updateUserImage(
+  id: number,
+  image: string | null | undefined,
+) {
+  const [result] = await SQL.DB.updateTable("users")
+    .set({image, date_updated: sql`now()`})
+    .where("id", "=", id)
     .returningAll()
-    .executeTakeFirst();
+    .execute();
+  return result;
+}
+
+export function deleteUser(id: number) {
+  SQL.DB.deleteFrom("users")
+    .where('id', '=', id)
+    .execute();
+  return true;
 }
 
 export function users() {

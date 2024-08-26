@@ -149,3 +149,9 @@ export const WEEKDAY_ORDER: EWEEK_DAY[] = [
   EWEEK_DAY.FRIDAY,
   EWEEK_DAY.SATURDAY,
 ];
+
+
+export enum ROLE {
+  PUBLIC = "public",
+  ADMIN = "admin",
+}

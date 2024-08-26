@@ -77,9 +77,9 @@
 
 
 .spinner {
-  font-size: 0.9rem;
+  font-size: 1.9rem;
   vertical-align: middle;
-  margin-right: 0.3125rem;
+  margin-right: 10px;
   margin-bottom: 0.0625rem;
   animation: 3s infinite rotate;
 }

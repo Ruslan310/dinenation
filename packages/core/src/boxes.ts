@@ -1,7 +1,7 @@
-import {int} from "aws-sdk/clients/datapipeline";
 export * as Boxes from "./boxes";
 import {SQL} from "./sql";
 import {sql} from "kysely";
+import {EStatusType} from "web/src/utils/utils";
 
 export async function addBox(
   sticker: string,
@@ -9,11 +9,12 @@ export async function addBox(
   week_day: string,
   image: string,
   office: string | null | undefined,
+  price: number,
   side_dish: string | null | undefined,
   side_dish_type: string | null | undefined,
   sauce: string | null | undefined,
-  order_id: int,
-  combo_id: int,
+  order_id: number,
+  combo_id: number,
 ) {
   const [result] = await SQL.DB.insertInto("boxes")
     .values({
@@ -22,6 +23,7 @@ export async function addBox(
       week_day,
       image,
       office,
+      price,
       side_dish,
       side_dish_type,
       sauce,
@@ -36,17 +38,18 @@ export async function addBox(
 }
 
 export async function updateBox(
-  id: int,
+  id: number,
   sticker: string,
   type: string,
   week_day: string,
   image: string,
   office: string | null | undefined,
+  price: number,
   side_dish: string | null | undefined,
   side_dish_type: string | null | undefined,
   sauce: string | null | undefined,
-  order_id: int,
-  combo_id: int,
+  order_id: number,
+  combo_id: number,
   status: string,
 ) {
   const [result] = await SQL.DB.updateTable("boxes")
@@ -57,6 +60,7 @@ export async function updateBox(
       week_day,
       image,
       office,
+      price,
       side_dish,
       side_dish_type,
       sauce,
@@ -71,18 +75,29 @@ export async function updateBox(
   return result;
 }
 
-export async function deleteBox(id: int) {
-  return await SQL.DB.deleteFrom("boxes")
+export async function deleteBox(id: number) {
+  await SQL.DB.deleteFrom("boxes")
     .where('id', '=', id)
-    .returningAll()
-    .executeTakeFirst();
+    .execute();
+  return true;
 }
 
-export async function deleteBoxCombo(id: int) {
-  return await SQL.DB.deleteFrom("boxes")
-    .where('combo_id', '=', id)
-    .returningAll()
-    .executeTakeFirst();
+export async function deleteBoxCombo(combo_id: number, order_id: number) {
+  await SQL.DB.deleteFrom("boxes")
+    .where('combo_id', '=', combo_id)
+    .execute();
+  const remainingBoxes = await SQL.DB.selectFrom("boxes")
+    .selectAll()
+    .where('order_id', '=', order_id)
+    .execute();
+
+  if (remainingBoxes.length === 0) {
+    await SQL.DB.updateTable("orders")
+      .set({status: EStatusType.CANCELLED})
+      .where('id', '=', order_id)
+      .execute();
+  }
+  return true
 }
 
 export function boxes() {
@@ -92,7 +107,7 @@ export function boxes() {
     .execute();
 }
 
-export async function getBox(id: int) {
+export async function getBox(id: number) {
   const [result] = await SQL.DB.selectFrom("boxes")
     .selectAll()
     .where("id", "=", id)

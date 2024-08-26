@@ -1,21 +1,25 @@
 import React from 'react';
 import styles from './Coupons.module.css'
-import {useTypedMutation} from "@dinenation-postgresql/graphql/urql";
+import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import {useNavigate} from "react-router-dom";
-import {Button, Collapse, CollapseProps, DatePicker, Form, Input, message, Select} from 'antd';
+import {Button, Collapse, CollapseProps, DatePicker, Form, Input, message, Select, Switch} from 'antd';
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
 import {ProductStatus} from "../../../utils/utils";
 import {RangePickerProps} from "antd/es/date-picker";
 import dayjs from "dayjs";
 import SelectFieldsComponent from "../../../components/Form/SelectFieldsComponent";
+import {CheckOutlined, CloseOutlined} from '@ant-design/icons';
 
-export interface CouponFormAdd {
+export interface CouponForm {
   title: string;
+  has_domain: boolean;
+  domain_id: number;
+  address: string;
   expiration_date: string;
   status: string;
 }
 
-export interface OfficeFormAdd {
+export interface OfficeForm {
   title: string;
   coupon_id: number
 }
@@ -26,19 +30,28 @@ const AddCoupon = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const [_c, addCoupon] = useTypedMutation((opts: CouponFormAdd) => ({
+  const [_c, addCoupon] = useTypedMutation((opts: CouponForm) => ({
     addCoupon: {
       __args: opts,
       id: true
     },
   }));
 
-  const [_o, addOffice] = useTypedMutation((opts: OfficeFormAdd) => ({
+  const [_o, addOffice] = useTypedMutation((opts: OfficeForm) => ({
     addOffice: {
       __args: opts,
       id: true
     },
   }));
+
+  const [domains] = useTypedQuery({
+    query: {
+      domains: {
+        id: true,
+        title: true,
+      },
+    },
+  });
 
 
   const disabledDate: RangePickerProps['disabledDate'] = (current) => {
@@ -68,8 +81,29 @@ const AddCoupon = () => {
         <Form.Item name="title" rules={[{required: true, message: 'Please enter name!'}]} className={styles.field}>
           <Input placeholder='Enter coupon name'/>
         </Form.Item>
-        <Form.Item name="expiration_date" className={styles.field}>
-          <DatePicker disabledDate={disabledDate} />
+        <div className={styles.dateSwitch}>
+          <Form.Item name="expiration_date" className={styles.field}>
+            <DatePicker disabledDate={disabledDate} />
+          </Form.Item>
+          <Form.Item initialValue={false} label={"Has domain"} name="has_domain" className={styles.field}>
+            <Switch checkedChildren={<CheckOutlined />} unCheckedChildren={<CloseOutlined />}/>
+          </Form.Item>
+        </div>
+        <Form.Item
+          name="domain_id"
+          rules={[{required: true, message: 'Select domain!'}]}
+          style={{display: 'inline-block'}}
+          className={styles.field}
+        >
+          <Select<string, { value: string; children: string }>
+            placeholder="Select domain"
+            filterOption={(input, option) =>
+              option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
+            }
+          >
+            {domains.data?.domains
+              .map(({id, title}) => <Select.Option key={id} value={id}>{title}</Select.Option>)}
+          </Select>
         </Form.Item>
         <Form.Item
           name="status"
@@ -87,22 +121,24 @@ const AddCoupon = () => {
               .map((type) => <Select.Option key={type} value={type}>{type}</Select.Option>)}
           </Select>
         </Form.Item>
+        <Form.Item name="address" rules={[{required: true, message: 'Please enter address!'}]} className={styles.field}>
+          <Input placeholder='Enter company address'/>
+        </Form.Item>
         <Collapse bordered={false} className={styles.collapse} items={items} />
         <Form.Item className={styles.button}>
           <Button onClick={async () => {
             try {
               await form.validateFields();
+              console.log('....form.getFieldsValue()', form.getFieldsValue())
               message.loading({content: 'Saving component...', key});
               const {
-                title,
-                expiration_date,
-                status,
                 offices,
+                expiration_date,
+                ...rest
               } = form.getFieldsValue();
               const {data} = await addCoupon({
-                title,
                 expiration_date: expiration_date?.toISOString() || '',
-                status,
+                ...rest
               });
               if (data && offices?.length) {
                 offices?.map(async ({title}: {title: string }) =>

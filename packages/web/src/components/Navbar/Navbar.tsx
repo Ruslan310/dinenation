@@ -1,6 +1,5 @@
-import React, {useContext, useState} from 'react';
+import React, {useState} from 'react';
 import styles from "./Navbar.module.css";
-import logo from "../../assets/image/Logo_v.svg";
 import {ConfigProvider, Menu, Modal} from "antd";
 import {useNavigate} from "react-router-dom";
 import type { MenuProps } from 'antd';
@@ -13,15 +12,14 @@ import ContactUsSvg from "../svg/ContactUsSvg";
 import Avatar from "../Avatar/Avatar";
 import {useAuthenticator} from "@aws-amplify/ui-react";
 import Button from "../Button/Button";
-import {MainContext} from "../../contexts/MainProvider";
 import {colorTheme} from "../../utils/theme";
+import LogoSvg, {logoType} from "../svg/LogoSvg";
 
 const Navbar = () => {
   const {signOut} = useAuthenticator((context) => [context.user]);
   const path = window.location.pathname.replace(new RegExp("/(\\w*)"), "$1")
   const navigate = useNavigate();
   const [open, setOpen] = useState<boolean>(false)
-  const {userData} = useContext(MainContext);
 
   const onClick: MenuProps['onClick'] = (e) => {
     console.log('go to ', e.key);
@@ -55,13 +53,14 @@ const Navbar = () => {
           <h3>Are you sure you want to log out?</h3>
           <Button onClick={() => {
             signOut()
+            localStorage.setItem('cartList', '')
             navigate('/auth')
             setOpen(false)
           }}>OK</Button>
         </div>
       </Modal>
-      <img src={logo} alt="" onClick={() => navigate('/')} style={{cursor: 'pointer'}}/>
-      <Avatar size={100} fullName={userData?.full_name} isText />
+      <LogoSvg type={logoType.VERTICAL} click={() => navigate('/')} style={{cursor: 'pointer'}}/>
+      <Avatar size={100} showFullName />
       <ConfigProvider
         theme={{
           components: {

@@ -61,8 +61,8 @@
 
     &:hover {
         background-color: var(--color-select);
-        -webkit-box-shadow: 0px 0px 16px 0px #00000040;
-        box-shadow: 0px 0px 16px 0px #00000040;
+        -webkit-box-shadow: 0 0 16px 0 #00000040;
+        box-shadow: 0 0 16px 0 #00000040;
     }
 
     p {
@@ -77,8 +77,8 @@
 
     &:hover {
         background-color: var(--color-select);
-        -webkit-box-shadow: 0px 0px 16px 0px #00000040;
-        box-shadow: 0px 0px 16px 0px #00000040;
+        -webkit-box-shadow: 0 0 16px 0 #00000040;
+        box-shadow: 0 0 16px 0 #00000040;
     }
 
     p {
@@ -96,8 +96,8 @@
 
     &:hover {
         background-color: var(--color-navbar);
-        -webkit-box-shadow: 0px 0px 16px 0px #00000040;
-        box-shadow: 0px 0px 16px 0px #00000040;
+        -webkit-box-shadow: 0 0 16px 0 #00000040;
+        box-shadow: 0 0 16px 0 #00000040;
     }
 
     p {
@@ -106,4 +106,10 @@
         margin-left: 18px;
         font-weight: var(--font-weight-wbolt);
     }
+}
+
+.modalMessageContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }

@@ -26,6 +26,8 @@ import {
   UpdateCoupon,
   OrderHistoryView,
 } from './pages'
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+
 const MainRoutes = () => (
   <BrowserRouter>
     <Routes>
@@ -42,26 +44,26 @@ const MainRoutes = () => (
       <Route path="/history/:id" element={<OrderHistoryView />} />
       <Route path="/contactUs" element={<ContactUs />} />
 
-      {/* just for admin panel */}
-      <Route path="/addCombo" element={<AddComboMenu />} />
-      <Route path="/updateCombo/:id" element={<UpdateCombo />} />
-      <Route path="/combo" element={<Combo />} />
+      {/*for admin panel */}
+      <Route path="/addCombo" element={<ProtectedRoute component={AddComboMenu} />} />
+      <Route path="/updateCombo/:id" element={<ProtectedRoute component={UpdateCombo} />} />
+      <Route path="/combo" element={<ProtectedRoute component={Combo} />} />
 
-      <Route path="/product" element={<Product />} />
-      <Route path="/addProduct" element={<AddProduct />} />
-      <Route path="/updateProduct/:id" element={<UpdateProduct />} />
+      <Route path="/product" element={<ProtectedRoute component={Product} />} />
+      <Route path="/addProduct" element={<ProtectedRoute component={AddProduct} />} />
+      <Route path="/updateProduct/:id" element={<ProtectedRoute component={UpdateProduct} />} />
 
-      <Route path="/sauces" element={<Sauces />} />
-      <Route path="/addSauces" element={<AddSauces />} />
-      <Route path="/updateSauces/:id" element={<UpdateSauces />} />
+      <Route path="/sauces" element={<ProtectedRoute component={Sauces} />} />
+      <Route path="/addSauces" element={<ProtectedRoute component={AddSauces} />} />
+      <Route path="/updateSauces/:id" element={<ProtectedRoute component={UpdateSauces} />} />
 
-      <Route path="/sideDishes" element={<SideDishes />} />
-      <Route path="/addSideDish" element={<AddSideDish />} />
-      <Route path="/updateSideDish/:id" element={<UpdateSideDish />} />
+      <Route path="/sideDishes" element={<ProtectedRoute component={SideDishes} />} />
+      <Route path="/addSideDish" element={<ProtectedRoute component={AddSideDish} />} />
+      <Route path="/updateSideDish/:id" element={<ProtectedRoute component={UpdateSideDish} />} />
 
-      <Route path="/coupons" element={<Coupons />} />
-      <Route path="/addCoupons" element={<AddCoupon />} />
-      <Route path="/updateCoupons/:id" element={<UpdateCoupon />} />
+      <Route path="/coupons" element={<ProtectedRoute component={Coupons} />} />
+      <Route path="/addCoupons" element={<ProtectedRoute component={AddCoupon} />} />
+      <Route path="/updateCoupons/:id" element={<ProtectedRoute component={UpdateCoupon} />} />
     </Routes>
   </BrowserRouter>
 );

@@ -12,16 +12,16 @@ import {
 import {useEffect, useState, useCallback, useRef} from "react";
 import {
   QueryResult,
-  QueryRequest,
+  QueryGenqlSelection,
   MutationResult,
-  MutationRequest,
+  MutationGenqlSelection,
   generateQueryOp,
   generateMutationOp,
 } from "./genql";
 
 import {pipe, toPromise} from "wonka";
 
-export function useTypedQuery<Query extends QueryRequest>(opts: {
+export function useTypedQuery<Query extends QueryGenqlSelection>(opts: {
   query: Query;
   pause?: boolean;
   requestPolicy?: RequestPolicy;
@@ -46,7 +46,7 @@ const initialState = {
 
 export function useTypedMutation<
   Variables extends Record<string, any>,
-  Mutation extends MutationRequest,
+  Mutation extends MutationGenqlSelection,
   Data extends MutationResult<Mutation>
 >(
   builder: (vars: Variables) => Mutation,

@@ -10,7 +10,7 @@ const {TextArea} = Input;
 
 interface ProductForm {
   title: string;
-  price: string;
+  price: number;
   allergens: string;
   sauces: string;
   categories: string;
@@ -165,7 +165,7 @@ export default function AddProduct() {
               const {title, price, allergens, categories, description, week_day, status, calories, sauces, dish_type} = form.getFieldsValue();
               const {data} = await addProduct({
                 title,
-                price: price.toString(),
+                price,
                 allergens: allergens?.join(','),
                 sauces: sauces?.join(','),
                 categories,

@@ -212,6 +212,7 @@
 }
 
 .footerButtonBlock {
+    display: flex;
     position: absolute;
     z-index: 2;
     bottom: 22px;
@@ -219,11 +220,12 @@
 }
 
 .submitButton {
-    height: 60px;
+    height: 50px;
+    padding: 21px 32px;
+    margin: 0 15px;
 }
 
 .buyButtonContainer {
-    padding: 21px 32px;
     line-height: 21px;
     font-weight: var(--font-weight-wbolt);
     display: flex;

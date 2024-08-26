@@ -1,13 +1,14 @@
-import {int} from "aws-sdk/clients/datapipeline";
 export * as Orders from "./orders";
 import {SQL} from "./sql";
 import {sql} from "kysely";
+import {sendEmail} from "@dinenation-postgresql/functions/src/sendEmail";
 
 export async function addOrder(
   status: string,
-  price: string,
-  coupon_id: int,
-  customer_id: int,
+  price: number,
+  combo_price: number,
+  coupon_id: number,
+  customer_id: number,
   comment: string | null | undefined,
   address: string | null | undefined,
 ) {
@@ -26,6 +27,7 @@ export async function addOrder(
       number: newNumber,
       status,
       price,
+      combo_price,
       customer_id,
       coupon_id,
       comment,
@@ -34,16 +36,22 @@ export async function addOrder(
     })
     .returningAll()
     .execute();
+  // await sendEmail({
+  //   to: 'annabolik11@gmail.com',
+  //   subject: 'Test Email',
+  //   body: 'This is a test email sent from Amazon SES.',
+  // });
   return result;
 }
 
 export async function updateOrder(
-  id: int,
+  id: number,
   number: string,
   status: string,
-  price: string,
-  coupon_id: int,
-  customer_id: int,
+  price: number,
+  combo_price: number,
+  coupon_id: number,
+  customer_id: number,
   comment: string | null | undefined,
   address: string | null | undefined,
 ) {
@@ -53,6 +61,7 @@ export async function updateOrder(
       number,
       status,
       price,
+      combo_price,
       coupon_id,
       customer_id,
       comment,
@@ -65,14 +74,27 @@ export async function updateOrder(
   return result;
 }
 
-export async function deleteOrder(id: int) {
+export async function updateOrderPrice(id: number, price: number) {
+  const [result] = await SQL.DB.updateTable("orders")
+    .set({
+      id,
+      price,
+      date_updated: sql`now()`,
+    })
+    .where("id", "=", id)
+    .returningAll()
+    .execute();
+  return result;
+}
+
+export async function deleteOrder(id: number) {
   await SQL.DB.deleteFrom("boxes")
     .where("order_id", "=", id)
     .execute();
-  return await SQL.DB.deleteFrom("orders")
+  await SQL.DB.deleteFrom("orders")
     .where('id', '=', id)
-    .returningAll()
-    .executeTakeFirst();
+    .execute();
+  return true
 }
 
 export function orders() {
@@ -82,21 +104,23 @@ export function orders() {
     .execute();
 }
 
-export async function orderProducts(id: int) {
+export async function orderProducts(id: number) {
   return await SQL.DB.selectFrom("boxes")
     .selectAll()
     .where("order_id", "=", id)
+    .orderBy("date_created", "desc")
     .execute();
 }
 
-export function ordersByCustomerId(customer_id: int) {
+export function ordersByCustomerId(customer_id: number) {
   return SQL.DB.selectFrom("orders")
     .selectAll()
     .where("customer_id", "=", customer_id)
+    .orderBy("date_created", "desc")
     .execute();
 }
 
-export async function getOrder(id: int) {
+export async function getOrder(id: number) {
   const [result] = await SQL.DB.selectFrom("orders")
     .selectAll()
     .where("id", "=", id)
@@ -104,7 +128,7 @@ export async function getOrder(id: int) {
   return result
 }
 
-export async function getOrderCustomerId(id: int, customer_id: int) {
+export async function getOrderCustomerId(id: number, customer_id: number) {
   const [result] = await SQL.DB.selectFrom("orders")
     .selectAll()
     .where("id", "=", id)

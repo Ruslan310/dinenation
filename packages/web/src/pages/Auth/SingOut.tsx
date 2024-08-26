@@ -2,7 +2,7 @@ import React from 'react';
 import {Form, Input} from "antd";
 import styles from "./Auth.module.css";
 import {EyeOutlined} from "@ant-design/icons";
-import closeEye from "../../assets/image/EyeClosed.svg";
+import closeEye from "../../assets/image/eyeClosed.svg";
 import Button from "../../components/Button/Button";
 import smile from "../../assets/image/smile.svg";
 

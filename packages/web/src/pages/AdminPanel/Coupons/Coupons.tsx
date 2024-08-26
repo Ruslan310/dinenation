@@ -22,7 +22,6 @@ const Coupons = () => {
   const [_, deleteCoupon] = useTypedMutation((opts: {id: number}) => ({
     deleteCoupon: {
       __args: opts,
-      id: true,
     },
   }));
   const deleteItem = async (id: number) => {

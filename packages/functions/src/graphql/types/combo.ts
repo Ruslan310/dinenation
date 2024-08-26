@@ -1,6 +1,6 @@
 import {Combo} from "@dinenation-postgresql/core/combo";
-import { SQL } from "@dinenation-postgresql/core/sql";
-import { builder } from "../builder";
+import {SQL} from "@dinenation-postgresql/core/sql";
+import {builder} from "../builder";
 import {ProductType} from "./product";
 
 
@@ -9,8 +9,8 @@ const ComboType = builder.objectRef<SQL.Row["combo"]>("Combo").implement({
     return ({
       id: t.exposeInt("id"),
       title: t.exposeString("title"),
-      coupon_id: t.exposeInt("coupon_id"),
-      price: t.exposeString("price"),
+      domain_id: t.exposeInt("domain_id"),
+      price: t.exposeFloat("price"),
       type: t.exposeString("type"),
       image: t.exposeString("image"),
       description: t.exposeString("description", {nullable: true}),
@@ -28,7 +28,7 @@ const ComboProductType = builder.objectRef<SQL.Row["combo_product"]>("ComboProdu
   fields: (t) => ({
     product_id: t.exposeInt("product_id"),
     combo_id: t.exposeInt("combo_id"),
-    price: t.exposeString("price"),
+    price: t.exposeFloat("price"),
     dish_type: t.exposeString("dish_type"),
   }),
 });
@@ -52,9 +52,9 @@ builder.queryFields((t)=> ({
   combosByCoupon: t.field({
     type: [ComboType],
     args: {
-      coupon_id: t.arg.int({required: true}),
+      domain_id: t.arg.int({required: true}),
     },
-    resolve: (_, args) => Combo.getCombosByCoupon(args.coupon_id),
+    resolve: (_, args) => Combo.getCombosByCoupon(args.domain_id),
   }),
   combosList: t.field({
     type: [ComboType],
@@ -67,7 +67,7 @@ builder.mutationFields((t) => ({
     type: ComboType,
     resolve: (_, args) => Combo.addCombo(
       args.title,
-      args.coupon_id,
+      args.domain_id,
       args.price,
       args.type,
       args.image,
@@ -77,8 +77,8 @@ builder.mutationFields((t) => ({
     ),
     args: {
       title: t.arg.string({required: true}),
-      coupon_id: t.arg.int({required: true}),
-      price: t.arg.string({required: true}),
+      domain_id: t.arg.int({required: true}),
+      price: t.arg.float({required: true}),
       type: t.arg.string({required: true}),
       image: t.arg.string({required: true}),
       description: t.arg.string({required: false}),
@@ -91,8 +91,8 @@ builder.mutationFields((t) => ({
     args: {
       id: t.arg.int({required: true}),
       title: t.arg.string({required: true}),
-      coupon_id: t.arg.int({required: true}),
-      price: t.arg.string({required: true}),
+      domain_id: t.arg.int({required: true}),
+      price: t.arg.float({required: true}),
       type: t.arg.string({required: true}),
       image: t.arg.string({required: true}),
       description: t.arg.string({required: false}),
@@ -102,7 +102,7 @@ builder.mutationFields((t) => ({
     resolve: (_, args) => Combo.updateCombo(
       args.id,
       args.title,
-      args.coupon_id,
+      args.domain_id,
       args.price,
       args.type,
       args.image,
@@ -124,7 +124,7 @@ builder.mutationFields((t) => ({
     args: {
       product_id: t.arg.int({required: true}),
       combo_id: t.arg.int({required: true}),
-      price: t.arg.string({required: true}),
+      price: t.arg.float({required: true}),
       dish_type: t.arg.string({required: true}),
     },
     resolve: (_, args) => Combo.addComboProducts(
@@ -135,8 +135,7 @@ builder.mutationFields((t) => ({
     ),
   }),
   deleteComboProduct: t.field({
-    type: ComboProductType,
-    nullable: true,
+    type: 'Boolean',
     args: {
       combo_id: t.arg.int({required: true}),
     },

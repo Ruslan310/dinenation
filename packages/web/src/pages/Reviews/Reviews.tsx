@@ -1,36 +1,33 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import styles from "./Reviews.module.css";
 import Navbar from "../../components/Navbar/Navbar";
 import ContactUsSvg from "../../components/svg/ContactUsSvg";
+import {Rate} from "antd";
+import rateSvg from '../../assets/image/rateSvg.svg'
+import {useTypedQuery} from "@dinenation-postgresql/graphql/urql";
+import {MainContext} from "../../contexts/MainProvider";
+import Loading from "../../components/Loader/Loading";
+import dayjs from "dayjs";
 
 const Reviews = () => {
-  const comments = [
-    {
-      date: '02.04.2024',
-      dishName: 'Mussel and Prawns Curry Ragout',
-      comment: "Quasi quo sit suscipit tempora aperiam rerum placeat id. Voluptatem praesentium excepturi id. Repudiandae incidunt doloremque. Error est et ullam.",
+  const {userData} = useContext(MainContext);
+
+  const [reviews] = useTypedQuery({
+    query: {
+      userReviews: {
+        __args: {
+          user_id: userData?.id || 0
+        },
+        id: true,
+        user_id: true,
+        review: true,
+        rate: true,
+        dish_name: true,
+        date_created: true,
+      },
     },
-    {
-      date: '05.04.2024',
-      dishName: 'Pelmeni Potato & Mushrooms',
-      comment: "Quasi quo sit suscipit tempora aperiam rerum placeat id. Voluptatem praesentium excepturi id. Repudiandae incidunt doloremque. Lorem Ipsum is simply dummy text of the printing and  typesetting industry. Lorem Ipsum has been the industry's standard dummy  text ever since the 1500s, when an unknown printer took a galley of  type and scrambled it to make a type specimen book. It has survived not  only five centuries, but also the leap into electronic typesetting,  remaining essentially unchanged. It was popularised in the 1960s with  the release of Letraset sheets containing Lorem Ipsum passages, and more  recently with desktop publishing software like Aldus PageMaker  including versions of Lorem Ipsum.",
-    },
-    {
-      date: '14.05.2024',
-      dishName: 'Pelmeni Chicken',
-      comment: "Lorem Ipsum is simply dummy text of the printing and  typesetting industry. Lorem Ipsum has been the industry's standard dummy  text ever since the 1500s, when an unknown printer took a galley of  type and scrambled it to make a type specimen book. It has survived not  only five centuries, but also the leap into electronic typesetting,  remaining essentially unchanged. It was popularised in the 1960s with  the release of Letraset sheets containing Lorem Ipsum passages, and more  recently with desktop publishing software like Aldus PageMaker  including versions of Lorem Ipsum.",
-    },
-    {
-      date: '18.06.2024',
-      dishName: 'Mexican Chilli Beans',
-      comment: "Quasi quo sit suscipit tempora aperiam rerum placeat id. Voluptatem praesentium excepturi id. Repudiandae incidunt doloremque. Error est et ullam.",
-    },
-    {
-      date: '23.02.2024',
-      dishName: 'Greek Salad',
-      comment: "Lorem Ipsum is simply dummy text of the printing and  typesetting industry. Lorem Ipsum has been the industry's standard dummy  text ever since the 1500s, when an unknown printer took a galley of  type and scrambled it to make a type specimen book. It has survived not  only five centuries, but also the leap into electronic typesetting,  remaining essentially unchanged. It was popularised in the 1960s with  the release of ",
-    },
-  ]
+  });
+  console.log('----reviews', reviews)
 
   return (
     <div className={styles.page}>
@@ -38,17 +35,27 @@ const Reviews = () => {
       <div className={styles.infoContainer}>
         <div className={styles.titleContainer}>
           <ContactUsSvg color='#1C1C1C'/>
-          <p>You've left {comments.length} comments</p>
+          <p>You've left {reviews?.data?.userReviews.length || 0} comments</p>
         </div>
-        {comments && comments.map(comment => (
-          <div className={styles.commentsContainer}>
-            <p className={styles.commentsDate}>{comment.date}</p>
-            <div className={styles.commentsText}>
-              <p>{comment.dishName}</p>
-              <span>{comment.comment}</span>
-            </div>
+        {reviews.fetching ?
+          <Loading/> :
+          <div className={styles.commentsList}>
+            {reviews.data?.userReviews.map(review => (
+              <div key={review.id} className={styles.commentsContainer}>
+                <p className={styles.commentsDate}>
+                  {dayjs(review?.date_created).format('YYYY-MM-DD')}
+                </p>
+                <div className={styles.commentsText}>
+                  <div className={styles.headerContainer}>
+                    <p>{review.dish_name}</p>
+                    <Rate character={<img src={rateSvg} alt=''/>} disabled count={review.rate}/>
+                  </div>
+                  <span>{review.review}</span>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        }
       </div>
     </div>
   );

@@ -1,13 +1,11 @@
 export * as Combo from "./combo";
 import {SQL} from "./sql";
 import {sql} from "kysely";
-import {int} from "aws-sdk/clients/datapipeline";
-
 
 export async function addCombo(
   title: string,
-  coupon_id: int,
-  price: string,
+  domain_id: number,
+  price: number,
   type: string,
   image: string,
   description: string | null | undefined,
@@ -17,7 +15,7 @@ export async function addCombo(
   const [result] = await SQL.DB.insertInto("combo")
     .values({
       title,
-      coupon_id,
+      domain_id,
       price,
       date_updated: sql`now()`,
       type,
@@ -34,7 +32,7 @@ export async function addCombo(
 export async function addComboProducts(
   product_id: number,
   combo_id: number,
-  price: string,
+  price: number,
   dish_type: string,
 ) {
   const [result] = await SQL.DB.insertInto("combo_product")
@@ -51,10 +49,10 @@ export async function addComboProducts(
 }
 
 export async function updateCombo(
-  id: int,
+  id: number,
   title: string,
-  coupon_id: int,
-  price: string,
+  domain_id: number,
+  price: number,
   type: string,
   image: string,
   description: string | null | undefined,
@@ -64,7 +62,7 @@ export async function updateCombo(
   const [result] = await SQL.DB.updateTable("combo")
     .set({
       title,
-      coupon_id,
+      domain_id,
       price,
       date_updated: sql`now()`,
       type,
@@ -79,7 +77,7 @@ export async function updateCombo(
   return result;
 }
 
-export async function deleteCombo(id: int) {
+export async function deleteCombo(id: number) {
   await SQL.DB.deleteFrom("combo_product")
     .where("combo_id", "=", id)
     .execute();
@@ -89,15 +87,15 @@ export async function deleteCombo(id: int) {
     .executeTakeFirst();
 }
 
-export async function deleteComboProduct(id: int) {
+export async function deleteComboProduct(id: number) {
   await SQL.DB.deleteFrom("combo_product")
     .where('combo_id', '=', id)
     .execute();
-  const [result] = await SQL.DB.selectFrom("combo_product")
+  await SQL.DB.selectFrom("combo_product")
     .selectAll()
     .where("combo_id", "=", id)
     .execute();
-  return result
+  return true;
 }
 
 export function combos() {
@@ -107,14 +105,14 @@ export function combos() {
     .execute();
 }
 
-export function getCombosByCoupon(coupon_id: int) {
+export function getCombosByCoupon(domain_id: number) {
   return SQL.DB.selectFrom("combo")
     .selectAll()
-    .where("coupon_id", "=", coupon_id)
+    .where("domain_id", "=", domain_id)
     .execute();
 }
 
-export async function comboProducts(id: int) {
+export async function comboProducts(id: number) {
   const productIdList = await SQL.DB.selectFrom("combo_product")
     .selectAll()
     .where("combo_id", "=", id)
@@ -136,7 +134,7 @@ export async function comboProducts(id: int) {
     });
 }
 
-export async function getCombo(id: int) {
+export async function getCombo(id: number) {
   const [result] = await SQL.DB.selectFrom("combo")
     .selectAll()
     .where("id", "=", id)

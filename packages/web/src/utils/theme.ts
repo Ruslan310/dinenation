@@ -7,6 +7,7 @@ export const colorTheme = {
   navbar: '#EFF3F4',
   black: '#000000',
   white: '#FFFFFF',
+  rate: '#F1AC1D',
 }
 
 export const statusColorIcon: Record<TStatusType, string> = {
@@ -21,7 +22,7 @@ export const statusColorText: Record<TStatusType, string> = {
   'completed': colorTheme.active,
   'cancelled': '#68696D',
   'processing': colorTheme.darkPrimary,
-  'cancel-request': '#F1AC1D',
+  'cancel-request': colorTheme.rate,
   'on-hold': '#567DD2',
 }
 

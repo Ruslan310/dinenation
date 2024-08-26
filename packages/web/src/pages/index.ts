@@ -23,3 +23,4 @@ export { default as UpdateSideDish } from '../pages/AdminPanel/SideDishes/Update
 export { default as Coupons } from '../pages/AdminPanel/Coupons/Coupons';
 export { default as AddCoupon } from '../pages/AdminPanel/Coupons/AddCoupon';
 export { default as UpdateCoupon } from '../pages/AdminPanel/Coupons/UpdateCoupon';
+export { default as NotFound } from '../pages/NotFound/NotFound';

@@ -6,6 +6,7 @@ import styles from "./Sauces.module.css";
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
 import Loading from "../../../components/Loader/Loading";
 import {ProductStatus} from "../../../utils/utils";
+import {NotFound} from "../../index";
 
 interface SauceForm {
   id: number;
@@ -21,6 +22,15 @@ const UpdateSauces = () => {
   const currentSauceId = Number(currentId?.id) as number
   const navigate = useNavigate();
   const [form] = Form.useForm();
+
+  const isValidId = (id: string | undefined): boolean => {
+    return id !== undefined && /^\d+$/.test(id);
+  };
+
+  if (!isValidId(currentId.id)) {
+    return <NotFound />;
+  }
+
   const [sauce] = useTypedQuery({
     query: {
       sauce: {

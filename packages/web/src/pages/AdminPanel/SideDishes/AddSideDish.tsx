@@ -6,8 +6,10 @@ import {Button, Form, Input, message, Select} from 'antd';
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
 import {EColorSideDishList, ProductStatus} from "../../../utils/utils";
 
-interface SaucesForm {
+interface SideDishForm {
   title: string;
+  type: string;
+  status: string;
 }
 
 const key = 'updatable';
@@ -15,7 +17,8 @@ const key = 'updatable';
 const AddSideDish = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const [_, addDish] = useTypedMutation((opts: SaucesForm) => ({
+
+  const [_, addDish] = useTypedMutation((opts: SideDishForm) => ({
     addSideDish: {
       __args: opts,
       id: true,

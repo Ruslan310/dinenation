@@ -1,11 +1,9 @@
 export * as Office from "./office";
 import {SQL} from "./sql";
 import {sql} from "kysely";
-import {int} from "aws-sdk/clients/datapipeline";
-
 
 export async function addOffice(
-  coupon_id: int,
+  coupon_id: number,
   title: string,
 ) {
   const [result] = await SQL.DB.insertInto("office")
@@ -20,8 +18,8 @@ export async function addOffice(
 }
 
 export async function updateOffice(
-  id: int,
-  coupon_id: int,
+  id: number,
+  coupon_id: number,
   title: string,
 ) {
   const [result] = await SQL.DB.updateTable("office")
@@ -36,11 +34,11 @@ export async function updateOffice(
   return result;
 }
 
-export async function deleteOffice(id: int) {
-  return await SQL.DB.deleteFrom("office")
+export async function deleteOffice(id: number) {
+  await SQL.DB.deleteFrom("office")
     .where('coupon_id', '=', id)
-    .returningAll()
-    .executeTakeFirst();
+    .execute();
+  return true;
 }
 
 export function offices() {
@@ -50,7 +48,7 @@ export function offices() {
     .execute();
 }
 
-export async function getOffice(id: int) {
+export async function getOffice(id: number) {
   const [result] = await SQL.DB.selectFrom("office")
     .selectAll()
     .where("id", "=", id)
@@ -58,7 +56,7 @@ export async function getOffice(id: int) {
   return result
 }
 
-export async function getOfficesByCoupon(coupon_id: int) {
+export async function getOfficesByCoupon(coupon_id: number) {
   return await SQL.DB.selectFrom("office")
     .selectAll()
     .where("coupon_id", "=", coupon_id)

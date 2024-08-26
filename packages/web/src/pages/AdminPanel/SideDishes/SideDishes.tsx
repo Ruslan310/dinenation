@@ -20,14 +20,18 @@ const SideDishes = () => {
   });
 
   const [_, deleteDishes] = useTypedMutation((opts: {id: number}) => ({
-    deleteSideDishes: {
+    deleteSideDish: {
       __args: opts,
     },
   }));
 
   const deleteItem = async (id: number) => {
-    let result = await deleteDishes({id: id})
-    console.log('------result', result)
+    try {
+      let result = await deleteDishes({id: id})
+      console.log('------result', result)
+    } catch (err) {
+      console.log('---err', err)
+    }
   }
 
   return (

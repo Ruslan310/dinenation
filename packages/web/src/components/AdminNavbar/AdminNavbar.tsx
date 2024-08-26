@@ -1,6 +1,5 @@
 import React from 'react';
 import styles from "./AdminNavbar.module.css";
-import logo from "../../assets/image/Logo_v.svg";
 import {ConfigProvider, Menu} from "antd";
 import {useNavigate} from "react-router-dom";
 import type { MenuProps } from 'antd';
@@ -10,6 +9,7 @@ import HistorySvg from "../svg/HistorySvg";
 import ReviewsSvg from "../svg/ReviewsSvg";
 import ContactUsSvg from "../svg/ContactUsSvg";
 import {colorTheme} from "../../utils/theme";
+import LogoSvg, {logoType} from "../svg/LogoSvg";
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const AdminNavbar = () => {
 
   return (
     <div className={styles.navbarContainer}>
-      <img src={logo} alt="" onClick={() => navigate('/')} style={{cursor: 'pointer'}}/>
+      <LogoSvg type={logoType.VERTICAL} click={() => navigate('/')} style={{cursor: 'pointer'}}/>
       <ConfigProvider
         theme={{
           components: {

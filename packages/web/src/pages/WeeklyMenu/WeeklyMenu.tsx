@@ -4,36 +4,36 @@ import {useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import Loading from "../../components/Loader/Loading";
 import Empty from "../../components/Empty";
 import {useNavigate} from "react-router-dom";
-import {ConfigProvider, Modal, Radio} from "antd";
-import calories from "../../assets/image/calories.svg";
+import {Modal} from "antd";
 import checked from '../../assets/image/checked.svg'
-import logo from '../../assets/image/Logo_v.svg'
-import SideDishSvg from "../../components/svg/SideDishSvg";
 import Avatar from "../../components/Avatar/Avatar";
-import {EWEEK_DAY} from "../../utils/utils";
-import {
-  ComponentType,
-  DishType,
-  EAllergensList,
-  EColorSideDishList,
-} from "../../utils/utils";
+import {EWEEK_DAY, WEEKDAY_ORDER} from "../../utils/utils";
+import {ComponentType, DishType} from "../../utils/utils";
 import CartSvg from "../../components/svg/CartSvg";
-import AllergensSvg from "../../components/svg/AllergensSvg";
-import {ProductForm} from "../AdminPanel/Product/UpdateProduct";
 import ProductItem from "./ProductItem";
 import closeImage from "../../assets/image/closeImage.svg";
-import arrowRight from "../../assets/image/arrowRight.svg";
 import Button from "../../components/Button/Button";
 import {MainContext} from "../../contexts/MainProvider";
 import styles from "./WeeklyMenu.module.css";
-import {colorTheme, colorSideDishList} from "../../utils/theme";
-import {currency} from "../../utils/handle";
+import {colorTheme} from "../../utils/theme";
+import {
+  capitalizeFirstLetter,
+  currency,
+  currentDayIndex,
+  encryptData,
+  generateUniqueId, openDay, openWeek,
+} from "../../utils/handle";
+import ArrowsSwg from "../../components/svg/ArrowsSWG";
+import LogoSvg, {logoType} from "../../components/svg/LogoSvg";
+import WaitDish from "./WaitDish";
+import {ProductForm, SideDishType} from "../../utils/type";
+import DishPopup from "./DishPopup";
 
 
 export interface ComboForm {
   id: number;
   title: string;
-  price: string;
+  price: number;
   type: string;
   image: string;
   description: string | null | undefined;
@@ -47,7 +47,7 @@ export interface CartList {
   day: EWEEK_DAY;
   isBlockDay: boolean;
   office?: string;
-  price?: string;
+  price?: number;
   products: {
     [DishType.MAIN]?: ProductForm;
     [DishType.SECOND]?: ProductForm;
@@ -57,24 +57,26 @@ export interface CartList {
   [DishType.SAUCE]?: string;
 }
 
-interface SideDishType {
-  title: string;
-  type: string;
+export interface AddCartType {
+  product?: ProductForm;
+  sauce?: string;
+  sideDish?: SideDishType;
+  isBlockDay: boolean;
 }
-
-const noSauce = 'no sauce'
-
-const generateUniqueId = (): number => Math.floor(Date.now() % 1000000000 + Math.random() * 1000);
 
 const WeeklyMenu = () => {
   const navigate = useNavigate();
-  const days = Object.values(EWEEK_DAY);
+  const [daysList, setDaysList] = useState<EWEEK_DAY[]>([]);
   const [showResizeModal, setShowResizeModal] = useState<string>('')
   const [showProductInfo, setShowProductInfo] = useState<number>()
   const [selectDay, setSelectDay] = useState<EWEEK_DAY>(EWEEK_DAY.MONDAY)
   const [selectCombo, setSelectCombo] = useState<ComboForm | undefined>(undefined);
   const {cartList, setCartList, userData} = useContext(MainContext);
   const pageRef = useRef<HTMLDivElement>(null);
+
+  const changeTimeMenu = (): boolean => {
+    return false
+  }
 
   const [sideDishes] = useTypedQuery({
     query: {
@@ -90,11 +92,10 @@ const WeeklyMenu = () => {
     query: {
       combosByCoupon: {
         __args: {
-          coupon_id: userData?.domain_id
+          domain_id: userData?.coupon.domain.id || 0
         },
         id: true,
         title: true,
-        coupon_id: true,
         description: true,
         price: true,
         image: true,
@@ -117,13 +118,39 @@ const WeeklyMenu = () => {
   });
 
   useEffect(() => {
-    const currentCombo = combos.data?.combosByCoupon.find(comboDay => comboDay.week_day === EWEEK_DAY.MONDAY.toUpperCase());
-    setSelectCombo(currentCombo as ComboForm | undefined);
+    const currentCombo = combos.data?.combosByCoupon;
+    if (currentCombo && currentCombo.length > 0) {
+      const todayIndex = currentDayIndex; // Индекс текущего дня
+      const isAfterTenAM = openDay(); // Проверка, после ли 10:00 текущее время
+      const isFriday = currentDayIndex === WEEKDAY_ORDER.indexOf(EWEEK_DAY.FRIDAY); // Проверка, что текущий день — пятница
+
+      let days: EWEEK_DAY[];
+
+      if (isFriday && openWeek()) {
+        days = WEEKDAY_ORDER.slice() as EWEEK_DAY[];
+      } else if (isFriday && isAfterTenAM) {
+        days = [];
+      } else {
+        days = currentCombo
+          .map(combo => capitalizeFirstLetter(combo.week_day))
+          .filter(day => {
+            const dayIndex = WEEKDAY_ORDER.indexOf(day as EWEEK_DAY);
+            return dayIndex > todayIndex || (dayIndex === todayIndex && !isAfterTenAM);
+          }) as EWEEK_DAY[];
+      }
+
+      setDaysList(days);
+
+      if (days.length > 0) {
+        handleSelectDay(days[0]);
+      }
+    }
   }, [combos.data]);
+
 
   useEffect(() => {
     if (pageRef.current) {
-      pageRef.current.scrollIntoView({ behavior: 'smooth' });
+      pageRef.current.scrollIntoView({behavior: 'smooth'});
     }
   }, [selectDay]);
 
@@ -136,7 +163,7 @@ const WeeklyMenu = () => {
     setSelectDay(day)
     setSelectCombo(currentCombo as ComboForm | undefined);
   }
-  const isBlockDay = (day: EWEEK_DAY) => cartList.find(list => list.day === day)?.isBlockDay ?? false;
+  const isBlockDay = (day: EWEEK_DAY): boolean => cartList.find(list => list.day === day)?.isBlockDay ?? false;
   const closeModal = () => setShowResizeModal('')
 
   const productSelectHandle = (e: React.MouseEvent, image: string) => {
@@ -148,9 +175,9 @@ const WeeklyMenu = () => {
 
   const handleNextDay = () => {
     addToCart({isBlockDay: true})
-    const currentIndex = days.indexOf(selectDay);
-    for (let i = 1; i < days.length; i++) {
-      const nextDay = days[(currentIndex + i) % days.length];
+    const currentIndex = daysList?.indexOf(selectDay);
+    for (let i = 1; i < daysList?.length; i++) {
+      const nextDay = daysList && daysList[(currentIndex + i) % daysList.length];
       if (!isBlockDay(nextDay)) {
         handleSelectDay(nextDay)
         break
@@ -158,32 +185,26 @@ const WeeklyMenu = () => {
     }
   }
 
+  const weekDaysList= daysList?.map(day => (
+    <div
+      key={day}
+      onClick={() => handleSelectDay(day)}
+      className={classNames(
+        styles.daysBlock,
+        {
+          [styles.selectDay]: selectDay === day,
+          [styles.closeDay]: isBlockDay(day)
+        })}>
+      <img src={checked} alt=""/>
+      <span>{day}</span>
+    </div>
+  ));
 
-  {/* список дней недели */}
-  const weekList= days.map(day => {
-    return (
-      <div
-        key={day}
-        onClick={() => handleSelectDay(day)}
-        className={classNames(
-          styles.daysBlock,
-          {
-            [styles.selectDay]: selectDay === day,
-            [styles.closeDay]: isBlockDay(day)
-          })}>
-        <img src={checked} alt=""/>
-        <span>{day}</span>
-      </div>
-    )
-  })
-
-  console.log('----cartList', cartList)
-
-  const addToCart = ({product, sauce = '', sideDish, isBlockDay = false}: {product?: ProductForm, sauce?: string, sideDish?: SideDishType, isBlockDay: boolean}) => {
+  const addToCart = ({product, sauce = '', sideDish, isBlockDay = false}: AddCartType) => {
     setCartList((prevState: CartList[]) => {
       const updatedCartList = prevState.map(cartItem => {
         if (cartItem.day === selectDay) {
-          // Обновляем существующий день
+          // update current day in cart
           return {
             ...cartItem,
             isBlockDay: cartItem.isBlockDay || isBlockDay,
@@ -195,7 +216,7 @@ const WeeklyMenu = () => {
             [DishType.SIDE]: sideDish ? {
               ...cartItem[DishType.SIDE],
               ...sideDish,
-              title: sideDish.title ?? cartItem[DishType.SIDE]?.title, // Приведение типа и использование дефолтного значения
+              title: sideDish.title ?? cartItem[DishType.SIDE]?.title,
             } : cartItem[DishType.SIDE],
             [DishType.SAUCE]: product?.dish_type === DishType.MAIN ? sauce : cartItem[DishType.SAUCE],
           };
@@ -203,7 +224,7 @@ const WeeklyMenu = () => {
         return cartItem;
       });
 
-      // Если день не найден в массиве, добавляем новый объект
+      // if day don`t fide in arr, add new object
       if (!updatedCartList.some(cartItem => cartItem?.day === selectDay)) {
         updatedCartList.push({
           id: generateUniqueId(),
@@ -211,113 +232,28 @@ const WeeklyMenu = () => {
           isBlockDay: isBlockDay,
           price: selectCombo?.price,
           products: {
-            [String(product?.dish_type)]: product, // Преобразуем в строку
+            [String(product?.dish_type)]: product,
           },
           [DishType.SIDE]: sideDish,
           [DishType.SAUCE]: sauce,
         });
       }
+      const jsonData = JSON.stringify(updatedCartList);
+      const encryptedData = encryptData(jsonData);
+      localStorage.setItem('cartList', encryptedData);
 
       return updatedCartList;
     });
     setShowProductInfo(undefined);
   };
 
-  {/* попап в меин меню */}
-  const popoverContent = (data: ProductForm, isMain: boolean) => {
-    const [selectSauce, setSelectSauce] = useState<string>('')
-    const [selectSideDish, setSideDish] = useState<SideDishType>()
-    const [colorSideDish, setColorSideDish] = useState<string>('')
-
-    return (
-      <div className={styles.popoverContent}>
-        <div className={styles.popoverCategories}>
-          <p className={styles.titlePopover}>Categories: {data.categories}</p>
-          <p className={styles.subTextPopover}>{data?.description}</p>
-          <div className={styles.calories}>
-            <img src={calories} alt=""/>
-            <p>{data.calories || 0} calories</p>
-          </div>
-          <div className={styles.blockAllergen}>
-            <p className={styles.titlePopover}>List of allergens</p>
-            <div>
-              {data.allergens?.length
-                ? data.allergens?.split(',').map((allergen: string) =>
-                  <AllergensSvg key={allergen} type={allergen as EAllergensList} className={styles.imageAllergen}/>
-                )
-                : <div>no allergens</div>}
-            </div>
-          </div>
-          {data.sauces && data.sauces.length && isMain &&
-            <div className={styles.popoverSauceBlock}>
-              <p className={styles.titlePopover}>Choose a Sauce</p>
-              <ConfigProvider theme={{token: {paddingXS: 16, colorPrimary: colorTheme.black}}}>
-                <Radio.Group onChange={e => setSelectSauce(e.target.value)} value={selectSauce}>
-                  {data.sauces?.split(',').map((sauce: string, index: number) =>
-                    <Radio key={`${index}-${sauce}`} value={sauce}>{sauce}</Radio>)}
-                  <Radio value={noSauce}>{noSauce}</Radio>
-                </Radio.Group>
-              </ConfigProvider>
-            </div>
-          }
-        </div>
-        <div className={styles.popoverChoose}>
-          {isMain ?
-            <div>
-              <p className={styles.titlePopover}>Choose Side Dish</p>
-              <div className={styles.sideDishBlock}>
-                {/* стили для радио батон */}
-                <ConfigProvider theme={{token: {colorPrimary: colorSideDish, fontSize: 12}}}>
-                  <Radio.Group value={selectSideDish?.title}>
-                    {sideDishes.data?.sideDishes.map(({type, title}) =>
-                      <Radio
-                        style={{backgroundColor: selectSideDish?.title === title ? colorSideDish : colorTheme.navbar}}
-                        className={styles.sideDishRadioItem}
-                        onClick={() => {
-                          setColorSideDish(colorSideDishList[type as EColorSideDishList])
-                          setSideDish({
-                            title: title,
-                            type: type
-                          })
-                        }}
-                        value={title}
-                        key={type}
-                      >
-                        <div className={styles.sideDishRadioContent}>
-                          <SideDishSvg type={type} active={selectSideDish?.title === title}/>
-                          <span>{title}</span>
-                        </div>
-                      </Radio>
-                    )}
-                  </Radio.Group>
-                </ConfigProvider>
-              </div>
-            </div>
-            : <div></div>
-          }
-          <Button
-            icon={<CartSvg color={colorTheme.white} style={{marginLeft: '8px'}}/>}
-            iconPosition='right'
-            disabled={isMain
-              && (!selectSideDish?.title || (data.sauces.length > 0 && !selectSauce))
-              || isBlockDay(selectDay)}
-            onClick={() => addToCart({
-              product: data,
-              sauce: selectSauce,
-              sideDish: selectSideDish,
-              isBlockDay: false,
-            })}>
-            <p>Add to Cart</p>
-          </Button>
-        </div>
-      </div>
-    )
-  };
-
+  // if (changeTimeMenu()) {
+  //   return <WaitDish />
+  // }
 
   return (
     <div className={styles.home}>
-      {/* ресайз картинки */}
+      {/* show image modal */}
       <Modal
         closeIcon={<img src={closeImage} alt="component photo"/>}
         open={!!showResizeModal}
@@ -331,19 +267,20 @@ const WeeklyMenu = () => {
         }}
         style={{width: '900px'}}
       >
-        <img onClick={closeModal}
-             src={showResizeModal}
-             alt="full screen"
-             style={{
-               width: '100%',
-               height: 'auto',
-               maxHeight: '90vh'
-             }}
+        <img
+          onClick={closeModal}
+          src={showResizeModal}
+          alt="full screen"
+          style={{
+            width: '100%',
+            height: 'auto',
+            maxHeight: '90vh'
+          }}
         />
       </Modal>
       <div className={styles.navbar}>
-        <img style={{marginBottom: '64px'}} src={logo} alt=""/>
-        {weekList}
+        <LogoSvg type={logoType.VERTICAL} style={{marginBottom: '64px'}}/>
+        {weekDaysList}
         <div>
           <div
             onClick={() => navigate('checkout')}
@@ -355,10 +292,9 @@ const WeeklyMenu = () => {
           </div>
           <Avatar
             size={56}
-            fullName={userData?.full_name}
             classNamesContainer={styles.avatar}
             isActive
-            isActiveFn={() => navigate('history')}
+            click={() => navigate('history')}
           />
         </div>
       </div>
@@ -366,15 +302,16 @@ const WeeklyMenu = () => {
         <Loading/> :
         selectCombo ?
           <div className={styles.page}>
-            {/* футер батон */}
+            {/* footer */}
             <div className={styles.footerButtonBlock}>
               <Button
                 disabled={!isTypeDish(ComponentType.SECOND)}
                 onClick={handleNextDay}
-                iconPosition='right'
-                className={styles.nextButton}
-                icon={<img src={arrowRight} alt="" />}>
-                <p>Next</p>
+                className={styles.nextButton}>
+                <div className={styles.buttonContainer}>
+                  <p>Next</p>
+                  <ArrowsSwg type='right' color={colorTheme.white} />
+                </div>
               </Button>
               <Button
                 disabled={!isTypeDish(ComponentType.SECOND)}
@@ -383,12 +320,14 @@ const WeeklyMenu = () => {
                   navigate('checkout')
                 }}
                 iconPosition='right'
-                className={styles.checkoutButton}
-                icon={<CartSvg color={colorTheme.white} style={{marginLeft: '8px'}}/>}>
-                <p>Proceed to Checkout</p>
+                className={styles.checkoutButton}>
+                <div className={styles.buttonContainer}>
+                  <p>Proceed to Checkout</p>
+                  <CartSvg color={colorTheme.white} style={{marginLeft: '8px'}}/>
+                </div>
               </Button>
             </div>
-            {/* меин меню */}
+            {/* main menu */}
             <div ref={pageRef} style={{paddingTop: '23px'}}>
               <div className={styles.pageTitleBlock}>
                 <div className={styles.titleDish}>
@@ -410,11 +349,18 @@ const WeeklyMenu = () => {
                 showInfo={showProductInfo}
                 onProductClick={productSelectHandle}
                 setShowInfo={setShowProductInfo}
-                popoverHandle={popoverContent}
+                popoverHandle={(data) =>
+                  <DishPopup
+                    data={data}
+                    isMain
+                    sideDishes={sideDishes.data?.sideDishes || []}
+                    selectDay={selectDay}
+                    addToCart={addToCart}
+                  />}
                 isMain
               />
             </div>
-            {/* сайд меню */}
+            {/* side menu */}
             <div className={classNames(styles.productSection,
               {[styles.productSectionActive]: isTypeDish(ComponentType.MAIN)}
             )}>
@@ -434,7 +380,14 @@ const WeeklyMenu = () => {
                 showInfo={showProductInfo}
                 onProductClick={productSelectHandle}
                 setShowInfo={setShowProductInfo}
-                popoverHandle={popoverContent}
+                popoverHandle={(data) =>
+                  <DishPopup
+                    data={data}
+                    isMain
+                    sideDishes={sideDishes.data?.sideDishes || []}
+                    selectDay={selectDay}
+                    addToCart={addToCart}
+                  />}
               />
             </div>
             <div className={classNames(styles.productSection,
@@ -456,11 +409,19 @@ const WeeklyMenu = () => {
                 showInfo={showProductInfo}
                 onProductClick={productSelectHandle}
                 setShowInfo={setShowProductInfo}
-                popoverHandle={popoverContent}
+                popoverHandle={(data) =>
+                  <DishPopup
+                    data={data}
+                    isMain
+                    sideDishes={sideDishes.data?.sideDishes || []}
+                    selectDay={selectDay}
+                    addToCart={addToCart}
+                />}
               />
             </div>
           </div>
-          : <Empty>&#10024; Product list is empty &#10024;</Empty>
+          // : <Empty>&#10024; Dish list is empty &#10024;</Empty>
+          : <WaitDish />
       }
     </div>
   );

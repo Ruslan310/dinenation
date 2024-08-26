@@ -29,6 +29,7 @@
     justify-content: center;
     align-items: center;
     display: flex;
+    user-select: none;
     & p {
         font-size: 22px;
         font-weight: var(--font-weight-bolt);
@@ -45,7 +46,9 @@
     justify-content: center;
     border-radius: 50%;
     background-color: var(--color-navbar);
-    cursor: pointer;
+    &:hover {
+        box-shadow: 0 0 4px 0 #A8B6C78F;
+    }
 }
 
 
@@ -54,4 +57,11 @@
     font-size: 18px;
     line-height: 27px;
     font-weight: var(--font-weight-wbolt);
+}
+
+.spinContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

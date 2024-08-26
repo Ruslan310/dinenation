@@ -13,8 +13,8 @@ const {TextArea} = Input;
 
 interface ComboForm {
   title: string;
-  coupon_id: string;
-  price: string;
+  domain_id: number;
+  price: number;
   type: string;
   image: string;
   description: string;
@@ -25,7 +25,7 @@ interface ComboForm {
 interface ComboProductForm {
   product_id: number;
   combo_id: number;
-  price: string;
+  price: number;
   dish_type: ComponentType;
 }
 
@@ -45,9 +45,9 @@ const AddComboMenu = () => {
     },
   }));
 
-  const [coupons] = useTypedQuery({
+  const [domains] = useTypedQuery({
     query: {
-      coupons: {
+      domains: {
         id: true,
         title: true,
       },
@@ -85,10 +85,10 @@ const AddComboMenu = () => {
     },
     {
       key: '2',
-      label: 'Side Products',
+      label: 'Second Products',
       children: (
         <SelectComboProduct
-          name="sideProducts"
+          name="secondProducts"
           arr={data?.products || []}
           placeholder={"Product name"}
           buttonText='Add Side Products'
@@ -118,18 +118,18 @@ const AddComboMenu = () => {
           <Input placeholder='Enter product name'/>
         </Form.Item>
         <Form.Item
-          name="coupon_id"
+          name="domain_id"
           rules={[{required: true, message: 'Select coupon!'}]}
           style={{display: 'inline-block'}}
           className={styles.field}
         >
           <Select<string, { value: string; children: string }>
-            placeholder="Select package type"
+            placeholder="Select coupon"
             filterOption={(input, option) =>
               option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
             }
           >
-            {coupons.data?.coupons
+            {domains.data?.domains
               .map(({id, title}) => <Select.Option key={id} value={id}>{title}</Select.Option>)}
           </Select>
         </Form.Item>
@@ -145,7 +145,7 @@ const AddComboMenu = () => {
           <Select<string, { value: string; children: string }>
             placeholder="Select package type"
             filterOption={(input, option) =>
-              option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
+              option ? option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
             }
           >
             {Object.values(COMBO_TYPE)
@@ -201,20 +201,20 @@ const AddComboMenu = () => {
               message.loading({content: 'Saving component...', key});
               const {
                 title,
-                coupon_id,
+                domain_id,
                 price,
                 type,
                 description,
                 week_day,
                 status,
                 mainProducts,
-                sideProducts,
+                secondProducts,
                 dessertProducts
               } = form.getFieldsValue();
               const res = await addCombo({
                 title,
-                coupon_id,
-                price: price.toString(),
+                domain_id,
+                price,
                 type,
                 image: picture,
                 description,
@@ -224,33 +224,33 @@ const AddComboMenu = () => {
               if (res.data && res.data.addCombo.id) {
                 const comboId = res.data.addCombo.id
 
-                const addMainProducts = mainProducts?.map(({id, price}: { id: number, price: string }) =>
+                const addMainProducts = mainProducts?.map(({id, price}: {id: number, price: number}) =>
                   addComboProducts({
                     combo_id: comboId,
                     product_id: id,
-                    price: price.toString(),
+                    price,
                     dish_type: ComponentType.MAIN,
                   })
                 );
 
-                const addSideProducts = sideProducts?.map(({id, price}: { id: number, price: string }) =>
+                const addSecondProducts = secondProducts?.map(({id, price}: {id: number, price: number}) =>
                   addComboProducts({
                     combo_id: comboId,
                     product_id: id,
-                    price: price.toString(),
+                    price,
                     dish_type: ComponentType.SECOND,
                   })
                 );
 
-                const addDessertProducts = dessertProducts?.map(({id, price}: { id: number, price: string }) =>
+                const addDessertProducts = dessertProducts?.map(({id, price}: {id: number, price: number}) =>
                   addComboProducts({
                     combo_id: comboId,
                     product_id: id,
-                    price: price.toString(),
+                    price,
                     dish_type: ComponentType.DESSERT,
                   })
                 );
-                await Promise.all([...addMainProducts, ...addSideProducts, ...addDessertProducts]);
+                await Promise.all([...addMainProducts, ...addSecondProducts, ...addDessertProducts]);
               }
               message.success({content: 'Combo successfully saved!', key, duration: 2});
               res.data && navigate('/combo')

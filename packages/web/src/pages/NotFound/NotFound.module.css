@@ -1,0 +1,28 @@
+.container {
+    text-align: center;
+    padding: 50px;
+    height: 100vh;
+    background-color: var(--color-navbar);
+}
+
+.logo {
+    margin: 50px 0;
+}
+
+.title {
+    font-size: 2rem;
+    margin: 20px 0;
+    color: var(--color-base-select);
+}
+
+.message {
+    font-size: 1.2rem;
+    font-weight: var(--font-weight-lithg);
+}
+
+.button {
+    margin-top: 60px;
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+}

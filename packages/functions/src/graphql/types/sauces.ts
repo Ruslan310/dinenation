@@ -58,8 +58,7 @@ builder.mutationFields((t) => ({
     ),
   }),
   deleteSauces: t.field({
-    type: SaucesType,
-    nullable: true,
+    type: 'Boolean',
     args: {
       id: t.arg.int({required: true}),
     },

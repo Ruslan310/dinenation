@@ -2,6 +2,7 @@ import React from 'react';
 import {Form, message, Upload} from "antd";
 import axios from "axios";
 import {LoadingOutlined, PlusOutlined} from "@ant-design/icons";
+import {resizeImage} from "../../utils/handle";
 
 interface Props {
   load: boolean
@@ -20,7 +21,6 @@ const UploadPicture = ({
                          setPicture,
                          className,
                          name = "picture",
-                         link = 'https://e8dsho1l09.execute-api.us-east-1.amazonaws.com/image'
 }: Props) => {
 
   const uploadButton = (
@@ -37,16 +37,18 @@ const UploadPicture = ({
         listType="picture-card"
         className={className}
         showUploadList={false}
-        customRequest={async (options) => {
+        customRequest={async ({file}) => {
           setLoad(true)
           try {
-            const {data} = await axios.post(link);
+            const link = import.meta.env.VITE_GRAPHQL_URL.slice().slice(0, -8)
+            // const resizedFile = await resizeImage(file as File);
+            const {data} = await axios.post(`${link}/dishImage`);
             const {url} = await fetch(data, {
               method: "PUT",
               headers: {
                 "Content-Type": "multipart/form-data"
               },
-              body: options.file
+              body: file
             })
             const imageUrl = url.split('?')[0]
             setPicture(imageUrl);

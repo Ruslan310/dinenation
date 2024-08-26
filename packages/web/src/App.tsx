@@ -13,7 +13,7 @@ const App = () => {
   const authenticated = "authenticated";
 
   return (
-    authStatus === configuring || !authStatus || !authStatus ? (
+    authStatus === configuring || !authStatus || (authStatus === authenticated && !userData?.email) ? (
       <Loading />
     ) : authStatus === unauthenticated ? (
       <Auth />

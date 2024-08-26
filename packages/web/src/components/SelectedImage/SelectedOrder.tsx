@@ -1,7 +1,7 @@
 import React, {CSSProperties} from 'react';
 import styles from './SelectedOrder.module.css'
-import activeDay from "../../assets/image/activeDay.svg";
-import select from "../../assets/image/selectDay.svg";
+import ActiveDaySvg from "../svg/ActiveDaySvg";
+import SelectSvg from "../svg/SelectSvg";
 
 interface Props {
   className?: string;
@@ -13,8 +13,8 @@ interface Props {
 const SelectedOrder = ({className, image, isSelected, style}: Props) => (
   <div style={style} className={`${styles.container} ${className}`}>
     <img src={image} alt="component photo" className={styles.orderImage}/>
-    {isSelected && <img src={activeDay} alt="component photo" className={styles.selectImage}/>}
-    {isSelected && <img src={select} alt="component photo" className={styles.selectImageIcon}/>}
+    {isSelected && <ActiveDaySvg className={styles.selectImage}/>}
+    {isSelected && <SelectSvg className={styles.selectImageIcon}/>}
   </div>
 );
 

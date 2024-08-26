@@ -6,6 +6,7 @@
 export type Scalars = {
     Int: number,
     String: string,
+    Float: number,
     Boolean: boolean,
 }
 
@@ -15,6 +16,7 @@ export interface Boxes {
     image: Scalars['String']
     office: (Scalars['String'] | null)
     order_id: Scalars['Int']
+    price: Scalars['Int']
     sauce: (Scalars['String'] | null)
     side_dish: (Scalars['String'] | null)
     side_dish_type: (Scalars['String'] | null)
@@ -25,12 +27,33 @@ export interface Boxes {
     __typename: 'Boxes'
 }
 
-export interface Combo {
+export interface CheckUser {
+    checkDomain: CheckUserDomain[]
+    checkEmail: CheckUserEmail[]
+    coupons: Coupons[]
+    __typename: 'CheckUser'
+}
+
+export interface CheckUserDomain {
     coupon_id: Scalars['Int']
+    domain: Scalars['String']
+    id: Scalars['Int']
+    __typename: 'CheckUserDomain'
+}
+
+export interface CheckUserEmail {
+    coupon_id: Scalars['Int']
+    email: Scalars['String']
+    id: Scalars['Int']
+    __typename: 'CheckUserEmail'
+}
+
+export interface Combo {
     description: (Scalars['String'] | null)
+    domain_id: Scalars['Int']
     id: Scalars['Int']
     image: Scalars['String']
-    price: Scalars['String']
+    price: Scalars['Float']
     products: Product[]
     status: Scalars['String']
     title: Scalars['String']
@@ -42,50 +65,77 @@ export interface Combo {
 export interface ComboProduct {
     combo_id: Scalars['Int']
     dish_type: Scalars['String']
-    price: Scalars['String']
+    price: Scalars['Float']
     product_id: Scalars['Int']
     __typename: 'ComboProduct'
 }
 
 export interface Coupons {
+    address: Scalars['String']
+    domain: Domain
     expiration_date: (Scalars['String'] | null)
+    has_domain: Scalars['Boolean']
     id: Scalars['Int']
+    office: Office[]
     status: Scalars['String']
     title: Scalars['String']
     __typename: 'Coupons'
+}
+
+export interface Domain {
+    discount: Scalars['Float']
+    expired_date: (Scalars['String'] | null)
+    id: Scalars['Int']
+    title: Scalars['String']
+    __typename: 'Domain'
 }
 
 export interface Mutation {
     addCombo: Combo
     addComboProducts: ComboProduct
     addCoupon: Coupons
+    addDomain: Domain
     addOffice: Office
+    addReview: Review
     addSauce: Sauces
     addSideDish: SideDish
     addUser: Users
     createBox: Boxes
+    createCheckDomain: CheckUserDomain
+    createCheckEmail: CheckUserEmail
     createOrder: Orders
     createProduct: Product
-    deleteBox: (Boxes | null)
-    deleteBoxCombo: (Boxes | null)
+    deleteBox: Scalars['Boolean']
+    deleteBoxCombo: Scalars['Boolean']
+    deleteCheckDomain: Scalars['Boolean']
+    deleteCheckEmail: Scalars['Boolean']
     deleteCombo: (Combo | null)
-    deleteComboProduct: (ComboProduct | null)
-    deleteCoupon: (Coupons | null)
-    deleteOffice: (Office | null)
-    deleteOrder: (Orders | null)
-    deleteProduct: (Product | null)
-    deleteSauces: (Sauces | null)
-    deleteSideDish: (SideDish | null)
-    deleteUser: (Users | null)
+    deleteComboProduct: Scalars['Boolean']
+    deleteCoupon: Scalars['Boolean']
+    deleteDomain: Scalars['Boolean']
+    deleteOffice: Scalars['Boolean']
+    deleteOrder: Scalars['Boolean']
+    deleteProduct: Scalars['Boolean']
+    deleteReview: Scalars['Boolean']
+    deleteSauces: Scalars['Boolean']
+    deleteSideDish: Scalars['Boolean']
+    deleteUser: Scalars['Boolean']
+    deleteUserReview: Scalars['Boolean']
     updateBox: Boxes
+    updateCheckDomain: CheckUserDomain
+    updateCheckEmail: CheckUserEmail
     updateCombo: Combo
     updateCoupon: Coupons
+    updateDomain: Domain
     updateOffice: Office
     updateOrder: Orders
+    updateOrderPrice: Orders
     updateProduct: Product
+    updateReview: Review
     updateSauces: Sauces
     updateSideDish: SideDish
     updateUser: Users
+    updateUserImage: Users
     __typename: 'Mutation'
 }
 
@@ -98,13 +148,14 @@ export interface Office {
 
 export interface Orders {
     address: (Scalars['String'] | null)
+    combo_price: Scalars['Float']
     comment: (Scalars['String'] | null)
     coupon_id: Scalars['Int']
     customer_id: Scalars['Int']
     date_created: Scalars['String']
     id: Scalars['Int']
     number: Scalars['String']
-    price: Scalars['String']
+    price: Scalars['Float']
     products: Boxes[]
     status: Scalars['String']
     __typename: 'Orders'
@@ -118,7 +169,7 @@ export interface Product {
     dish_type: Scalars['String']
     id: Scalars['Int']
     image: Scalars['String']
-    price: Scalars['String']
+    price: Scalars['Float']
     sauces: (Scalars['String'] | null)
     status: Scalars['String']
     title: Scalars['String']
@@ -129,11 +180,18 @@ export interface Product {
 export interface Query {
     box: Boxes
     boxes: Boxes[]
+    checkDomain: CheckUserDomain
+    checkDomains: CheckUserDomain[]
+    checkEmail: CheckUserEmail
+    checkEmails: CheckUserEmail[]
+    checkUser: CheckUser
     comboById: Combo
     combosByCoupon: Combo[]
     combosList: Combo[]
     coupon: Coupons
     coupons: Coupons[]
+    domain: Domain
+    domains: Domain[]
     office: Office
     offices: Office[]
     officesByCoupon: Office[]
@@ -143,13 +201,26 @@ export interface Query {
     ordersByCustomerId: Orders[]
     product: Product
     products: Product[]
+    review: Review
+    reviews: Review[]
     sauce: Sauces
     sauces: Sauces[]
     sideDish: SideDish
     sideDishes: SideDish[]
-    user: Users
+    user: (Users | null)
+    userReviews: Review[]
     users: Users[]
     __typename: 'Query'
+}
+
+export interface Review {
+    date_created: Scalars['String']
+    dish_name: Scalars['String']
+    id: Scalars['Int']
+    rate: Scalars['Int']
+    review: Scalars['String']
+    user_id: Scalars['Int']
+    __typename: 'Review'
 }
 
 export interface Sauces {
@@ -169,12 +240,14 @@ export interface SideDish {
 
 export interface Users {
     address: (Scalars['String'] | null)
-    coupon: Scalars['String']
-    domain_id: Scalars['Int']
+    coupon: Coupons
     email: Scalars['String']
-    full_name: Scalars['String']
+    first_name: Scalars['String']
     id: Scalars['Int']
+    image: (Scalars['String'] | null)
+    last_name: Scalars['String']
     phone: Scalars['String']
+    role: Scalars['String']
     __typename: 'Users'
 }
 
@@ -184,6 +257,7 @@ export interface BoxesGenqlSelection{
     image?: boolean | number
     office?: boolean | number
     order_id?: boolean | number
+    price?: boolean | number
     sauce?: boolean | number
     side_dish?: boolean | number
     side_dish_type?: boolean | number
@@ -195,9 +269,33 @@ export interface BoxesGenqlSelection{
     __scalar?: boolean | number
 }
 
-export interface ComboGenqlSelection{
+export interface CheckUserGenqlSelection{
+    checkDomain?: CheckUserDomainGenqlSelection
+    checkEmail?: CheckUserEmailGenqlSelection
+    coupons?: CouponsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface CheckUserDomainGenqlSelection{
     coupon_id?: boolean | number
+    domain?: boolean | number
+    id?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface CheckUserEmailGenqlSelection{
+    coupon_id?: boolean | number
+    email?: boolean | number
+    id?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface ComboGenqlSelection{
     description?: boolean | number
+    domain_id?: boolean | number
     id?: boolean | number
     image?: boolean | number
     price?: boolean | number
@@ -220,45 +318,73 @@ export interface ComboProductGenqlSelection{
 }
 
 export interface CouponsGenqlSelection{
+    address?: boolean | number
+    domain?: DomainGenqlSelection
     expiration_date?: boolean | number
+    has_domain?: boolean | number
     id?: boolean | number
+    office?: OfficeGenqlSelection
     status?: boolean | number
     title?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
+export interface DomainGenqlSelection{
+    discount?: boolean | number
+    expired_date?: boolean | number
+    id?: boolean | number
+    title?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
 export interface MutationGenqlSelection{
-    addCombo?: (ComboGenqlSelection & { __args: {coupon_id: Scalars['Int'], description?: (Scalars['String'] | null), image: Scalars['String'], price: Scalars['String'], status: Scalars['String'], title: Scalars['String'], type: Scalars['String'], week_day: Scalars['String']} })
-    addComboProducts?: (ComboProductGenqlSelection & { __args: {combo_id: Scalars['Int'], dish_type: Scalars['String'], price: Scalars['String'], product_id: Scalars['Int']} })
-    addCoupon?: (CouponsGenqlSelection & { __args: {expiration_date?: (Scalars['String'] | null), status: Scalars['String'], title: Scalars['String']} })
+    addCombo?: (ComboGenqlSelection & { __args: {description?: (Scalars['String'] | null), domain_id: Scalars['Int'], image: Scalars['String'], price: Scalars['Float'], status: Scalars['String'], title: Scalars['String'], type: Scalars['String'], week_day: Scalars['String']} })
+    addComboProducts?: (ComboProductGenqlSelection & { __args: {combo_id: Scalars['Int'], dish_type: Scalars['String'], price: Scalars['Float'], product_id: Scalars['Int']} })
+    addCoupon?: (CouponsGenqlSelection & { __args: {address: Scalars['String'], domain_id: Scalars['Int'], expiration_date?: (Scalars['String'] | null), has_domain: Scalars['Boolean'], status: Scalars['String'], title: Scalars['String']} })
+    addDomain?: (DomainGenqlSelection & { __args: {discount: Scalars['Float'], expired_date: Scalars['String'], title: Scalars['String']} })
     addOffice?: (OfficeGenqlSelection & { __args: {coupon_id: Scalars['Int'], title: Scalars['String']} })
+    addReview?: (ReviewGenqlSelection & { __args: {dish_name: Scalars['String'], rate: Scalars['Int'], review: Scalars['String'], user_id: Scalars['Int']} })
     addSauce?: (SaucesGenqlSelection & { __args: {status: Scalars['String'], title: Scalars['String']} })
     addSideDish?: (SideDishGenqlSelection & { __args: {status: Scalars['String'], title: Scalars['String'], type: Scalars['String']} })
-    addUser?: (UsersGenqlSelection & { __args: {address?: (Scalars['String'] | null), coupon: Scalars['String'], domain_id: Scalars['Int'], email: Scalars['String'], full_name: Scalars['String'], phone: Scalars['String']} })
-    createBox?: (BoxesGenqlSelection & { __args: {combo_id: Scalars['Int'], image: Scalars['String'], office?: (Scalars['String'] | null), order_id: Scalars['Int'], sauce?: (Scalars['String'] | null), side_dish?: (Scalars['String'] | null), side_dish_type?: (Scalars['String'] | null), sticker: Scalars['String'], type: Scalars['String'], week_day: Scalars['String']} })
-    createOrder?: (OrdersGenqlSelection & { __args: {address?: (Scalars['String'] | null), comment?: (Scalars['String'] | null), coupon_id: Scalars['Int'], customer_id: Scalars['Int'], price: Scalars['String'], status: Scalars['String']} })
-    createProduct?: (ProductGenqlSelection & { __args: {allergens?: (Scalars['String'] | null), calories?: (Scalars['String'] | null), categories: Scalars['String'], description?: (Scalars['String'] | null), dish_type: Scalars['String'], image: Scalars['String'], price: Scalars['String'], sauces?: (Scalars['String'] | null), status: Scalars['String'], title: Scalars['String'], week_day: Scalars['String']} })
-    deleteBox?: (BoxesGenqlSelection & { __args: {id: Scalars['Int']} })
-    deleteBoxCombo?: (BoxesGenqlSelection & { __args: {combo_id: Scalars['Int']} })
+    addUser?: (UsersGenqlSelection & { __args: {address?: (Scalars['String'] | null), coupon_id: Scalars['Int'], email: Scalars['String'], first_name: Scalars['String'], last_name: Scalars['String'], phone: Scalars['String']} })
+    createBox?: (BoxesGenqlSelection & { __args: {combo_id: Scalars['Int'], image: Scalars['String'], office?: (Scalars['String'] | null), order_id: Scalars['Int'], price: Scalars['Int'], sauce?: (Scalars['String'] | null), side_dish?: (Scalars['String'] | null), side_dish_type?: (Scalars['String'] | null), sticker: Scalars['String'], type: Scalars['String'], week_day: Scalars['String']} })
+    createCheckDomain?: (CheckUserDomainGenqlSelection & { __args: {coupon_id: Scalars['Int'], domain: Scalars['String']} })
+    createCheckEmail?: (CheckUserEmailGenqlSelection & { __args: {coupon_id: Scalars['Int'], email: Scalars['String']} })
+    createOrder?: (OrdersGenqlSelection & { __args: {address?: (Scalars['String'] | null), combo_price: Scalars['Float'], comment?: (Scalars['String'] | null), coupon_id: Scalars['Int'], customer_id: Scalars['Int'], price: Scalars['Float'], status: Scalars['String']} })
+    createProduct?: (ProductGenqlSelection & { __args: {allergens?: (Scalars['String'] | null), calories?: (Scalars['String'] | null), categories: Scalars['String'], description?: (Scalars['String'] | null), dish_type: Scalars['String'], image: Scalars['String'], price: Scalars['Float'], sauces?: (Scalars['String'] | null), status: Scalars['String'], title: Scalars['String'], week_day: Scalars['String']} })
+    deleteBox?: { __args: {id: Scalars['Int']} }
+    deleteBoxCombo?: { __args: {combo_id: Scalars['Int'], order_id: Scalars['Int']} }
+    deleteCheckDomain?: { __args: {id: Scalars['Int']} }
+    deleteCheckEmail?: { __args: {id: Scalars['Int']} }
     deleteCombo?: (ComboGenqlSelection & { __args: {id: Scalars['Int']} })
-    deleteComboProduct?: (ComboProductGenqlSelection & { __args: {combo_id: Scalars['Int']} })
-    deleteCoupon?: (CouponsGenqlSelection & { __args: {id: Scalars['Int']} })
-    deleteOffice?: (OfficeGenqlSelection & { __args: {coupon_id: Scalars['Int']} })
-    deleteOrder?: (OrdersGenqlSelection & { __args: {id: Scalars['Int']} })
-    deleteProduct?: (ProductGenqlSelection & { __args: {id: Scalars['Int']} })
-    deleteSauces?: (SaucesGenqlSelection & { __args: {id: Scalars['Int']} })
-    deleteSideDish?: (SideDishGenqlSelection & { __args: {id: Scalars['Int']} })
-    deleteUser?: (UsersGenqlSelection & { __args: {id: Scalars['Int']} })
-    updateBox?: (BoxesGenqlSelection & { __args: {combo_id: Scalars['Int'], id: Scalars['Int'], image: Scalars['String'], office?: (Scalars['String'] | null), order_id: Scalars['Int'], sauce?: (Scalars['String'] | null), side_dish?: (Scalars['String'] | null), side_dish_type?: (Scalars['String'] | null), status: Scalars['String'], sticker: Scalars['String'], type: Scalars['String'], week_day: Scalars['String']} })
-    updateCombo?: (ComboGenqlSelection & { __args: {coupon_id: Scalars['Int'], description?: (Scalars['String'] | null), id: Scalars['Int'], image: Scalars['String'], price: Scalars['String'], status: Scalars['String'], title: Scalars['String'], type: Scalars['String'], week_day: Scalars['String']} })
-    updateCoupon?: (CouponsGenqlSelection & { __args: {expiration_date?: (Scalars['String'] | null), id: Scalars['Int'], status: Scalars['String'], title: Scalars['String']} })
+    deleteComboProduct?: { __args: {combo_id: Scalars['Int']} }
+    deleteCoupon?: { __args: {id: Scalars['Int']} }
+    deleteDomain?: { __args: {id: Scalars['Int']} }
+    deleteOffice?: { __args: {coupon_id: Scalars['Int']} }
+    deleteOrder?: { __args: {id: Scalars['Int']} }
+    deleteProduct?: { __args: {id: Scalars['Int']} }
+    deleteReview?: { __args: {id: Scalars['Int']} }
+    deleteSauces?: { __args: {id: Scalars['Int']} }
+    deleteSideDish?: { __args: {id: Scalars['Int']} }
+    deleteUser?: { __args: {id: Scalars['Int']} }
+    deleteUserReview?: { __args: {user_id: Scalars['Int']} }
+    updateBox?: (BoxesGenqlSelection & { __args: {combo_id: Scalars['Int'], id: Scalars['Int'], image: Scalars['String'], office?: (Scalars['String'] | null), order_id: Scalars['Int'], price: Scalars['Int'], sauce?: (Scalars['String'] | null), side_dish?: (Scalars['String'] | null), side_dish_type?: (Scalars['String'] | null), status: Scalars['String'], sticker: Scalars['String'], type: Scalars['String'], week_day: Scalars['String']} })
+    updateCheckDomain?: (CheckUserDomainGenqlSelection & { __args: {coupon_id: Scalars['Int'], domain: Scalars['String'], id: Scalars['Int']} })
+    updateCheckEmail?: (CheckUserEmailGenqlSelection & { __args: {coupon_id: Scalars['Int'], email: Scalars['String'], id: Scalars['Int']} })
+    updateCombo?: (ComboGenqlSelection & { __args: {description?: (Scalars['String'] | null), domain_id: Scalars['Int'], id: Scalars['Int'], image: Scalars['String'], price: Scalars['Float'], status: Scalars['String'], title: Scalars['String'], type: Scalars['String'], week_day: Scalars['String']} })
+    updateCoupon?: (CouponsGenqlSelection & { __args: {address: Scalars['String'], domain_id: Scalars['Int'], expiration_date?: (Scalars['String'] | null), has_domain: Scalars['Boolean'], id: Scalars['Int'], status: Scalars['String'], title: Scalars['String']} })
+    updateDomain?: (DomainGenqlSelection & { __args: {discount: Scalars['Float'], expired_date: Scalars['String'], id: Scalars['Int'], title: Scalars['String']} })
     updateOffice?: (OfficeGenqlSelection & { __args: {coupon_id: Scalars['Int'], id: Scalars['Int'], title: Scalars['String']} })
-    updateOrder?: (OrdersGenqlSelection & { __args: {address?: (Scalars['String'] | null), comment?: (Scalars['String'] | null), coupon_id: Scalars['Int'], customer_id: Scalars['Int'], id: Scalars['Int'], number: Scalars['String'], price: Scalars['String'], status: Scalars['String']} })
-    updateProduct?: (ProductGenqlSelection & { __args: {allergens?: (Scalars['String'] | null), calories?: (Scalars['String'] | null), categories: Scalars['String'], description?: (Scalars['String'] | null), dish_type: Scalars['String'], id: Scalars['Int'], image: Scalars['String'], price: Scalars['String'], sauces?: (Scalars['String'] | null), status: Scalars['String'], title: Scalars['String'], week_day: Scalars['String']} })
+    updateOrder?: (OrdersGenqlSelection & { __args: {address?: (Scalars['String'] | null), combo_price: Scalars['Float'], comment?: (Scalars['String'] | null), coupon_id: Scalars['Int'], customer_id: Scalars['Int'], id: Scalars['Int'], number: Scalars['String'], price: Scalars['Float'], status: Scalars['String']} })
+    updateOrderPrice?: (OrdersGenqlSelection & { __args: {id: Scalars['Int'], price: Scalars['Int']} })
+    updateProduct?: (ProductGenqlSelection & { __args: {allergens?: (Scalars['String'] | null), calories?: (Scalars['String'] | null), categories: Scalars['String'], description?: (Scalars['String'] | null), dish_type: Scalars['String'], id: Scalars['Int'], image: Scalars['String'], price: Scalars['Float'], sauces?: (Scalars['String'] | null), status: Scalars['String'], title: Scalars['String'], week_day: Scalars['String']} })
+    updateReview?: (ReviewGenqlSelection & { __args: {dish_name: Scalars['String'], id: Scalars['Int'], rate: Scalars['Int'], review: Scalars['String'], user_id: Scalars['Int']} })
     updateSauces?: (SaucesGenqlSelection & { __args: {id: Scalars['Int'], status: Scalars['String'], title: Scalars['String']} })
     updateSideDish?: (SideDishGenqlSelection & { __args: {id: Scalars['Int'], status: Scalars['String'], title: Scalars['String'], type: Scalars['String']} })
-    updateUser?: (UsersGenqlSelection & { __args: {address?: (Scalars['String'] | null), coupon: Scalars['String'], domain_id: Scalars['Int'], email: Scalars['String'], full_name: Scalars['String'], id: Scalars['Int'], phone: Scalars['String']} })
+    updateUser?: (UsersGenqlSelection & { __args: {address?: (Scalars['String'] | null), coupon_id: Scalars['Int'], email: Scalars['String'], first_name: Scalars['String'], id: Scalars['Int'], image?: (Scalars['String'] | null), last_name: Scalars['String'], phone: Scalars['String'], role: Scalars['String']} })
+    updateUserImage?: (UsersGenqlSelection & { __args: {id: Scalars['Int'], image?: (Scalars['String'] | null)} })
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -273,6 +399,7 @@ export interface OfficeGenqlSelection{
 
 export interface OrdersGenqlSelection{
     address?: boolean | number
+    combo_price?: boolean | number
     comment?: boolean | number
     coupon_id?: boolean | number
     customer_id?: boolean | number
@@ -306,11 +433,18 @@ export interface ProductGenqlSelection{
 export interface QueryGenqlSelection{
     box?: (BoxesGenqlSelection & { __args: {id: Scalars['Int']} })
     boxes?: BoxesGenqlSelection
+    checkDomain?: (CheckUserDomainGenqlSelection & { __args: {id: Scalars['Int']} })
+    checkDomains?: CheckUserDomainGenqlSelection
+    checkEmail?: (CheckUserEmailGenqlSelection & { __args: {id: Scalars['Int']} })
+    checkEmails?: CheckUserEmailGenqlSelection
+    checkUser?: CheckUserGenqlSelection
     comboById?: (ComboGenqlSelection & { __args: {id: Scalars['Int']} })
-    combosByCoupon?: (ComboGenqlSelection & { __args: {coupon_id: Scalars['Int']} })
+    combosByCoupon?: (ComboGenqlSelection & { __args: {domain_id: Scalars['Int']} })
     combosList?: ComboGenqlSelection
     coupon?: (CouponsGenqlSelection & { __args: {id: Scalars['Int']} })
     coupons?: CouponsGenqlSelection
+    domain?: (DomainGenqlSelection & { __args: {id: Scalars['Int']} })
+    domains?: DomainGenqlSelection
     office?: (OfficeGenqlSelection & { __args: {id: Scalars['Int']} })
     offices?: OfficeGenqlSelection
     officesByCoupon?: (OfficeGenqlSelection & { __args: {coupon_id: Scalars['Int']} })
@@ -320,12 +454,26 @@ export interface QueryGenqlSelection{
     ordersByCustomerId?: (OrdersGenqlSelection & { __args: {customer_id: Scalars['Int']} })
     product?: (ProductGenqlSelection & { __args: {id: Scalars['Int']} })
     products?: ProductGenqlSelection
+    review?: (ReviewGenqlSelection & { __args: {id: Scalars['Int']} })
+    reviews?: ReviewGenqlSelection
     sauce?: (SaucesGenqlSelection & { __args: {id: Scalars['Int']} })
     sauces?: SaucesGenqlSelection
     sideDish?: (SideDishGenqlSelection & { __args: {id: Scalars['Int']} })
     sideDishes?: SideDishGenqlSelection
     user?: (UsersGenqlSelection & { __args: {email: Scalars['String']} })
+    userReviews?: (ReviewGenqlSelection & { __args: {user_id: Scalars['Int']} })
     users?: UsersGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface ReviewGenqlSelection{
+    date_created?: boolean | number
+    dish_name?: boolean | number
+    id?: boolean | number
+    rate?: boolean | number
+    review?: boolean | number
+    user_id?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -349,12 +497,14 @@ export interface SideDishGenqlSelection{
 
 export interface UsersGenqlSelection{
     address?: boolean | number
-    coupon?: boolean | number
-    domain_id?: boolean | number
+    coupon?: CouponsGenqlSelection
     email?: boolean | number
-    full_name?: boolean | number
+    first_name?: boolean | number
     id?: boolean | number
+    image?: boolean | number
+    last_name?: boolean | number
     phone?: boolean | number
+    role?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -364,6 +514,30 @@ export interface UsersGenqlSelection{
     export const isBoxes = (obj?: { __typename?: any } | null): obj is Boxes => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isBoxes"')
       return Boxes_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const CheckUser_possibleTypes: string[] = ['CheckUser']
+    export const isCheckUser = (obj?: { __typename?: any } | null): obj is CheckUser => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCheckUser"')
+      return CheckUser_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const CheckUserDomain_possibleTypes: string[] = ['CheckUserDomain']
+    export const isCheckUserDomain = (obj?: { __typename?: any } | null): obj is CheckUserDomain => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCheckUserDomain"')
+      return CheckUserDomain_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const CheckUserEmail_possibleTypes: string[] = ['CheckUserEmail']
+    export const isCheckUserEmail = (obj?: { __typename?: any } | null): obj is CheckUserEmail => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCheckUserEmail"')
+      return CheckUserEmail_possibleTypes.includes(obj.__typename)
     }
     
 
@@ -388,6 +562,14 @@ export interface UsersGenqlSelection{
     export const isCoupons = (obj?: { __typename?: any } | null): obj is Coupons => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isCoupons"')
       return Coupons_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const Domain_possibleTypes: string[] = ['Domain']
+    export const isDomain = (obj?: { __typename?: any } | null): obj is Domain => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isDomain"')
+      return Domain_possibleTypes.includes(obj.__typename)
     }
     
 
@@ -428,6 +610,14 @@ export interface UsersGenqlSelection{
     export const isQuery = (obj?: { __typename?: any } | null): obj is Query => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isQuery"')
       return Query_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const Review_possibleTypes: string[] = ['Review']
+    export const isReview = (obj?: { __typename?: any } | null): obj is Review => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isReview"')
+      return Review_possibleTypes.includes(obj.__typename)
     }
     
 

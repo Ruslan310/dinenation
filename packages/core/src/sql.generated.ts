@@ -4,8 +4,6 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
-export type Timestamp = ColumnType<Date, Date | string, Date | string>;
-
 export interface Boxes {
   id: Generated<number>;
   sticker: string;
@@ -13,6 +11,7 @@ export interface Boxes {
   week_day: string;
   image: string;
   office: string | null;
+  price: number;
   side_dish: string | null;
   side_dish_type: string | null;
   sauce: string | null;
@@ -23,13 +22,29 @@ export interface Boxes {
   date_updated: string;
 }
 
+export interface CheckDomain {
+  id: Generated<number>;
+  coupon_id: number;
+  domain: string;
+  date_created: Generated<string>;
+  date_updated: string;
+}
+
+export interface CheckEmail {
+  id: Generated<number>;
+  coupon_id: number;
+  email: string;
+  date_created: Generated<string>;
+  date_updated: string;
+}
+
 export interface Combo {
   id: Generated<number>;
   title: string;
-  coupon_id: number;
-  price: string;
-  date_created: Generated<Timestamp>;
-  date_updated: Timestamp;
+  domain_id: number;
+  price: number;
+  date_created: Generated<string>;
+  date_updated: string;
   week_day: string;
   type: string;
   image: string;
@@ -41,17 +56,20 @@ export interface ComboProduct {
   id: Generated<number>;
   product_id: number;
   combo_id: number;
-  price: string;
+  price: number;
   dish_type: string;
-  date_created: Generated<Timestamp>;
-  date_updated: Timestamp;
+  date_created: Generated<string>;
+  date_updated: string;
 }
 
 export interface Coupons {
   id: Generated<number>;
   title: string;
-  date_created: Generated<Timestamp>;
-  date_updated: Timestamp;
+  address: string;
+  has_domain: Generated<boolean>;
+  domain_id: number;
+  date_created: Generated<string>;
+  date_updated: string;
   expiration_date: string | null;
   status: string;
 }
@@ -61,23 +79,24 @@ export interface Domain {
   title: string;
   discount: number;
   expired_date: string;
-  date_created: Generated<Timestamp>;
-  date_updated: Timestamp;
+  date_created: Generated<string>;
+  date_updated: string;
 }
 
 export interface Office {
   id: Generated<number>;
   coupon_id: number;
   title: string;
-  date_created: Generated<Timestamp>;
-  date_updated: Timestamp;
+  date_created: Generated<string>;
+  date_updated: string;
 }
 
 export interface Orders {
   id: Generated<number>;
   number: string;
   status: string;
-  price: string;
+  price: number;
+  combo_price: number;
   coupon_id: number;
   customer_id: number;
   comment: string | null;
@@ -89,9 +108,9 @@ export interface Orders {
 export interface Product {
   id: Generated<number>;
   title: string;
-  price: string;
-  date_created: Generated<Timestamp>;
-  date_updated: Timestamp;
+  price: number;
+  date_created: Generated<string>;
+  date_updated: string;
   allergens: string | null;
   sauces: string | null;
   categories: string;
@@ -103,11 +122,21 @@ export interface Product {
   calories: string | null;
 }
 
+export interface Review {
+  id: Generated<number>;
+  user_id: number;
+  review: string;
+  rate: number;
+  dish_name: string;
+  date_created: Generated<string>;
+  date_updated: string;
+}
+
 export interface Sauces {
   id: Generated<number>;
   title: string;
-  date_created: Generated<Timestamp>;
-  date_updated: Timestamp;
+  date_created: Generated<string>;
+  date_updated: string;
   status: string;
 }
 
@@ -115,25 +144,29 @@ export interface SideDishes {
   id: Generated<number>;
   title: string;
   type: string;
-  date_created: Generated<Timestamp>;
-  date_updated: Timestamp;
+  date_created: Generated<string>;
+  date_updated: string;
   status: string;
 }
 
 export interface Users {
   id: Generated<number>;
-  full_name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   address: string | null;
+  image: string | null;
   phone: string;
-  coupon: string;
-  domain_id: number;
-  date_created: Generated<Timestamp>;
-  date_updated: Timestamp;
+  coupon_id: number;
+  role: string;
+  date_created: Generated<string>;
+  date_updated: string;
 }
 
 export interface Database {
   boxes: Boxes;
+  check_domain: CheckDomain;
+  check_email: CheckEmail;
   combo: Combo;
   combo_product: ComboProduct;
   coupons: Coupons;
@@ -141,6 +174,7 @@ export interface Database {
   office: Office;
   orders: Orders;
   product: Product;
+  review: Review;
   sauces: Sauces;
   side_dishes: SideDishes;
   users: Users;

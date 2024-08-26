@@ -10,9 +10,11 @@ export type FieldTypeSendCode = {
 
 interface Props {
   submit: (value: FieldTypeSendCode) => void;
-  resend: () => void
+  resend: () => void;
+  loading: boolean;
 }
-const SendCode = ({submit, resend}: Props) => (
+
+const SendCode = ({submit, resend, loading}: Props) => (
   <Form
     name="basic"
     layout="vertical"
@@ -34,11 +36,11 @@ const SendCode = ({submit, resend}: Props) => (
       </Form.Item>
     </div>
     <Form.Item >
-      <Button className={styles.submitButton} type="submit">
+      <Button loading={!loading} className={styles.submitButton} type="submit">
         <img src={smile} alt='' className={styles.logoImg}/>
         <p>Confirm</p>
       </Button>
-      <Button onClick={resend} className={styles.sendCodeButton}>
+      <Button type="button" onClick={resend} className={styles.sendCodeButton}>
         <p>Resend Code</p>
       </Button>
     </Form.Item>

@@ -10,6 +10,7 @@ export const BoxType = builder.objectRef<SQL.Row["boxes"]>("Boxes").implement({
     week_day: t.exposeString("week_day"),
     image: t.exposeString("image"),
     office: t.exposeString("office", {nullable: true}),
+    price: t.exposeInt("price"),
     side_dish: t.exposeString("side_dish", {nullable: true}),
     side_dish_type: t.exposeString("side_dish_type", {nullable: true}),
     sauce: t.exposeString("sauce", {nullable: true}),
@@ -22,18 +23,12 @@ export const BoxType = builder.objectRef<SQL.Row["boxes"]>("Boxes").implement({
 builder.queryFields((t)=> ({
   box: t.field({
     type: BoxType,
+
     args: {
       id: t.arg.int({required: true}),
     },
-    resolve: async (_, args)=> {
-      const result = await Boxes.getBox(args.id);
-
-      if (!result) {
-        throw new Error("Boxes not found");
-      }
-
-      return result;
-    },
+    resolve: async (_, args)=>
+      await Boxes.getBox(args.id)
   }),
   boxes: t.field({
     type: [BoxType],
@@ -50,6 +45,7 @@ builder.mutationFields((t) => ({
       week_day: t.arg.string({required: true}),
       image: t.arg.string({required: true}),
       office: t.arg.string({required: false}),
+      price: t.arg.int({required: true}),
       side_dish: t.arg.string({required: false}),
       side_dish_type: t.arg.string({required: false}),
       sauce: t.arg.string({required: false}),
@@ -62,6 +58,7 @@ builder.mutationFields((t) => ({
       args.week_day,
       args.image,
       args.office,
+      args.price,
       args.side_dish,
       args.side_dish_type,
       args.sauce,
@@ -78,6 +75,7 @@ builder.mutationFields((t) => ({
       week_day: t.arg.string({required: true}),
       image: t.arg.string({required: true}),
       office: t.arg.string({required: false}),
+      price: t.arg.int({required: true}),
       side_dish: t.arg.string({required: false}),
       side_dish_type: t.arg.string({required: false}),
       sauce: t.arg.string({required: false}),
@@ -92,6 +90,7 @@ builder.mutationFields((t) => ({
       args.week_day,
       args.image,
       args.office,
+      args.price,
       args.side_dish,
       args.side_dish_type,
       args.sauce,
@@ -101,19 +100,18 @@ builder.mutationFields((t) => ({
     ),
   }),
   deleteBox: t.field({
-    type: BoxType,
-    nullable: true,
+    type: 'Boolean',
     args: {
       id: t.arg.int({required: true}),
     },
     resolve: (_, args) => Boxes.deleteBox(args.id),
   }),
   deleteBoxCombo: t.field({
-    type: BoxType,
-    nullable: true,
+    type: 'Boolean',
     args: {
       combo_id: t.arg.int({required: true}),
+      order_id: t.arg.int({required: true}),
     },
-    resolve: (_, args) => Boxes.deleteBoxCombo(args.combo_id),
+    resolve: (_, args) => Boxes.deleteBoxCombo(args.combo_id, args.order_id),
   }),
 }));

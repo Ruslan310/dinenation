@@ -25,31 +25,43 @@
     }
 }
 
+.commentsList {
+    margin-top: 20px;
+    overflow-y: scroll;
+    height: calc(100% - 50px);
+}
+
 .commentsContainer {
     background-color: var(--color-base-white);
     border-radius: 16px;
     width: 100%;
-    padding: 16px;
+    padding: 14px 16px 16px;
     display: flex;
-    margin: 20px 0;
+    margin-bottom: 20px;
 
     & .commentsDate {
         width: 9%;
         min-width: 85px;
         color: var(--color-sub-text);
         font-weight: var(--font-weight-lithg);
+        padding-top: 2px;
     }
 
     & .commentsText {
         width: calc(91%);
         font-weight: var(--font-weight-bolt);
         & p {
-            margin-bottom: 8px;
+            padding-top: 2px;
+            margin: 0 20px 8px 0;
         }
         & span {
             color: var(--color-sub-text);
             line-height: 18px;
         }
     }
+}
+
+.headerContainer {
+    display: flex;
 }
 

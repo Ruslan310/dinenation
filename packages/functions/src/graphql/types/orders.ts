@@ -8,7 +8,8 @@ export const OrderType = builder.objectRef<SQL.Row["orders"]>("Orders").implemen
     id: t.exposeInt("id"),
     number: t.exposeString("number"),
     status: t.exposeString("status"),
-    price: t.exposeString("price"),
+    price: t.exposeFloat("price"),
+    combo_price: t.exposeFloat("combo_price"),
     coupon_id: t.exposeInt("coupon_id"),
     customer_id: t.exposeInt("customer_id"),
     comment: t.exposeString("comment", {nullable: true}),
@@ -63,7 +64,8 @@ builder.mutationFields((t) => ({
     type: OrderType,
     args: {
       status: t.arg.string({required: true}),
-      price: t.arg.string({required: true}),
+      price: t.arg.float({required: true}),
+      combo_price: t.arg.float({required: true}),
       coupon_id: t.arg.int({required: true}),
       customer_id: t.arg.int({required: true}),
       comment: t.arg.string({required: false}),
@@ -72,6 +74,7 @@ builder.mutationFields((t) => ({
     resolve: (_, args) => Orders.addOrder(
       args.status,
       args.price,
+      args.combo_price,
       args.coupon_id,
       args.customer_id,
       args.comment,
@@ -84,7 +87,8 @@ builder.mutationFields((t) => ({
       id: t.arg.int({required: true}),
       number: t.arg.string({required: true}),
       status: t.arg.string({required: true}),
-      price: t.arg.string({required: true}),
+      price: t.arg.float({required: true}),
+      combo_price: t.arg.float({required: true}),
       coupon_id: t.arg.int({required: true}),
       customer_id: t.arg.int({required: true}),
       comment: t.arg.string({required: false}),
@@ -95,15 +99,23 @@ builder.mutationFields((t) => ({
       args.number,
       args.status,
       args.price,
+      args.combo_price,
       args.coupon_id,
       args.customer_id,
       args.comment,
       args.address,
     ),
   }),
-  deleteOrder: t.field({
+  updateOrderPrice: t.field({
     type: OrderType,
-    nullable: true,
+    args: {
+      id: t.arg.int({required: true}),
+      price: t.arg.int({required: true}),
+    },
+    resolve: (_, args) => Orders.updateOrderPrice(args.id, args.price),
+  }),
+  deleteOrder: t.field({
+    type: 'Boolean',
     args: {
       id: t.arg.int({required: true}),
     },

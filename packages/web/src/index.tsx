@@ -30,6 +30,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <MainProvider>
           <ConfigProvider
             theme={{
+              components: {
+                Modal: {
+                  contentBg: colorTheme.navbar
+                },
+              },
               token: {
                 colorPrimaryHover: colorTheme.primary,
                 colorPrimary: colorTheme.primary,

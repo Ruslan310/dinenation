@@ -1,13 +1,13 @@
 import React, {ReactNode} from 'react';
 import styles from "./WeeklyMenu.module.css";
 import {Popover} from "antd";
-import resize from "../../assets/image/resizeSVG.svg";
-import activeDay from "../../assets/image/activeDay.svg";
-import selectDay from "../../assets/image/selectDay.svg";
 import classNames from "classnames";
-import {ProductForm} from "../AdminPanel/Product/UpdateProduct";
 import {CartList} from "./WeeklyMenu";
 import {colorTheme} from "../../utils/theme";
+import ResizeSvg from "../../components/svg/ResizeSvg";
+import ActiveDaySvg from "../../components/svg/ActiveDaySvg";
+import SelectSvg from "../../components/svg/SelectSvg";
+import {ProductForm} from "../../utils/type";
 
 interface Props {
   productList: ProductForm[];
@@ -53,17 +53,15 @@ const ProductItem = ({
             onOpenChange={e => !e && setShowInfo(undefined)}
             content={() => popoverHandle(product, isMain)}
           >
-            <div className={styles.productBlock} onClick={() => {
-              setShowInfo(product.id)
-            }}>
+            <div className={styles.productBlock} onClick={() => setShowInfo(product.id)}>
               <div
                 className={styles.imageResizeBlock}
                 onClick={e => onProductClick(e, product.image)}
               >
-                <img src={resize} alt="component photo" className={styles.imageResize}/>
+                <ResizeSvg />
               </div>
-              {active && <img src={activeDay} alt="component photo" className={styles.imageActive}/>}
-              {active && <img src={selectDay} alt="component photo" className={styles.imageSelect}/>}
+              {active && <ActiveDaySvg className={styles.imageActive}/>}
+              {active && <SelectSvg className={styles.imageSelect}/>}
               <div
                 className={classNames(
                   styles.imageProductBlock,

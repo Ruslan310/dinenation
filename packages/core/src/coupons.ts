@@ -1,17 +1,21 @@
 export * as Coupons from "./coupons";
 import {SQL} from "./sql";
 import {sql} from "kysely";
-import {int} from "aws-sdk/clients/datapipeline";
-
 
 export async function addCoupon(
   title: string,
+  has_domain: boolean,
+  domain_id: number,
+  address: string,
   expiration_date: string | null | undefined,
   status: string,
 ) {
   const [result] = await SQL.DB.insertInto("coupons")
     .values({
       title,
+      has_domain,
+      domain_id,
+      address,
       expiration_date,
       date_updated: sql`now()`,
       status,
@@ -22,14 +26,20 @@ export async function addCoupon(
 }
 
 export async function updateCoupon(
-  id: int,
+  id: number,
   title: string,
+  has_domain: boolean,
+  domain_id: number,
+  address: string,
   expiration_date: string | null | undefined,
   status: string,
 ) {
   const [result] = await SQL.DB.updateTable("coupons")
     .set({
       title,
+      has_domain,
+      domain_id,
+      address,
       expiration_date,
       date_updated: sql`now()`,
       status,
@@ -40,15 +50,14 @@ export async function updateCoupon(
   return result;
 }
 
-export async function deleteCoupon(id: int) {
+export async function deleteCoupon(id: number) {
   await SQL.DB.deleteFrom("office")
     .where('coupon_id', '=', id)
-    .returningAll()
-    .executeTakeFirst();
-  return await SQL.DB.deleteFrom("coupons")
+    .execute();
+  await SQL.DB.deleteFrom("coupons")
     .where('id', '=', id)
-    .returningAll()
-    .executeTakeFirst();
+    .execute();
+  return true;
 }
 
 export function coupons() {
@@ -58,7 +67,7 @@ export function coupons() {
     .execute();
 }
 
-export async function getCoupon(id: int) {
+export async function getCoupon(id: number) {
   const [result] = await SQL.DB.selectFrom("coupons")
     .selectAll()
     .where("id", "=", id)

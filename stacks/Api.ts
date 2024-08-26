@@ -29,7 +29,10 @@ export function Api({ stack }: StackContext) {
           ],
         },
       },
-      "POST /image": "packages/functions/src/productImage.main",
+      "POST /dishImage": "packages/functions/src/dishImage.main",
+      "POST /userImage": "packages/functions/src/userImage.main",
+      "GET /listImages": "packages/functions/src/listImages.main",
+      "POST /send-email": "packages/functions/src/sendEmail.handler",
     },
   });
 
