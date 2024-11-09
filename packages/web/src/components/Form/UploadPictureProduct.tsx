@@ -1,0 +1,109 @@
+import React from 'react';
+import {Form, message, Upload} from "antd";
+import axios from "axios";
+import {LoadingOutlined, PlusOutlined} from "@ant-design/icons";
+import {resizeImage} from "../../utils/handle";
+
+interface Props {
+  load: boolean
+  setLoad: (value: boolean) => void
+  picture: string
+  setPicture: (value: ImgType) => void
+  className?: string
+  name?: string
+  link?: string
+}
+
+export interface ImgType {
+  img: string;
+  imgSmall: string;
+}
+
+const UploadPicture = ({
+                         load,
+                         setLoad,
+                         picture,
+                         setPicture,
+                         className,
+                         name = "picture",
+}: Props) => {
+
+  const uploadButton = (
+    <div>
+      {load ? <LoadingOutlined/> : <PlusOutlined/>}
+      <div style={{marginTop: 8}}>Upload</div>
+    </div>
+  );
+
+  return (
+    <Form.Item label="Picture" name={name}>
+      <Upload
+        name={name}
+        listType="picture-card"
+        className={className}
+        showUploadList={false}
+        customRequest={async ({file}) => {
+          setLoad(true)
+          try {
+            const link = import.meta.env.VITE_GRAPHQL_URL.slice().slice(0, -8)
+            const resizedFile = await resizeImage(file as File);
+            const resizedFileSmall = await resizeImage(file as File, 0, 0.2);
+            const {data} = await axios.post(`${link}/dishImage`);
+            const smallImage = await axios.post(`${link}/dishImage`);
+            const {url} = await fetch(data, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "multipart/form-data"
+              },
+              body: resizedFile
+            })
+            const smallUrl = await fetch(smallImage.data, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "multipart/form-data"
+              },
+              body: resizedFileSmall
+            })
+            const imageUrl = url.split('?')[0]
+            const imageUrlSmall = smallUrl.url.split('?')[0]
+            setPicture({
+              img: imageUrl,
+              imgSmall: imageUrlSmall,
+            });
+          } catch (error) {
+            console.log('Error uploading file: ', error);
+          } finally {
+            setLoad(false);
+          }
+        }}
+        beforeUpload={async (file) => {
+          const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+          if (!isJpgOrPng) {
+            await message.error('You can only upload JPG/PNG file!');
+          }
+          const isLt2M = file.size / 1024 / 1024 < 2;
+          if (!isLt2M) {
+            await message.error('Image must smaller than 2MB!');
+          }
+          return isJpgOrPng && isLt2M;
+        }}
+      >
+        {!load && picture ?
+          <img
+            src={picture}
+            alt="component photo"
+            style={{
+              width: '100%',
+              borderRadius: '8px',
+              height: '100%',
+              maxWidth: '100px',
+              maxHeight: '100px',
+              objectFit: 'cover',
+            }}
+          /> : uploadButton}
+      </Upload>
+    </Form.Item>
+  );
+};
+
+export default UploadPicture;

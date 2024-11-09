@@ -1,0 +1,26 @@
+.page {
+    padding: 20px;
+    display: flex;
+    height: 100vh;
+}
+
+.table {
+    width: 100%;
+    background-color: var(--color-navbar);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 0 16px 0 #00000040;
+
+
+    & td {
+        color: var(--color-base-light-black);
+    }
+    & tr:nth-child(2n){
+        background-color: #FAFAFA;
+    }
+
+    :global(.ant-table-thead) {
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1) !important;
+    }
+}
+

@@ -5,6 +5,8 @@ import {AuthUser} from 'aws-amplify/auth';
 import {useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import {decryptData} from "../utils/handle";
 import {User} from "../utils/type";
+import {message} from "antd";
+import {TIME_LIMIT} from "../constants";
 
 export interface MainProps {
   cartList: CartList[];
@@ -54,6 +56,7 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
         phone: true,
         role: true,
         image: true,
+        is_update: true,
         coupon: {
           id: true,
           title: true,
@@ -72,6 +75,13 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
     context
   });
 
+  const clearCart = async () => {
+    localStorage.removeItem('cartList');
+    localStorage.removeItem('cartTimestamp');
+    message.info({content: 'Trash empty'});
+    setCartList([])
+  };
+
   useEffect(() => {
     if (user?.signInDetails && getUser?.data?.user) {
       setUserData(getUser?.data?.user)
@@ -82,10 +92,27 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
         const jsonData = decryptData(savedCartList);  // Дешифруем данные
         setCartList(JSON.parse(jsonData));  // Преобразуем строку JSON в объект и устанавливаем в состояние
       } catch (error) {
-        console.error('Ошибка при дешифровке данных:', error);
+        console.error('Error when decrypting data:', error);
       }
     }
   },[user?.signInDetails, getUser?.data])
+
+  useEffect(() => {
+    const checkCartExpiration = () => {
+      const cartTimestamp = localStorage.getItem('cartTimestamp');
+      if (cartTimestamp) {
+        const currentTime = new Date().getTime();
+        const timeDifference = currentTime - parseInt(cartTimestamp, 10);
+
+        if (timeDifference >= TIME_LIMIT) { // 30 минут = 1800000 миллисекунд
+          // clearCart();
+        }
+      }
+    };
+    const intervalId = setInterval(checkCartExpiration, 60000);
+    checkCartExpiration();
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <MainContext.Provider
