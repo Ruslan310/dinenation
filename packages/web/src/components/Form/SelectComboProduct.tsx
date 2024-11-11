@@ -17,24 +17,24 @@ interface PropsArr {
 const SelectComboProduct = ({arr = [], name, buttonText, placeholder}: Props) => {
   return (
     <Form.List name={name}>
-      {(fields, { add, remove }) => (
+      {(fields, { add, remove,  }) => (
         <>
           {fields.map(({ key, name, ...restField }) => (
-            <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+            <Space key={key} style={{ display: 'flex'}} align="baseline">
               <Form.Item
                 {...restField}
-                name={[name, 'id']}
+                name={[name, 'product_id']}
                 rules={[{ required: true, message: 'Missing product name' }]}
               >
                 <Select<string, { value: string; children: string }>
-                  style={{minWidth: '220px'}}
+                  showSearch
+                  style={{minWidth: 220}}
                   placeholder={placeholder}
                   filterOption={(input, option) =>
                     option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
                   }
                 >
-                  {arr
-                    .map(({id, title}) =>
+                  {arr.map(({id, title}) =>
                       <Select.Option
                         key={id}
                         value={id}>
@@ -48,7 +48,7 @@ const SelectComboProduct = ({arr = [], name, buttonText, placeholder}: Props) =>
                 name={[name, 'price']}
                 rules={[{ required: true, message: 'Missing price' }]}
               >
-                <InputNumber placeholder="0" />
+                <InputNumber min={0} placeholder="0" />
               </Form.Item>
               <MinusCircleOutlined onClick={() => remove(name)} />
             </Space>

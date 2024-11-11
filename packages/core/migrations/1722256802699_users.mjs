@@ -15,6 +15,7 @@ export async function up(db) {
     .addColumn("image", "varchar(255)")
     .addColumn("phone", "text", (col) => col.notNull())
     .addColumn("coupon_id", "integer", (col) => col.notNull().references("coupons.id"))
+    .addColumn("is_update", "boolean", (col) => col.notNull().defaultTo(false))
     .addColumn("role", "text", (col) => col.notNull())
     .addColumn("date_created", "text", (col) => col.notNull().defaultTo(sql`now()`))
     .addColumn("date_updated", "text", (col) => col.notNull())
@@ -78,7 +79,7 @@ export async function up(db) {
     .createTable("check_email")
     .addColumn("id", "serial", (col) => col.primaryKey())
     .addColumn("coupon_id", "integer", (col) => col.notNull().references("coupons.id"))
-    .addColumn("email", "varchar(100)", (col) => col.notNull())
+    .addColumn("email", "varchar(110)", (col) => col.notNull())
     .addColumn("date_created", "text", (col) => col.notNull().defaultTo(sql`now()`))
     .addColumn("date_updated", "text", (col) => col.notNull())
     .execute();

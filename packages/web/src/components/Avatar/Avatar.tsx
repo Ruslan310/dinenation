@@ -7,6 +7,7 @@ import axios from "axios";
 import {Spin} from 'antd';
 import {useTypedMutation} from "@dinenation-postgresql/graphql/urql";
 import {MainContext} from "../../contexts/MainProvider";
+import {useResize} from "../../hooks/useResize";
 import {resizeImage} from "../../utils/handle";
 
 interface Props {
@@ -18,11 +19,13 @@ interface Props {
   click?: () => void;
   editIconColor?: string;
   classNamesContainer?: string;
+  fullNameStyle?: string;
 }
 
 const Avatar = ({
                   size = 60,
                   showFullName,
+                  fullNameStyle,
                   isEdit,
                   isActive,
                   click,
@@ -33,6 +36,11 @@ const Avatar = ({
   const {userData, setUserData} = useContext(MainContext);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const fullName = `${userData?.first_name} ${userData?.last_name}`
+  const {isScreenLg } = useResize();
+
+  if (isScreenLg) {
+    size = 36
+  }
 
   const [_, updateUserImage] = useTypedMutation(
     (opts: {id: number, image: string}) => ({
@@ -46,10 +54,13 @@ const Avatar = ({
         phone: true,
         role: true,
         image: true,
+        is_update: true,
         coupon: {
           id: true,
           title: true,
           address: true,
+          check_order: true,
+          hide_price: true,
           office: {
             id: true,
             title: true,
@@ -78,14 +89,14 @@ const Avatar = ({
       setUploading(true);
       try {
         const link = import.meta.env.VITE_GRAPHQL_URL.slice().slice(0, -8)
-        // const resizedFile = await resizeImage(file);
+        const resizedFile = await resizeImage(file, 0.05);
         const {data} = await axios.post(`${link}/userImage`);
         const {url} = await fetch(data, {
           method: "PUT",
           headers: {
-            "Content-Type": file.type
+            "Content-Type": resizedFile.type
           },
-          body: file
+          body: resizedFile
         })
         const imageUrl = url.split('?')[0]
         if (userData?.id) {
@@ -104,7 +115,7 @@ const Avatar = ({
   };
 
   return (
-    <div className={`${styles.avatarContainer} ${classNamesContainer} `}>
+    <div className={`${styles.avatarContainer} ${classNamesContainer}`}>
       <div
         onClick={click}
         style={{ width: size, height: size }}
@@ -119,15 +130,15 @@ const Avatar = ({
             </div>
         }
       </div>
-      {showFullName && <p className={styles.text}>{fullName}</p>}
+      {showFullName && <p className={`${styles.text} ${fullNameStyle}`}>{fullName}</p>}
       {isEdit &&
         <>
           {uploading ? (
-            <Spin className={styles.editAvatar} style={{ width: size / 2, height: size / 2 }} />
+            <Spin className={styles.editAvatar} style={{ width: size / 2.5, height: size / 2.5 }} />
           ) : (
             <ProfileSvg
               color={editIconColor}
-              style={{ width: size / 2, height: size / 2, cursor: 'pointer' }}
+              style={{ width: size / 2.5, height: size / 2.5, cursor: 'pointer' }}
               size={size / 4.3}
               className={styles.editAvatar}
               onClick={handleImageUpload}

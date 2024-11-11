@@ -1,7 +1,8 @@
 import React from 'react';
-import {SmileOutlined} from '@ant-design/icons';
 import {Typography} from 'antd';
 import {colorTheme} from "../../utils/theme";
+import ComboSvg from "../../components/svg/ComboSvg";
+
 const {Title, Text} = Typography;
 
 const WaitDish = () => (
@@ -12,9 +13,12 @@ const WaitDish = () => (
     margin: '0 auto'
   }}>
     <div style={{textAlign: 'center'}}>
-      <SmileOutlined style={{fontSize: 48, color: colorTheme.darkPrimary}}/>
-      <Title level={4} style={{marginTop: 20}}>We haven't prepared the menu for next week yet.</Title>
-      <Text>Please come back at 15:00 to place a new order.</Text>
+      <ComboSvg style={{
+        width: 100,
+        height: 100,
+      }} color={colorTheme.secondary} />
+      <Title level={4} style={{marginTop: 20, color: colorTheme.secondary}}>We haven't prepared the menu for next week yet.</Title>
+      <Text style={{color: colorTheme.secondary}}>Please come back at 15:00.</Text>
     </div>
   </div>
 );

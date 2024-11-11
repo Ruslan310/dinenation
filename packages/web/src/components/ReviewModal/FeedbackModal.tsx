@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import styles from './FeedbackModal.module.css';
 import Button from "../Button/Button";
-import {Form, Input, Modal, Rate} from "antd";
+import {Form, Input, message, Modal, Rate} from "antd";
 import {Product} from "../../pages/OrderHistoryView/OrderHistoryView";
 import {colorTheme} from "../../utils/theme";
 import {useTypedMutation} from "@dinenation-postgresql/graphql/urql";
@@ -44,14 +44,19 @@ const ReviewModal = ({date, close}: Props) => {
   }
 
   const submit = async () => {
-    console.log(' close', form.getFieldsValue())
-    if (userData?.id)
-    await addReview({
-      user_id: userData?.id,
-      dish_name: date?.sticker,
-      ...form.getFieldsValue()
-    })
-    reset()
+    try {
+      if (userData?.id)
+        await addReview({
+          user_id: userData?.id,
+          dish_name: date?.sticker,
+          ...form.getFieldsValue()
+        })
+      reset()
+      message.success({content: 'Review successfully saved!', duration: 2});
+    } catch (err) {
+      console.log('----err', err)
+      message.error({content: "Something's wrong..", duration: 2});
+    }
   }
 
   return (

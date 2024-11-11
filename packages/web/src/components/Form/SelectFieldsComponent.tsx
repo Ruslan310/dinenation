@@ -21,11 +21,11 @@ const SelectFieldsComponent = ({
       {(fields, { add, remove }) => (
         <>
           {fields.map(({ key, name, ...restField }) => (
-            <Space className={className} key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+            <Space className={className} key={key} style={{display: 'flex'}} align="baseline">
               <Form.Item
                 {...restField}
                 name={[name, 'title']}
-                rules={[{ required: true, message: 'Missing product name' }]}
+                rules={[{ required: true, message: 'Missing office name' }]}
               >
                 {children}
               </Form.Item>

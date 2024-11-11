@@ -3,7 +3,7 @@ import MainRoutes from "./MainRoutes";
 import {MainContext} from "./contexts/MainProvider";
 import {Authenticator} from "@aws-amplify/ui-react";
 import Auth from "./pages/Auth/Auth";
-import Loading from "./components/Loader/Loading";
+import LogoLoader from "./components/LogoLoader/LogoLoader";
 
 const App = () => {
   const {authStatus, userData} = useContext(MainContext);
@@ -14,7 +14,7 @@ const App = () => {
 
   return (
     authStatus === configuring || !authStatus || (authStatus === authenticated && !userData?.email) ? (
-      <Loading />
+      <LogoLoader />
     ) : authStatus === unauthenticated ? (
       <Auth />
       // <Authenticator>

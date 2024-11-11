@@ -3,24 +3,26 @@ import {useParams} from "react-router-dom";
 import styles from "./Product.module.css";
 import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import { useNavigate } from "react-router-dom";
-import {Button, InputNumber, Form, Input, message, Select} from 'antd';
+import {Button, InputNumber, Form, Input, message, Select, Switch} from 'antd';
 import {
   CATEGORIES_TYPE,
   ComponentType,
-  EAllergensList,
+  EAllergensList, PageConfig,
   ProductStatus,
   WeekDay
 } from "../../../utils/utils";
 import Loading from "../../../components/Loader/Loading";
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
-import UploadPicture from "../../../components/Form/UploadPicture";
+import UploadPictureProduct, {ImgType} from "../../../components/Form/UploadPictureProduct";
 import {NotFound} from "../../index";
 import {ProductForm} from "../../../utils/type";
+import {CheckOutlined, CloseOutlined} from "@ant-design/icons";
+
 const {TextArea} = Input;
 
 
 
-interface ProductData {
+export interface ProductData {
   id: number;
   title: string;
   price: number;
@@ -38,7 +40,7 @@ const key = 'updatable';
 
 export default function UpdateProduct() {
   const [form] = Form.useForm();
-  const [picture, setPicture] = useState<string>('');
+  const [picture, setPicture] = useState<ImgType>();
   const [initialValues, setInitialValues] = useState<Partial<ProductData>>();
   const [isLoadingImage, setLoadingImage] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -60,7 +62,7 @@ export default function UpdateProduct() {
     },
   }));
 
-  const [{data}] = useTypedQuery({
+  const [data] = useTypedQuery({
     query: {
       product: {
         __args: {
@@ -74,10 +76,12 @@ export default function UpdateProduct() {
         categories: true,
         dish_type: true,
         image: true,
+        small_img: true,
         description: true,
         week_day: true,
         status: true,
         calories: true,
+        is_dish: true,
       },
     },
   });
@@ -92,14 +96,18 @@ export default function UpdateProduct() {
   });
 
   useEffect(() => {
-    if (data?.product) {
+    if (data?.data) {
       const {
         allergens,
         sauces,
         image,
+        small_img,
         ...rest
-      } = data?.product;
-      setPicture(data?.product.image)
+      } = data?.data.product;
+      setPicture({
+        img: image,
+        imgSmall: small_img,
+      })
       setInitialValues({
         ...rest,
         allergens: allergens !== '' ? allergens?.split(',') : [],
@@ -116,9 +124,14 @@ export default function UpdateProduct() {
           <Form.Item name="title" rules={[{required: true, message: 'Please enter name!'}]} className={styles.field}>
             <Input placeholder='Enter product name'/>
           </Form.Item>
-          <Form.Item className={styles.field} name="price" rules={[{required: true, message: 'Please enter price!'}]}>
-            <InputNumber placeholder='Price' min={0} className={styles.numberField}/>
-          </Form.Item>
+          <div className={styles.switch}>
+            <Form.Item className={styles.field} name="price" rules={[{required: true, message: 'Please enter price!'}]}>
+              <InputNumber placeholder='Price' min={0} className={styles.numberField}/>
+            </Form.Item>
+            <Form.Item label={"Has side"} name="is_dish" className={styles.field}>
+              <Switch checkedChildren={<CheckOutlined/>} unCheckedChildren={<CloseOutlined/>}/>
+            </Form.Item>
+          </div>
           <Form.Item name="allergens" className={styles.field}>
             <Select<string, { value: string; children: string }>
               placeholder="Select allergens"
@@ -176,8 +189,8 @@ export default function UpdateProduct() {
                 .map((type) => <Select.Option key={type} value={type}>{type}</Select.Option>)}
             </Select>
           </Form.Item>
-          <UploadPicture
-            picture={picture}
+          <UploadPictureProduct
+            picture={picture?.img || ''}
             setPicture={setPicture}
             load={isLoadingImage}
             setLoad={setLoadingImage}
@@ -217,31 +230,45 @@ export default function UpdateProduct() {
                 .map((type) => <Select.Option key={type} value={type}>{type}</Select.Option>)}
             </Select>
           </Form.Item>
-          <Form.Item name="calories" rules={[{required: true, message: 'Please enter calories!'}]} className={styles.field}>
-            <InputNumber placeholder='Enter calories'/>
+          <Form.Item name="calories" className={styles.field}>
+            <Input maxLength={30} placeholder='Enter calories'/>
           </Form.Item>
           <Form.Item className={styles.button}>
             <Button onClick={async () => {
               try {
                 await form.validateFields();
-                message.loading({content: 'Saving component...', key});
-                const {title, price, allergens, sauces, categories, dish_type, description, week_day, status, calories} = form.getFieldsValue();
+                message.loading({content: 'Saving product...', key});
+                const {
+                  title,
+                  price,
+                  allergens,
+                  sauces,
+                  is_dish,
+                  categories,
+                  dish_type,
+                  description,
+                  week_day,
+                  status,
+                  calories
+                } = form.getFieldsValue();
                 const {data} = await updateProduct({
                   id: currentProductId,
                   title,
                   price,
+                  is_dish,
                   allergens: allergens?.join(',').trim(),
                   sauces: sauces?.join(',').trim(),
                   categories,
                   dish_type,
-                  image: picture,
+                  image: picture?.img || '',
+                  small_img: picture?.imgSmall || '',
                   description,
                   week_day,
                   status,
-                  calories: calories.toString(),
+                  calories,
                 });
                 message.success({content: 'Product successfully saved!', key, duration: 2});
-                data && navigate(`/product`)
+                data && navigate(PageConfig.product)
               } catch (e) {
                 console.log('validations errors: ', e);
               }
@@ -250,7 +277,7 @@ export default function UpdateProduct() {
             </Button>
           </Form.Item>
         </Form>
-        : <Loading />
+        : <Loading/>
       }
     </div>
   );

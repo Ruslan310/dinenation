@@ -8,6 +8,8 @@ export const colorTheme = {
   black: '#000000',
   white: '#FFFFFF',
   rate: '#F1AC1D',
+  secondary: '#68696D',
+  link: '#409EFF',
 }
 
 export const statusColorIcon: Record<TStatusType, string> = {
@@ -20,10 +22,10 @@ export const statusColorIcon: Record<TStatusType, string> = {
 
 export const statusColorText: Record<TStatusType, string> = {
   'completed': colorTheme.active,
-  'cancelled': '#68696D',
+  'cancelled': colorTheme.secondary,
   'processing': colorTheme.darkPrimary,
   'cancel-request': colorTheme.rate,
-  'on-hold': '#567DD2',
+  'on-hold': colorTheme.link,
 }
 
 export const colorSideDishList: Record<EColorSideDishList, string> = {

@@ -3,6 +3,7 @@
     align-items: center;
     border-radius: 16px;
     padding: 0 8px;
+    min-height: 30px;
     background-color: var(--color-base-white);
     width: fit-content;
     border-width: 1px;

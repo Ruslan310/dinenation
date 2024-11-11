@@ -1,46 +1,32 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import styles from "./Checkout.module.css";
-import {Modal, Select} from "antd";
-import {ComponentType, DaysList, DishType, EStatusType, EWEEK_DAY, WEEKDAY_ORDER} from "../../utils/utils";
+import {Input, Modal, Popover, Select, Spin} from "antd";
+import {ComponentType, DishType, EWEEK_DAY, PageConfig, WEEKDAY_ORDER} from "../../utils/utils";
 import SelectedOrder from "../../components/SelectedImage/SelectedOrder";
-import SideDishSvg from "../../components/svg/SideDishSvg";
+import SideDishListSvg from "../../components/svg/SideDishListSvg";
 import CartSvg from "../../components/svg/CartSvg";
 import {MainContext} from "../../contexts/MainProvider";
 import {useTypedMutation} from "@dinenation-postgresql/graphql/urql";
 import Button from "../../components/Button/Button";
 import {CartList} from "../WeeklyMenu/WeeklyMenu";
 import {useNavigate} from "react-router-dom";
-import Loader from "../../components/Loader/Loader";
 import {colorTheme} from "../../utils/theme";
 import {currency, encryptData} from "../../utils/handle";
 import ArrowsSwg from "../../components/svg/ArrowsSWG";
 import LogoSvg, {logoType} from "../../components/svg/LogoSvg";
+import {BoxCreate} from "../../utils/type";
+import {useResize} from "../../hooks/useResize";
 
-const today = new Date();
-const currentDay = DaysList[today.getDay()-1]
+const {TextArea} = Input
 
 interface OrderCreate {
-  status: string,
   price: number,
   combo_price: number,
   coupon_id: number,
   customer_id: number,
   address: string | null | undefined,
   comment: string | null | undefined,
-}
-
-interface BoxCreate {
-  sticker: string,
-  type: string,
-  week_day: string,
-  image: string,
-  office: string | null | undefined,
-  price: number,
-  side_dish: string | null | undefined,
-  side_dish_type: string | null | undefined,
-  sauce: string | null | undefined,
-  order_id: number,
-  combo_id: number,
+  boxes: BoxCreate[]
 }
 
 const Checkout = () => {
@@ -49,36 +35,52 @@ const Checkout = () => {
   const [removeModal, setRemoveModal] = useState<CartList | undefined>()
   const [submitModal, setSubmitModal] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
+  const [openComment, setOpenComment] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const {isScreenSm} = useResize();
 
-  const coupon_id = 1; //TODO
-
-  console.log('---cartList', cartList)
-
-  const filteredCartList = useMemo(() => {
-    return cartList.filter(list => list.isBlockDay)
-  }, [cartList])
+  const hidePrice = userData?.coupon.hide_price
+  const removeDay = (id: number) => {
+    setCartList(prevOrders => {
+      const updatedCartList = prevOrders.filter(cartItem => cartItem.id !== id);
+      const jsonData = JSON.stringify(updatedCartList);
+      const encryptedData = encryptData(jsonData);
+      localStorage.setItem('cartList', encryptedData);
+      return updatedCartList;
+    });
+    setRemoveModal(undefined);
+  };
 
   useEffect(() => {
-    if (!cartList.length) {
-      navigate("/")
+    if (!cartList.length && !message) {
+      localStorage.removeItem('cartTComment');
+      navigate(PageConfig.home)
     }
+
+    cartList.forEach(list => {
+      if (!list.isBlockDay) {
+        removeDay(list.id);
+      }
+    });
+
+    const comment = localStorage.getItem('cartTComment') || '';
+    setCommentText(comment)
   }, [cartList])
 
-  const [order, addOrder] = useTypedMutation((opts: OrderCreate) => ({
-    createOrder: {
+  const [order, createOrderWithBoxes] = useTypedMutation((opts: OrderCreate) => ({
+    createOrderWithBoxes: {
       __args: opts,
       id: true
     },
   }));
 
-  const [box, addBox] = useTypedMutation((opts: BoxCreate) => ({
-    createBox: {
-      __args: opts,
-      id: true
-    },
-  }));
 
-  const isHasOffice = () => !!userData?.coupon.office.length && filteredCartList.every(order => order.office);
+  const isHasOffice = () => {
+    const hasOffice = !!userData?.coupon?.office?.length;
+    const allItemsHaveOffice = cartList.every(order => order.office);
+    return (hasOffice && allItemsHaveOffice) || !hasOffice;
+  };
+
 
   const handleOffice = (value: string, day: EWEEK_DAY) => {
     setCartList((prevCartList: CartList[]) => {
@@ -98,249 +100,358 @@ const Checkout = () => {
     });
   };
 
-  const removeDay = (id: number) => {
-    setCartList(prevOrders => {
-      const updatedCartList = prevOrders.filter(cartItem => cartItem.id !== id);
-      const jsonData = JSON.stringify(updatedCartList);
-      const encryptedData = encryptData(jsonData);
-      localStorage.setItem('cartList', encryptedData);
-      return updatedCartList;
-    });
-    setRemoveModal(undefined);
-  };
-
   const sumPrices = useMemo(() => {
-    let total = 0;
+    const totalSum = Object.values(cartList).reduce((total, dayObject) => {
+      if (!dayObject.products) return total;
 
-    for (const day in filteredCartList) {
-      const dayObject = filteredCartList[day];
+      const dayTotal = Object.values(dayObject.products).reduce((sum, product) => {
+        return sum + (product.price || 0);
+      }, 0);
 
-      if (dayObject) {
-        // Суммируем цену на первом уровне, если она есть
-        if (dayObject.price) {
-          total += dayObject.price || 0;
-        }
+      return total + dayTotal;
+    }, 0);
 
-        // Проверяем, есть ли объект 'products' с десертом и суммируем цену десерта
-        if (dayObject.products && dayObject.products.Desert && dayObject.products.Desert.price) {
-          total += dayObject.products.Desert.price || 0;
-        }
-      }
-    }
+    const tax = totalSum * 0.05; // Налог 5%
 
-    return total;
-  }, [filteredCartList]);
+    return { total: totalSum, tax };
+  }, [cartList]);
 
-  const createBox = async (data: BoxCreate) => {
-    const result = await addBox(data)
-    console.log('-----result', result)
-  }
 
   const submitOrder = async () => {
-    setSubmitModal(false)
-    console.log('-------finish order------')
+    setSubmitModal(false);
+    // console.log('------- create order ------');
     try {
       if (userData) {
-        const {data} = await addOrder({
-          status: EStatusType.PROCESSING,
-          // status: EStatusType.COMPLETED,
-          price: sumPrices,
-          combo_price: sumPrices,
-          coupon_id: coupon_id,
+        let boxes = cartList.flatMap(cartItem => {
+          return Object.values(cartItem.products).map(product => {
+            const isMain = product.dish_type === DishType.MAIN;
+            return {
+              sticker: product.title,
+              type: product.dish_type,
+              week_day: cartItem.day,
+              image: product.image,
+              small_img: product.small_img,
+              office: cartItem.office,
+              price: product.price,
+              side_dish: isMain ? cartItem[DishType.SIDE]?.title : '',
+              side_dish_type: isMain ? cartItem[DishType.SIDE]?.type : '',
+              sauce: isMain ? cartItem.Sauce : '',
+              combo_id: cartItem.id,
+            };
+          });
+        })
+
+        let orderData = {
+          price: sumPrices.total,
+          combo_price: sumPrices.total,
+          coupon_id: userData.coupon.id,
           customer_id: userData?.id,
           address: userData?.coupon.address,
-          comment: '',
-        })
-        console.log('----newOrder----', data)
-        if (data?.createOrder) {
-          cartList.forEach(cartItem => {
-            const {day, office, Sauce, id} = cartItem
-            Object.values(cartItem.products).forEach(product => {
-              const isMain = product.dish_type === DishType.MAIN
-              createBox({
-                sticker: product.title,
-                type: product.dish_type,
-                week_day: day,
-                image: product.image,
-                office: office,
-                price: product.price,
-                side_dish: isMain ? cartItem[DishType.SIDE]?.title : '',
-                side_dish_type: isMain ? cartItem[DishType.SIDE]?.type : '',
-                sauce: isMain ? Sauce : '',
-                order_id: data?.createOrder.id,
-                combo_id: id,
-              });
-            });
-          });
-          setMessage('Your order has been accepted!')
+          comment: commentText,
+          boxes: boxes,
+        }
+
+        const {data} = await createOrderWithBoxes(orderData);
+
+        if (data?.createOrderWithBoxes) {
+          localStorage.removeItem('cartList');
+          localStorage.removeItem('cartTimestamp');
+          localStorage.removeItem('cartTComment');
+          setCartList([])
+          setMessage('Your order has been accepted!');
         }
       }
     } catch (err) {
-      console.error(err)
-      setMessage('An error occurred while creating your order.!')
+      console.error(err);
+      setMessage('An error occurred while creating your order!');
     }
   };
 
+  const contentPopover = (
+    <div>
+      <p>Please select an office</p>
+    </div>
+  );
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpenComment(newOpen);
+  };
+
+  const handleCommentText = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    let text = e.target.value
+    setCommentText(text)
+    localStorage.setItem('cartTComment', text)
+  }
+
+  const commentComponent = (
+    <div className={styles.commentContainer}>
+      <h4>Order notes (optional)</h4>
+      <TextArea
+        maxLength={200}
+        value={commentText}
+        onChange={handleCommentText}
+        style={{margin: '10 0'}}
+        placeholder='Enter your notes'
+        rows={4}
+      />
+    </div>
+  )
+
   return (
-    <div className={styles.page}>
-      {(order.fetching || box.fetching) && <Loader />}
-      <Modal
-        open={!!removeModal}
-        onCancel={() => setRemoveModal(undefined)}
-        footer={false}
-        width={460}>
-        <div className={styles.messageContainer}>
-          <h3>Are you sure you want to remove {removeModal?.day}?</h3>
-          <Button onClick={() => removeModal && removeDay(removeModal?.id)}>OK</Button>
-        </div>
-      </Modal>
-      <Modal
-        open={submitModal}
-        onCancel={() => setSubmitModal(false)}
-        footer={false}
-        width={460}>
-        <div className={styles.messageContainer}>
-          <h3>Would you like to complete your order?</h3>
-          <Button onClick={submitOrder}>OK</Button>
-        </div>
-      </Modal>
-      <Modal
-        open={!!message}
-        onCancel={() => setSubmitModal(false)}
-        footer={false}
-        width={460}>
-        <div className={styles.messageContainer}>
-          <h3>{message}</h3>
-          <Button onClick={() => {
-            setMessage('')
-            navigate('/history')
-            localStorage.setItem('cartList', '');
-            setCartList([])
-          }}>OK</Button>
-        </div>
-      </Modal>
-      {/* header  */}
-      <div className={styles.headerContainer}>
-        <div className={`${styles.contentBlock} ${styles.headerBlock}`}>
-          <div>
-            <h1>Checkout</h1>
-            <span>Your Price </span>
-            <span style={{color: colorTheme.active}}>{currency(sumPrices)}</span>
+    <Spin spinning={order.fetching} size="large" className={styles.page}>
+      <div className={styles.page}>
+        <Modal
+          open={!!removeModal}
+          onCancel={() => setRemoveModal(undefined)}
+          footer={false}
+          width={460}>
+          <div className={styles.messageContainer}>
+            <h3>Are you sure you want to remove {removeModal?.day}?</h3>
+            <Button onClick={() => removeModal && removeDay(removeModal?.id)}>OK</Button>
           </div>
-          <LogoSvg type={logoType.HORIZONTAL} />
-        </div>
-      </div>
-      <div className={styles.footerContainer}>
-        {/* footer button  */}
-        {filteredCartList?.length &&
-          <div className={styles.footerButtonBlock}>
-            <Button
-              onClick={() => navigate('/')}
-              iconPosition='left'
-              className={styles.submitButton}
-              icon={<ArrowsSwg type='left' color={colorTheme.white} />}>
-              <div className={styles.buyButtonContainer}>
-                <p>Back</p>
-              </div>
-            </Button>
-            <Button
-              disabled={!isHasOffice()}
-              onClick={() => setSubmitModal(true)}
-              iconPosition='left'
-              className={styles.submitButton}
-              icon={<CartSvg color={colorTheme.white} />}>
-              <div className={styles.buyButtonContainer}>
-                <p>Total ( {currency(sumPrices)} ) Place Order</p>
-                <p className={styles.buyButtonCountDay}>{Object.keys(filteredCartList)?.length} days</p>
-              </div>
-            </Button>
+        </Modal>
+        <Modal
+          open={submitModal}
+          onCancel={() => setSubmitModal(false)}
+          footer={false}
+          width={460}>
+          <div className={styles.messageContainer}>
+            <h3>Would you like to complete your order?</h3>
+            <Button onClick={submitOrder}>OK</Button>
           </div>
-        }
-        {/* list  */}
-        <div className={`${styles.contentBlock} ${styles.footerBlock}`}>
-          {filteredCartList
-            .sort((a, b) =>
-              WEEKDAY_ORDER.indexOf(a.day) - WEEKDAY_ORDER.indexOf(b.day))
-            .map((cartItem, index) => (
-              <div key={`${index}+${cartItem.day}`} className={styles.orderItem}>
-                <div className={styles.orderHeaderTitleContainer}>
-                  <div className={styles.daysHeaderBlock}>
-                    <p className={styles.headerText}>{cartItem.day}</p>
-                    {/*{cartItem.day?.toLowerCase() === currentDay?.toLowerCase() ?*/}
-                    {/*  <>*/}
-                    {/*    <StarFilled className={styles.starIcon}/>*/}
-                    {/*    <p className={styles.headerText} style={{color: '#40C677'}}>Today</p>*/}
-                    {/*  </> :*/}
+        </Modal>
+        <Modal
+          open={!!message}
+          onCancel={() => setSubmitModal(false)}
+          footer={false}
+          width={460}>
+          <div className={styles.messageContainer}>
+            <h3>{message}</h3>
+            <Button onClick={() => {
+              setMessage('')
+              navigate(PageConfig.history)
+            }}>OK</Button>
+          </div>
+        </Modal>
+        {/* header  */}
+        <div className={styles.headerContainer}>
+          {/* header web  */}
+          <div className={`${styles.contentBlock} ${styles.headerBlock}`}>
+            <div>
+              <h1>Checkout</h1>
+              {!hidePrice ?
+                <>
+                  <span>Your Price </span>
+                  <span style={{color: colorTheme.active}}>{currency(sumPrices.total, hidePrice)}</span>
+                  <span style={{fontSize: 11, margin: '0 10px'}}>
+                    (includes
+                    <span style={{fontSize: 12, color: colorTheme.active, margin: '0 5px'}}>{currency(sumPrices.tax, hidePrice)}</span>
+                    vat (5%))
+                  </span>
+                </>
+                : ''
+              }
+            </div>
+            <LogoSvg type={logoType.HORIZONTAL} />
+          </div>
+          {/* header mobile */}
+          <div className={`${styles.contentBlock} ${styles.mobileHeaderBlock}`} onClick={() => navigate(PageConfig.home)}>
+            <ArrowsSwg style={{width: 20, height: 20, marginRight: 15}} type='left'
+                       color={colorTheme.black}/>
+            <div>
+              {hidePrice
+                ? <p>Checkout</p>
+                : <p>Checkout / Your Price</p>
+              }
+              {!hidePrice &&
+                <p>
+                  <span
+                    style={{color: colorTheme.active}}>{currency(sumPrices.total, hidePrice)}</span>
+                  <span style={{fontSize: 11, marginLeft: 10}}>
+                    (includes
+                    <span style={{
+                      fontSize: 12,
+                      color: colorTheme.active,
+                      margin: '0 5px'
+                    }}>{currency(sumPrices.tax, hidePrice)}</span>
+                    vat (5%))
+                  </span>
+                </p>
+              }
+            </div>
+
+          </div>
+        </div>
+        <div className={styles.footerContainer}>
+          {/* footer button  */}
+          {!!cartList?.length &&
+            <div className={styles.footerButtonBlock}>
+              <Popover
+                content={commentComponent}
+                trigger="click"
+                open={openComment}
+                onOpenChange={handleOpenChange}
+              >
+                <div className={styles.commentButton}>Comment</div>
+              </Popover>
+              <Button
+                onClick={() => navigate(PageConfig.home)}
+                iconPosition='left'
+                className={`${styles.submitButton} ${styles.submitButtonBack}`}
+                icon={<ArrowsSwg type='left' color={colorTheme.white} />}>
+                <div className={styles.buyButtonContainer}>
+                  <p>Back</p>
+                </div>
+              </Button>
+              {!isHasOffice() ? (
+                <Popover content={contentPopover}>
+                  <div style={{ display: 'inline-block', cursor: 'not-allowed' }}>
+                    <Button
+                      disabled
+                      iconPosition="left"
+                      className={styles.submitButton}
+                      icon={<CartSvg color={colorTheme.white} />}
+                    >
+                      <div className={styles.buyButtonContainer}>
+                        {!hidePrice && <p className={styles.buyButtonPrice}>Total ( {currency(sumPrices.total)} )</p>}
+                        <p>{isScreenSm ? 'Order' : 'Place Order'}</p>
+                        <p className={styles.buyButtonCountDay}>{Object.keys(cartList)?.length} days</p>
+                      </div>
+                    </Button>
+                  </div>
+                </Popover>
+              ) : (
+                <Button
+                  onClick={() => setSubmitModal(true)}
+                  iconPosition="left"
+                  className={styles.submitButton}
+                  icon={<CartSvg color={colorTheme.white} />}
+                >
+                  <div className={styles.buyButtonContainer}>
+                    {!hidePrice && <p className={styles.buyButtonPrice}>Total ( {currency(sumPrices.total)} )</p>}
+                    <p>{isScreenSm ? 'Order' : 'Place Order'}</p>
+                    <p className={styles.buyButtonCountDay}>{Object.keys(cartList)?.length} days</p>
+                  </div>
+                </Button>
+              )}
+            </div>
+          }
+          {/* list  */}
+          <div className={`${styles.contentBlock} ${styles.footerBlock}`}>
+            {cartList
+              .sort((a, b) =>
+                WEEKDAY_ORDER.indexOf(a.day) - WEEKDAY_ORDER.indexOf(b.day))
+              .map((cartItem, index) => (
+                <div key={`${index}+${cartItem.day}`}>
+                  <div className={styles.orderHeaderTitleContainer}>
+                    <div className={styles.daysHeaderBlock}>
+                      <p className={styles.headerText}>{cartItem.day}</p>
                       <div onClick={() => setRemoveModal(cartItem)} className={styles.removeOrder}>
                         <span>Remove</span>
                       </div>
-                    {/*}*/}
-                  </div>
-                  {userData?.coupon.office.length &&
-                    <div className={styles.daysHeaderBlock}>
-                      <p>Choose an address</p>
-                      <Select<string, { value: string; children: string }>
-                        style={{width: '204px'}}
-                        value={cartItem.office}
-                        placeholder="Select office"
-                        onChange={(value) => handleOffice(value, cartItem.day)}
-                        filterOption={(input, option) =>
-                          option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
-                        }
-                      >
-                        {userData?.coupon.office
-                          .map(({id, title}) => <Select.Option key={id} value={title}>{title}</Select.Option>)}
-                      </Select>
                     </div>
-                  }
-                </div>
-                <div className={styles.orderBlock}>
-                  {Object.values(cartItem.products)
-                    .filter(product => !!product)
-                    .map((product, index) => (
-                      <div
-                        key={product?.dish_type}
-                        style={{maxWidth: product?.dish_type === ComponentType.MAIN ? '558px' : '339px'}}
-                        className={styles.orderItemContent}>
-                        <div className={styles.orderHeaderBlock}>
-                          <p>{index+1}</p>
-                          <h3>{product?.dish_type}</h3>
-                        </div>
-                        <div className={styles.orderItemBlock}>
-                          <SelectedOrder style={{marginRight: '16px'}} image={product?.image} isSelected/>
-                          <div>
-                            <p>{product?.title}</p>
-                            {product.dish_type === DishType.MAIN &&
-                              <div className={styles.itemRow}>
-                                {cartItem[DishType.SIDE] &&
-                                  <div style={{marginRight: '16px'}} className={styles.sideBlock}>
-                                    <p>Side Dish</p>
-                                    <div className={styles.itemRowDish}>
-                                      <SideDishSvg style={{marginRight: '8px'}} type={cartItem[DishType.SIDE]?.type}/>
-                                      <span>{cartItem[DishType.SIDE]?.title}</span>
-                                    </div>
-                                  </div>
-                                }
-                                {cartItem.Sauce &&
-                                  <div className={styles.sideBlock}>
-                                    <p>Sauce</p>
-                                    <div className={styles.subTitleSauce}>
-                                      <span>{cartItem.Sauce}</span>
-                                    </div>
+                    {!!userData?.coupon.office.length &&
+                      <div className={styles.daysHeaderBlock}>
+                        <p>Choose an address</p>
+                        <Select<string, { value: string; children: string }>
+                          style={{width: 164}}
+                          value={cartItem.office}
+                          placeholder="Select office"
+                          onChange={(value) => handleOffice(value, cartItem.day)}
+                          filterOption={(input, option) =>
+                            option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
+                          }
+                        >
+                          {userData?.coupon.office
+                            .map(({id, title}) => <Select.Option key={id} value={title}>{title}</Select.Option>)}
+                        </Select>
+                      </div>
+                    }
+                  </div>
+                  <div className={styles.orderBlock}>
+                    {Object.values(cartItem.products)
+                      .filter(product => !!product)
+                      .map((product, index) => (
+                        <div className={styles.orderContainer} key={product?.dish_type}>
+                          {/* web  */}
+                          <div
+                            style={{width: product?.dish_type === ComponentType.MAIN ? '558px' : '332px'}}
+                            className={styles.orderItemContent}>
+                            <div className={styles.orderHeaderBlock}>
+                              <p>{index + 1}</p>
+                              <h3>{product?.dish_type}</h3>
+                            </div>
+                            <div className={styles.orderItemBlock}>
+                              <SelectedOrder small_img={product.small_img} className={styles.imgBlock} image={product?.image} isSelected/>
+                              <div>
+                                <p>{product?.title}</p>
+                                {product.dish_type === DishType.MAIN &&
+                                  <div className={styles.itemRow}>
+                                    {cartItem[DishType.SIDE] &&
+                                      <div style={{marginRight: 16}} className={styles.sideBlock}>
+                                        <p>{DishType.SIDE}</p>
+                                        <div className={styles.itemRowDish}>
+                                          <SideDishListSvg
+                                            style={{marginRight: 8}}
+                                            type={cartItem[DishType.SIDE]?.type}
+                                          />
+                                          <span>{cartItem[DishType.SIDE]?.title}</span>
+                                        </div>
+                                      </div>
+                                    }
+                                    {cartItem.Sauce &&
+                                      <div className={styles.sideBlock}>
+                                        <p>{DishType.SAUCE}</p>
+                                        <div className={styles.subTitleSauce}>
+                                          <span>{cartItem.Sauce}</span>
+                                        </div>
+                                      </div>
+                                    }
                                   </div>
                                 }
                               </div>
-                            }
+                            </div>
+                          </div>
+
+                          {/* mobile  */}
+                          <div
+                            key={product?.dish_type}
+                            className={styles.orderItemContentMobile}>
+                            <div className={styles.orderHeaderBlock}>
+                              <p>{index + 1}</p>
+                              <h3>{product?.dish_type}</h3>
+                            </div>
+                            <div className={styles.orderItemBlockMobile}>
+                              <div>
+                                <p>{product?.title}</p>
+                                {product.dish_type === DishType.MAIN &&
+                                  <div>
+                                    {cartItem[DishType.SIDE] &&
+                                      <div className={styles.sideBlockMobile}>
+                                        <p>{DishType.SIDE}</p>
+                                        <span>{cartItem[DishType.SIDE]?.title}</span>
+                                      </div>
+                                    }
+                                    {cartItem.Sauce &&
+                                      <div className={styles.sideBlockMobile}>
+                                        <p>{DishType.SAUCE}</p>
+                                        <span>{cartItem.Sauce}</span>
+                                      </div>
+                                    }
+                                  </div>
+                                }
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+          </div>
         </div>
       </div>
-    </div>
+    </Spin>
   );
 };
 

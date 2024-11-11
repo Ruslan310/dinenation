@@ -1,5 +1,6 @@
 // AUTH
-import {EAllergensList} from "./utils";
+import {EAllergensList, EWEEK_DAY} from "./utils";
+import {Product} from "../pages/AdminPanel/Orders/OrderView";
 
 export interface User {
   id: number,
@@ -11,12 +12,15 @@ export interface User {
   coupon: UserCoupon,
   role: string,
   image: string | null | undefined,
+  is_update: boolean,
 }
 
 export interface UserCoupon {
   id: number,
   title: string,
   address: string | null | undefined,
+  check_order: boolean,
+  hide_price: boolean,
   domain: Domain
   office: Office[]
 }
@@ -66,11 +70,37 @@ export interface ProductForm {
   price: number;
   allergens: EAllergensList;
   sauces: string;
+  is_dish: boolean;
   categories: string;
   dish_type: string;
   image: string;
+  small_img: string;
   description: string;
   week_day: string;
   status: string;
   calories: string;
+}
+
+
+type ProductList = {
+  [combo_id: number]: Product[];
+}
+
+export type GroupedProducts = {
+  [week_day: string]: ProductList;
+};
+
+
+export interface BoxCreate {
+  sticker: string,
+  type: string,
+  week_day: EWEEK_DAY,
+  image: string,
+  small_img: string,
+  office: string | null | undefined,
+  price: number,
+  side_dish: string | null | undefined,
+  side_dish_type: string | null | undefined,
+  sauce: string | null | undefined,
+  combo_id: number,
 }

@@ -2,7 +2,7 @@ import { SSTConfig } from "sst";
 import {Api} from "./stacks/Api";
 import {Web} from "./stacks/Web";
 import {Database} from "./stacks/Database";
-import {AuthStack} from "./stacks/AuthStack";
+// import {AuthStack} from "./stacks/AuthStack";
 
 export default {
   config(_input) {
@@ -14,7 +14,7 @@ export default {
   stacks(app) {
     app
       .stack(Database)
-      .stack(AuthStack)
+      // .stack(AuthStack)
       .stack(Api)
       .stack(Web);
   }

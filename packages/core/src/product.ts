@@ -7,9 +7,11 @@ export async function addProduct(
   price: number,
   allergens: string | null | undefined,
   sauces: string | null | undefined,
+  is_dish: boolean,
   categories: string,
   dish_type: string,
   image: string,
+  small_img: string,
   description: string | null | undefined,
   week_day: string,
   status: string,
@@ -22,9 +24,11 @@ export async function addProduct(
       date_updated: sql`now()`,
       allergens,
       sauces,
+      is_dish,
       categories,
       dish_type,
       image,
+      small_img,
       description,
       week_day,
       status,
@@ -41,9 +45,11 @@ export async function updateProduct(
   price: number,
   allergens: string | null | undefined,
   sauces: string | null | undefined,
+  is_dish: boolean,
   categories: string,
   dish_type: string,
   image: string,
+  small_img: string,
   description: string | null | undefined,
   week_day: string,
   status: string,
@@ -56,9 +62,11 @@ export async function updateProduct(
       date_updated: sql`now()`,
       allergens,
       sauces,
+      is_dish,
       categories,
       dish_type,
       image,
+      small_img,
       description,
       week_day,
       status,
@@ -74,10 +82,10 @@ export async function deleteProduct(id: number) {
   await SQL.DB.deleteFrom("combo_product")
     .where("product_id", "=", id)
     .execute();
-  await SQL.DB.deleteFrom("product")
+  return await SQL.DB.deleteFrom("product")
     .where('id', '=', id)
-    .execute();
-  return true
+    .returningAll()
+    .executeTakeFirst();
 }
 
 export function products() {

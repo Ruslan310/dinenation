@@ -2,13 +2,82 @@
     padding: 20px;
     display: flex;
     height: 100vh;
+    @media (max-width: 700px) {
+        padding: 10px;
+    }
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-base-white);
+    border-radius: 16px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 0 16px 0 #00000040;
+}
+
+.itemsContainer {
+    height: calc(100vh - 100px);
+    padding: 15px;
+    overflow-y: scroll;
+}
+
+.buttonTop {
+    background-color: var(--color-navbar);
+    color: var(--color-base-black);
+    &:hover {
+        background-color: var(--color-navbar);
+    }
+}
+
+.productItemBlock {
+    display: flex;
+    max-width: 600px;
+    align-items: center;
+    margin-top: 20px;
+    height: 50px;
+    background-color: var(--color-navbar);
+    border-radius: 8px;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: var(--font-weight-light);
+    cursor: pointer;
+    padding-right: 10px;
+    padding-left: 10px;
+
+    &:hover {
+        background-color: var(--color-base-active);
+        color: var(--color-base-white);
+    }
+}
+
+.header {
+    padding: 15px;
+    transition: box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+}
+
+.search {
+    margin-left: 15px;
+    width: 300px;
+}
+
+.productItem {
+    border-radius: 30px;
+    display: flex;
+    width: fit-content;
+    align-items: center;
 }
 
 .form {
     flex-direction: column;
     width: 100%;
     max-width: 600px;
-    margin: 30px,
+    margin: 30px;
 }
 
 .field {
@@ -45,7 +114,7 @@
 
     &:hover {
         background-color: var(--color-navbar);
-        box-shadow: 0 0 8px 0 #A8B6C78F;
+        box-shadow: 0 0 8px 0 var(--color-shadow);
     }
 }
 
@@ -54,4 +123,29 @@
     display: flex;
     justify-content: center;
 }
+
+.addSwg {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.messageContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    & button {
+        margin-top: 20px;
+        width: 200px;
+    }
+}
+
+
+.priceItem {
+    display: flex;
+    width: 210px;
+    justify-content: space-between;
+}
+
 

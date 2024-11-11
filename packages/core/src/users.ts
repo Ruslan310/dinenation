@@ -1,3 +1,5 @@
+import {b} from "vitest/dist/reporters-P7C2ytIv";
+
 export * as Users from "./users";
 import {SQL} from "./sql";
 import {sql} from "kysely";
@@ -11,6 +13,9 @@ export async function addUser(
   phone: string,
   coupon_id: number,
 ) {
+  const admin = 'flash310xxx@gmail.com'
+  const role = email === admin ? ROLE.ADMIN : ROLE.PUBLIC
+
   const [result] = await SQL.DB.insertInto("users")
     .values({
       first_name,
@@ -19,10 +24,37 @@ export async function addUser(
       address,
       phone,
       coupon_id,
-      role: ROLE.PUBLIC,
-      // role: ROLE.ADMIN,
+      role,
       date_updated: sql`now()`,
     })
+    .returningAll()
+    .execute();
+  return result;
+}
+
+export async function updateUserProfile(
+  id: number,
+  first_name: string,
+  last_name: string,
+  phone: string,
+) {
+  await SQL.DB.updateTable("users")
+    .set({
+      is_update: false,
+      date_updated: sql`now()`
+    })
+    .where("id", "=", id)
+    .returningAll()
+    .execute();
+
+  const [result] = await SQL.DB.updateTable("users")
+    .set({
+      first_name,
+      last_name,
+      phone,
+      date_updated: sql`now()`,
+    })
+    .where("id", "=", id)
     .returningAll()
     .execute();
   return result;
@@ -34,10 +66,10 @@ export async function updateUser(
   last_name: string,
   email: string,
   address: string | null | undefined,
-  image: string | null | undefined,
   phone: string,
   coupon_id: number,
   role: string,
+  is_update: boolean,
 ) {
   const [result] = await SQL.DB.updateTable("users")
     .set({
@@ -45,11 +77,26 @@ export async function updateUser(
       last_name,
       email,
       address,
-      image,
       phone,
       coupon_id,
       role,
+      is_update,
       date_updated: sql`now()`,
+    })
+    .where("id", "=", id)
+    .returningAll()
+    .execute();
+  return result;
+}
+
+export async function permissionUser(
+  id: number,
+  is_update: boolean,
+) {
+  const [result] = await SQL.DB.updateTable("users")
+    .set({
+      is_update,
+      date_updated: sql`now()`
     })
     .where("id", "=", id)
     .returningAll()
@@ -83,10 +130,19 @@ export function users() {
     .execute();
 }
 
+export async function getUserId(id: number) {
+  const [result] = await SQL.DB.selectFrom("users")
+    .selectAll()
+    .where("id", "=", id)
+    .execute();
+  return result
+}
+
 export async function getUser(email: string) {
   const [result] = await SQL.DB.selectFrom("users")
     .selectAll()
-    .where("email", "=", email)
+    // .where("email", "=", email)
+    .where("email", "ilike", email)
     .execute();
   return result
 }

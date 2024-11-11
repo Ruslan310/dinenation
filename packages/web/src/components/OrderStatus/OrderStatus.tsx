@@ -7,15 +7,19 @@ import {TStatusType} from "../../utils/utils";
 interface Props {
   status: TStatusType;
   className?: string;
+  hideText?: boolean;
 }
 
-const OrderStatus = ({status, className}: Props) => (
+const OrderStatus = ({status, className, hideText}: Props) => (
   <div
     style={{borderColor: status ? statusColorIcon[status] : ''}}
     className={`${styles.statusBlock} ${className}`}>
     <OrderStatusSvg type={status}/>
-    <p
-      style={{color: status ? statusColorText[status] : colorTheme.black}}>{status}</p>
+    {!hideText &&
+      <p
+        style={{color: status ? statusColorText[status] : colorTheme.black}}>{status}
+      </p>
+    }
   </div>
 );
 

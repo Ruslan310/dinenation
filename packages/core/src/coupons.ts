@@ -1,3 +1,5 @@
+import {b} from "vitest/dist/reporters-P7C2ytIv";
+
 export * as Coupons from "./coupons";
 import {SQL} from "./sql";
 import {sql} from "kysely";
@@ -9,6 +11,8 @@ export async function addCoupon(
   address: string,
   expiration_date: string | null | undefined,
   status: string,
+  check_order: boolean,
+  hide_price: boolean,
 ) {
   const [result] = await SQL.DB.insertInto("coupons")
     .values({
@@ -19,6 +23,8 @@ export async function addCoupon(
       expiration_date,
       date_updated: sql`now()`,
       status,
+      check_order,
+      hide_price,
     })
     .returningAll()
     .execute();
@@ -33,6 +39,8 @@ export async function updateCoupon(
   address: string,
   expiration_date: string | null | undefined,
   status: string,
+  check_order: boolean,
+  hide_price: boolean,
 ) {
   const [result] = await SQL.DB.updateTable("coupons")
     .set({
@@ -43,6 +51,8 @@ export async function updateCoupon(
       expiration_date,
       date_updated: sql`now()`,
       status,
+      check_order,
+      hide_price,
     })
     .where("id", "=",id)
     .returningAll()
@@ -54,10 +64,10 @@ export async function deleteCoupon(id: number) {
   await SQL.DB.deleteFrom("office")
     .where('coupon_id', '=', id)
     .execute();
-  await SQL.DB.deleteFrom("coupons")
+  return await SQL.DB.deleteFrom("coupons")
     .where('id', '=', id)
-    .execute();
-  return true;
+    .returningAll()
+    .executeTakeFirst();
 }
 
 export function coupons() {

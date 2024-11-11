@@ -94,10 +94,10 @@ const UploadPicture = ({
             alt="component photo"
             style={{
               width: '100%',
-              borderRadius: '8px',
+              borderRadius: 8,
               height: '100%',
-              maxWidth: '100px',
-              maxHeight: '100px',
+              maxWidth: 100,
+              maxHeight: 100,
               objectFit: 'cover',
             }}
           /> : uploadButton}

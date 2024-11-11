@@ -41,14 +41,14 @@ const UploadPicture = ({
           setLoad(true)
           try {
             const link = import.meta.env.VITE_GRAPHQL_URL.slice().slice(0, -8)
-            // const resizedFile = await resizeImage(file as File);
+            const resizedFile = await resizeImage(file as File);
             const {data} = await axios.post(`${link}/dishImage`);
             const {url} = await fetch(data, {
               method: "PUT",
               headers: {
                 "Content-Type": "multipart/form-data"
               },
-              body: file
+              body: resizedFile
             })
             const imageUrl = url.split('?')[0]
             setPicture(imageUrl);
@@ -71,7 +71,18 @@ const UploadPicture = ({
         }}
       >
         {!load && picture ?
-          <img src={picture} alt="component photo" style={{width: '100%'}}/> : uploadButton}
+          <img
+            src={picture}
+            alt="component photo"
+            style={{
+              width: '100%',
+              borderRadius: 8,
+              height: '100%',
+              maxWidth: 100,
+              maxHeight: 100,
+              objectFit: 'cover',
+            }}
+          /> : uploadButton}
       </Upload>
     </Form.Item>
   );

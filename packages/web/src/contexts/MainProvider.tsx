@@ -6,7 +6,7 @@ import {useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import {decryptData} from "../utils/handle";
 import {User} from "../utils/type";
 import {message} from "antd";
-import {TIME_LIMIT} from "../constants";
+import {defaultParams} from "../constants";
 
 export interface MainProps {
   cartList: CartList[];
@@ -42,12 +42,12 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
       ({ additionalTypenames: ["users"] }),
     [user?.signInDetails?.loginId]);
 
+  const query = user?.signInDetails?.loginId?.toLowerCase().trim() || ''
+
   const [getUser] = useTypedQuery({
     query: {
       user: {
-        __args: {
-          email: user?.signInDetails?.loginId || ''
-        },
+        __args: {email: query},
         id: true,
         first_name: true,
         last_name: true,
@@ -61,6 +61,8 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
           id: true,
           title: true,
           address: true,
+          check_order: true,
+          hide_price: true,
           office: {
             id: true,
             title: true,
@@ -72,30 +74,44 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
         },
       },
     },
-    context
+    context,
+    requestPolicy: 'network-only',
+    pause: !query
   });
 
+  const content = (
+    <div style={{padding: 20}}>
+      <p>Time's up, cart is empty</p>
+    </div>
+  )
   const clearCart = async () => {
     localStorage.removeItem('cartList');
     localStorage.removeItem('cartTimestamp');
-    message.info({content: 'Trash empty'});
+    localStorage.removeItem('cartTComment');
+    message.info({content: content});
     setCartList([])
+    setTimeout(() => {
+      window.location.reload();
+    }, 3000);
   };
 
   useEffect(() => {
     if (user?.signInDetails && getUser?.data?.user) {
       setUserData(getUser?.data?.user)
     }
+
     const savedCartList = localStorage.getItem('cartList');
     if (savedCartList) {
       try {
-        const jsonData = decryptData(savedCartList);  // Дешифруем данные
-        setCartList(JSON.parse(jsonData));  // Преобразуем строку JSON в объект и устанавливаем в состояние
+        const jsonData = decryptData(savedCartList);
+        setCartList(JSON.parse(jsonData));
       } catch (error) {
         console.error('Error when decrypting data:', error);
       }
     }
-  },[user?.signInDetails, getUser?.data])
+  },[user?.signInDetails, getUser?.data?.user])
+
+  let timeClear = localStorage.getItem('cartTimestamp')
 
   useEffect(() => {
     const checkCartExpiration = () => {
@@ -104,15 +120,16 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
         const currentTime = new Date().getTime();
         const timeDifference = currentTime - parseInt(cartTimestamp, 10);
 
-        if (timeDifference >= TIME_LIMIT) { // 30 минут = 1800000 миллисекунд
-          // clearCart();
+        if (timeDifference >= defaultParams.TIME_LIMIT) { // 20 minutes
+          clearCart().then();
         }
       }
     };
+
     const intervalId = setInterval(checkCartExpiration, 60000);
     checkCartExpiration();
     return () => clearInterval(intervalId);
-  }, []);
+  }, [timeClear]);
 
   return (
     <MainContext.Provider

@@ -22,6 +22,8 @@ export const CouponsType = builder.objectRef<SQL.Row["coupons"]>("Coupons").impl
     address: t.exposeString("address"),
     expiration_date: t.exposeString("expiration_date", {nullable: true}),
     status: t.exposeString("status"),
+    check_order: t.exposeBoolean("check_order"),
+    hide_price: t.exposeBoolean("hide_price"),
   }),
 });
 
@@ -49,6 +51,8 @@ builder.mutationFields((t) => ({
       args.address,
       args.expiration_date,
       args.status,
+      args.check_order,
+      args.hide_price,
     ),
     args: {
       title: t.arg.string({required: true}),
@@ -57,6 +61,8 @@ builder.mutationFields((t) => ({
       address: t.arg.string({required: true}),
       expiration_date: t.arg.string({required: false}),
       status: t.arg.string({required: true}),
+      check_order: t.arg.boolean({required: true}),
+      hide_price: t.arg.boolean({required: true}),
     },
   }),
   updateCoupon: t.field({
@@ -69,6 +75,8 @@ builder.mutationFields((t) => ({
       address: t.arg.string({required: true}),
       expiration_date: t.arg.string({required: false}),
       status: t.arg.string({required: true}),
+      check_order: t.arg.boolean({required: true}),
+      hide_price: t.arg.boolean({required: true}),
     },
     resolve: (_, args)=> Coupons.updateCoupon(
       args.id,
@@ -78,10 +86,13 @@ builder.mutationFields((t) => ({
       args.address,
       args.expiration_date,
       args.status,
+      args.check_order,
+      args.hide_price,
     ),
   }),
   deleteCoupon: t.field({
-    type: 'Boolean',
+    type: CouponsType,
+    nullable: true,
     args: {
       id: t.arg.int({required: true}),
     },

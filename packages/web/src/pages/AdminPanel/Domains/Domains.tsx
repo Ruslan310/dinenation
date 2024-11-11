@@ -1,44 +1,54 @@
 import React, {useState} from 'react';
 import Button from "../../../components/Button/Button";
 import {useNavigate} from "react-router-dom";
-import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import Loading from "../../../components/Loader/Loading";
-import styles from "./Coupons.module.css";
+import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/urql";
+import styles from "./Domains.module.css";
 import Empty from "../../../components/Empty/Empty";
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
 import {DeleteOutlined} from '@ant-design/icons';
 import AddSvg from "../../../components/svg/AddSvg";
-import {Modal} from "antd";
-import ProductStatus from "../../../components/ProductStatus/ProductStatus";
-import {TStatusType} from "../../../utils/utils";
+import {Input, message, Modal} from "antd";
+import {useResize} from "../../../hooks/useResize";
+import {PageConfig} from "../../../utils/utils";
 
-interface CouponType {
+const {Search} = Input;
+
+interface DomainType {
   id: number;
   title: string;
-  status: string;
 }
 
-const Coupons = () => {
-  const [open, setOpen] = useState<CouponType | undefined>();
+const Domains = () => {
+  const [open, setOpen] = useState<DomainType | undefined>();
+  const [searchText, setSearchText] = useState<string>('');
   const navigate = useNavigate();
-  const [coupons] = useTypedQuery({
+  const {isScreenSm} = useResize();
+
+  const [domains] = useTypedQuery({
     query: {
-      coupons: {
+      domains: {
         id: true,
         title: true,
-        status: true,
       },
     },
+    requestPolicy: 'cache-and-network',
   });
 
-  const [_, deleteCoupon] = useTypedMutation((opts: {id: number}) => ({
-    deleteCoupon: {
+  const [_, deleteDomain] = useTypedMutation((opts: {id: number}) => ({
+    deleteDomain: {
       __args: opts,
     },
   }));
   const deleteItem = async (id: number) => {
-    let result = await deleteCoupon({id: id})
-    console.log('------result', result)
+    try {
+      await deleteDomain({id: id})
+      setOpen(undefined)
+      message.success({content: 'Domain successfully deleted!', duration: 2});
+    } catch (err) {
+      console.log('----err', err)
+      message.error({content: "Something's wrong..", duration: 2});
+    }
   }
 
   return (
@@ -60,39 +70,46 @@ const Coupons = () => {
           <Button
             icon={<AddSvg className={styles.addSwg}/>}
             className={styles.buttonTop}
-            onClick={() => navigate('/addCoupon')}
+            onClick={() => navigate(`${PageConfig.domains}/add`)}
           >
-            Add new Coupons
+            {isScreenSm ? 'Add' : 'Add new Domain'}
           </Button>
+          <Search
+            className={styles.search}
+            placeholder="Search domain"
+            allowClear
+            enterButton="Search"
+            size="large"
+            onSearch={setSearchText}
+          />
         </div>
-        {coupons.fetching ?
+        {domains.fetching ?
           <Loading/> :
-          coupons.data?.coupons ?
+          domains.data?.domains ?
             <div className={styles.itemsContainer}>
-              {coupons.data?.coupons.map(coupons => (
+              {domains.data?.domains
+                .filter(domain => domain.title.toLowerCase().includes(searchText.toLowerCase()))
+                .map(domain => (
                 <div
-                  onClick={() => navigate(`/updateCoupon/${coupons.id}`)}
-                  key={coupons.id}
+                  onClick={() => navigate(`${PageConfig.domains}/${domain.id}`)}
+                  key={domain.id}
                   className={styles.productItemBlock}
                 >
                   <div className={styles.productItem}>
-                    <p>{coupons.title}</p>
+                    <p>{domain.title}</p>
                   </div>
-                  <div className={styles.priceItem}>
-                    <ProductStatus status={coupons.status as TStatusType} />
-                    <DeleteOutlined style={{fontSize: 20}} onClick={e => {
-                      e.stopPropagation()
-                      setOpen(coupons)
-                    }}/>
-                  </div>
+                  <DeleteOutlined style={{fontSize: 20}} onClick={e => {
+                    e.stopPropagation()
+                    setOpen(domain)
+                  }}/>
                 </div>
               ))}
             </div>
-            : <Empty>&#10024; Sauces list is empty &#10024;</Empty>
+            : <Empty>&#10024; Domain list is empty &#10024;</Empty>
         }
       </div>
     </div>
   );
 };
 
-export default Coupons;
+export default Domains;

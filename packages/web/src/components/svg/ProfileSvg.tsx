@@ -1,4 +1,5 @@
 import React, {CSSProperties} from 'react';
+import {colorTheme} from "../../utils/theme";
 
 interface Props {
     color?: string;
@@ -7,7 +8,7 @@ interface Props {
     style?: CSSProperties;
     onClick?: () => void;
 }
-const ProfileSvg = ({color = "#68696D", className, size = 25, style, onClick}: Props) => (
+const ProfileSvg = ({color = colorTheme.secondary, className, size = 25, style, onClick}: Props) => (
   <div onClick={onClick} style={style} className={className}>
       <svg width={size} height={size} viewBox="0 0 24 25" fill="none"
            xmlns="http://www.w3.org/2000/svg">

@@ -6,10 +6,11 @@ import {ColumnsType} from "antd/es/table";
 import {useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import {MainContext} from "../../contexts/MainProvider";
 import dayjs from "dayjs";
-import {TStatusType} from "../../utils/utils";
+import {dateFormat, PageConfig, TStatusType} from "../../utils/utils";
 import {currency} from "../../utils/handle";
 import {useNavigate} from "react-router-dom";
 import OrderStatus from "../../components/OrderStatus/OrderStatus";
+import {colorTheme} from "../../utils/theme";
 
 interface IColumnsType {
   id: React.Key;
@@ -20,16 +21,16 @@ interface IColumnsType {
 }
 
 
-const CompanyOrder = () => {
+const CompanyOrders = () => {
   const navigate = useNavigate();
   const {userData} = useContext(MainContext);
 
   const hidePrice = userData?.coupon.hide_price
   const [orders] = useTypedQuery({
     query: {
-      ordersByCustomerId: {
+      ordersByCoupon: {
         __args: {
-          customer_id: userData?.id || 0
+          coupon_id: userData?.coupon.id || 0
         },
         id: true,
         number: true,
@@ -39,6 +40,7 @@ const CompanyOrder = () => {
         date_created: true,
       },
     },
+    requestPolicy: 'cache-and-network',
   });
 
   const columns: ColumnsType<IColumnsType> = [
@@ -46,7 +48,7 @@ const CompanyOrder = () => {
       title: 'Order',
       dataIndex: 'number',
       key: 'number',
-      width: '110px',
+      width: 110,
       sorter: (a, b) => {
         if (a.number && b.number) {
           if (a.number < b.number) {
@@ -79,7 +81,7 @@ const CompanyOrder = () => {
           return 0;
         }
       },
-      render: (value: TStatusType) => <span>{dayjs(value).format('YYYY-MM-DD HH:mm')}</span>,
+      render: (value) => dayjs(value).format(dateFormat.DATE_TIME),
     },
     {
       title: 'Status',
@@ -104,7 +106,7 @@ const CompanyOrder = () => {
       title: 'Address',
       dataIndex: 'address',
       key: 'address',
-      width: '250px',
+      width: 250,
       responsive: ['lg']
     },
   ];
@@ -114,9 +116,9 @@ const CompanyOrder = () => {
       {
         title: 'Action',
         key: 'action',
-        width: '60px',
+        width: 80,
         render: (value) =>
-          <a style={{color: '#409EFF'}} onClick={() => navigate(`/history/${value.id}`)}>
+          <a style={{color: colorTheme.link}} onClick={() => navigate(`${PageConfig.company_orders}/${value.id}`)}>
             View
           </a>,
       },
@@ -127,15 +129,16 @@ const CompanyOrder = () => {
         title: 'Total',
         dataIndex: 'price',
         key: 'price',
-        render: (value) => <span>{currency(value, userData?.coupon.hide_price)}</span>,
+        render: (value) => currency(value, userData?.coupon.hide_price),
         responsive: ['md'],
+        width: 80,
       },
       {
         title: 'Action',
         key: 'action',
-        width: '60px',
+        width: 80,
         render: (value) =>
-          <a style={{color: '#409EFF'}} onClick={() => navigate(`/history/${value.id}`)}>
+          <a style={{color: colorTheme.link}} onClick={() => navigate(`${PageConfig.company_orders}/${value.id}`)}>
             View
           </a>,
       },
@@ -150,9 +153,8 @@ const CompanyOrder = () => {
         className={styles.table}
         rowKey="id"
         size={"middle"}
-        rowClassName={'tableRow'}
         loading={orders.fetching}
-        dataSource={orders.data?.ordersByCustomerId}
+        dataSource={orders.data?.ordersByCoupon}
         columns={columns}
         pagination={false}
         scroll={{ x: true, y: `calc(100vh - 88px)` }}
@@ -161,4 +163,4 @@ const CompanyOrder = () => {
   );
 };
 
-export default CompanyOrder;
+export default CompanyOrders;

@@ -4,7 +4,7 @@ import {useTypedMutation} from "@dinenation-postgresql/graphql/urql";
 import {useNavigate} from "react-router-dom";
 import {Button, Form, Input, message, Select} from 'antd';
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
-import {ProductStatus} from "../../../utils/utils";
+import {PageConfig, ProductStatus} from "../../../utils/utils";
 
 interface SaucesForm {
   title: string;
@@ -53,12 +53,12 @@ const AddSauces = () => {
               message.loading({content: 'Saving component...', key});
               const {data} = await addSauce(form.getFieldsValue());
               message.success({content: 'Sauces successfully saved!', key, duration: 2});
-              data && navigate('/sauces')
+              data && navigate(PageConfig.sauces)
             } catch (e) {
               console.log('validations errors: ', e);
             }
           }} type="primary" htmlType="submit">
-            Add Dishes
+            Add Sauce
           </Button>
         </Form.Item>
       </Form>

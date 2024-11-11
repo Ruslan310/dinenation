@@ -20,6 +20,7 @@ export interface Boxes {
   status: string;
   date_created: Generated<string>;
   date_updated: string;
+  small_img: Generated<string>;
 }
 
 export interface CheckDomain {
@@ -41,7 +42,6 @@ export interface CheckEmail {
 export interface Combo {
   id: Generated<number>;
   title: string;
-  domain_id: number;
   price: number;
   date_created: Generated<string>;
   date_updated: string;
@@ -72,13 +72,23 @@ export interface Coupons {
   date_updated: string;
   expiration_date: string | null;
   status: string;
+  check_order: Generated<boolean>;
+  hide_price: Generated<boolean>;
 }
 
 export interface Domain {
   id: Generated<number>;
   title: string;
-  discount: number;
-  expired_date: string;
+  discount: number | null;
+  expired_date: string | null;
+  date_created: Generated<string>;
+  date_updated: string;
+}
+
+export interface DomainCombo {
+  id: Generated<number>;
+  domain_id: number;
+  combo_id: number;
   date_created: Generated<string>;
   date_updated: string;
 }
@@ -113,6 +123,7 @@ export interface Product {
   date_updated: string;
   allergens: string | null;
   sauces: string | null;
+  is_dish: Generated<boolean>;
   categories: string;
   dish_type: string;
   image: string;
@@ -120,6 +131,7 @@ export interface Product {
   week_day: string;
   status: string;
   calories: string | null;
+  small_img: Generated<string>;
 }
 
 export interface Review {
@@ -158,6 +170,7 @@ export interface Users {
   image: string | null;
   phone: string;
   coupon_id: number;
+  is_update: Generated<boolean>;
   role: string;
   date_created: Generated<string>;
   date_updated: string;
@@ -171,6 +184,7 @@ export interface Database {
   combo_product: ComboProduct;
   coupons: Coupons;
   domain: Domain;
+  domain_combo: DomainCombo;
   office: Office;
   orders: Orders;
   product: Product;

@@ -1,11 +1,16 @@
 import {Review} from "@dinenation-postgresql/core/review";
 import {SQL} from "@dinenation-postgresql/core/sql";
 import {builder} from "../builder";
+import {UsersType} from "./users";
+import {Users} from "@dinenation-postgresql/core/users";
 
 const ReviewType = builder.objectRef<SQL.Row["review"]>("Review").implement({
   fields: (t) => ({
     id: t.exposeInt("id"),
-    user_id: t.exposeInt("user_id"),
+    user: t.field({
+      type: UsersType,
+      resolve: (user) => Users.getUserId(user.user_id),
+    }),
     review: t.exposeString("review"),
     rate: t.exposeInt("rate"),
     dish_name: t.exposeString("dish_name"),

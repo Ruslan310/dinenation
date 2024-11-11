@@ -1,49 +1,37 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
-import {Button, Collapse, CollapseProps, DatePicker, Form, Input, message, Select, Switch} from "antd";
+import {Button, DatePicker, Form, Input, InputNumber, message, Select} from "antd";
 import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/urql";
-import styles from "./Coupons.module.css";
+import styles from "./Domains.module.css";
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
 import Loading from "../../../components/Loader/Loading";
-import {ProductStatus} from "../../../utils/utils";
 import dayjs from 'dayjs';
 import {RangePickerProps} from "antd/es/date-picker";
-import SelectFieldsComponent from "../../../components/Form/SelectFieldsComponent";
 import {NotFound} from "../../index";
-import {CheckOutlined, CloseOutlined} from "@ant-design/icons";
+import {DomainsComboForm} from "./AddDomain";
+import {PageConfig} from "../../../utils/utils";
 
-export interface CouponForm {
+export interface DomainForm {
   id: number;
   title: string;
-  has_domain: boolean;
-  domain_id: number
-  address: string;
-  expiration_date: string;
-  status: string;
+  discount: number | null | undefined;
+  expired_date: string | null | undefined;
 }
 
 interface InitialForm {
   id: number;
   title: string;
-  has_domain: boolean;
-  domain_id: number
-  address: string;
-  expiration_date: dayjs.Dayjs;
-  status: string;
-  office: OfficeForm[];
-}
-
-export interface OfficeForm {
-  title: string;
-  coupon_id: number
+  discount: number | null | undefined;
+  expired_date: string | null | undefined;
+  combos: number[];
 }
 
 const key = 'updatable';
 
 
-const UpdateCoupon = () => {
+const UpdateDomain = () => {
   const currentId= useParams();
-  const currentCouponId = Number(currentId?.id) as number
+  const currentDomainId = Number(currentId?.id) as number
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState<Partial<InitialForm>>();
   const [form] = Form.useForm();
@@ -56,180 +44,130 @@ const UpdateCoupon = () => {
     return <NotFound />;
   }
 
-  const [coupon] = useTypedQuery({
+  const [domain] = useTypedQuery({
     query: {
-      coupon: {
+      domain: {
         __args: {
-          id: currentCouponId
+          id: currentDomainId,
         },
         id: true,
         title: true,
-        status: true,
-        has_domain: true,
-        domain: {
-          id: true
-        },
-        address: true,
-        expiration_date: true,
-        office: {
-          coupon_id: true,
-          title: true
+        discount: true,
+        expired_date: true,
+        combos: {
+          id: true,
         }
       },
     },
   });
 
-  const [domains] = useTypedQuery({
+  const [combosList] = useTypedQuery({
     query: {
-      domains: {
+      combosList: {
         id: true,
         title: true,
       },
     },
   });
 
-  const [_, updateCoupon] = useTypedMutation((opts: CouponForm) => ({
-    updateCoupon: {
+  const [_, updateDomain] = useTypedMutation((opts: DomainForm) => ({
+    updateDomain: {
       __args: opts,
       id: true,
     },
   }));
 
-  const [_o, addOffice] = useTypedMutation((opts: OfficeForm) => ({
-    addOffice: {
+  const [_d, addDomainCombo] = useTypedMutation((opts: DomainsComboForm) => ({
+    addDomainCombo: {
       __args: opts,
       id: true
     },
   }));
 
-  const [del, deleteOffice] = useTypedMutation((opts: {
-    coupon_id: number
-  }) => ({
-    deleteOffice: {
+  const [del, deleteDomainCombo] = useTypedMutation((opts: {domain_id: number}) => ({
+    deleteDomainCombo: {
       __args: opts,
     },
   }));
 
   useEffect(() => {
-    if (coupon.data?.coupon) {
+    if (domain.data?.domain && combosList.data) {
       const {
-        domain,
-        expiration_date,
+        expired_date,
+        combos,
         ...rest
-      } = coupon.data?.coupon;
-      const time = expiration_date ? {expiration_date: dayjs(expiration_date)} : {}
+      } = domain.data?.domain;
+      const time = expired_date ? {expiration_date: dayjs(expired_date)} : {}
       setInitialValues({
-        domain_id: domain.id,
+        combos: combos.map(combo => combo.id),
         ...rest,
         ...time,
       });
     }
-  }, [coupon.data])
+  }, [domain.data, combosList.data])
 
   const disabledDate: RangePickerProps['disabledDate'] = (current) => {
     return current && current < dayjs().endOf('day');
   };
 
-  const items: CollapseProps['items'] = [
-    {
-      key: '1',
-      label: 'Offices',
-      children: (
-        <SelectFieldsComponent
-          name="office"
-          placeholder={"Office name"}
-          buttonText='Add new office'
-        >
-          <Input placeholder='Enter office name'/>
-        </SelectFieldsComponent>
-      ),
-    },
-  ];
-
   return (
     <div className={styles.page}>
       <AdminNavbar />
-      {initialValues ?
+      {initialValues && domain.data?.domain && combosList.data ?
         <Form layout="horizontal" className={styles.form} form={form} initialValues={initialValues}>
-            <Form.Item name="title" rules={[{required: true, message: 'Please enter name!'}]} className={styles.field}>
-              <Input placeholder='Enter sauces name'/>
-            </Form.Item>
-            <Form.Item name="address" rules={[{required: true, message: 'Please enter address!'}]} className={styles.field}>
-              <Input placeholder='Enter coupon address'/>
-            </Form.Item>
-          <div className={styles.dateSwitch}>
-            <Form.Item name="expiration_date" className={styles.field}>
-              <DatePicker disabledDate={disabledDate}/>
-            </Form.Item>
-            <Form.Item label={"Has domain"} name="has_domain" className={styles.field}>
-              <Switch checkedChildren={<CheckOutlined/>} unCheckedChildren={<CloseOutlined/>}/>
-            </Form.Item>
-          </div>
+          <Form.Item name="title" rules={[{required: true, message: 'Please enter name!'}]} className={styles.field}>
+            <Input placeholder='Enter domain name'/>
+          </Form.Item>
+          <Form.Item name="discount" rules={[{required: true, message: 'Please enter name!'}]} className={styles.field}>
+            <InputNumber min={0} placeholder='Discount'/>
+          </Form.Item>
+          <Form.Item name="expired_date" className={styles.field}>
+            <DatePicker disabledDate={disabledDate}/>
+          </Form.Item>
           <Form.Item
-            name="domain_id"
+            name="combos"
             rules={[{required: true, message: 'Select domain!'}]}
             style={{display: 'inline-block'}}
             className={styles.field}
           >
             <Select<string, { value: string; children: string }>
-              placeholder="Select domain"
+              mode={'multiple'}
+              placeholder="Select combo"
               filterOption={(input, option) =>
                 option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
               }
             >
-              {domains.data?.domains
-                .map(({id, title}) => <Select.Option key={id} value={id}>{title}</Select.Option>)}
+              {combosList.data?.combosList
+                .map(({id, title}) => <Select.Option key={id} value={id}>{title}</Select.Option>
+                )}
             </Select>
           </Form.Item>
-          <Form.Item
-            name="status"
-            rules={[{required: true, message: 'Please select order status!'}]}
-            style={{display: 'inline-block'}}
-            className={styles.field}
-          >
-            <Select<string, { value: string; children: string }>
-              placeholder="Select product status"
-              filterOption={(input, option) =>
-                option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
-              }
-            >
-              {Object.values(ProductStatus)
-                .map((type) => <Select.Option key={type} value={type}>{type}</Select.Option>)}
-            </Select>
-          </Form.Item>
-          <Collapse bordered={false} className={styles.collapse} items={items}/>
           <Form.Item className={styles.button}>
-            <Button onClick={async () => {
+            <Button loading={_.fetching || _d.fetching} onClick={async () => {
               try {
                 await form.validateFields();
-                message.loading({content: 'Saving component...', key});
+                message.loading({content: 'Saving ...', key});
                 const {
-                  expiration_date,
-                  offices,
-                  office,
+                  expired_date,
+                  combos,
                   ...rest
                 } = form.getFieldsValue();
-                const {data} = await updateCoupon({
-                  id: currentCouponId,
-                  expiration_date: expiration_date?.toISOString() || '',
+                const {data} = await updateDomain({
+                  id: currentDomainId,
+                  expired_date: expired_date?.toISOString() || '',
                   ...rest
                 });
-                if (data && offices?.length) {
-                  await deleteOffice({coupon_id: currentCouponId})
-                  offices?.map(async ({title}: { title: string }) =>
-                    await addOffice({
-                      title,
-                      coupon_id: currentCouponId
-                    })
-                  );
+                if (data) {
+                  await deleteDomainCombo({domain_id: currentDomainId});
+                  await Promise.all(combos.map((id: number) => addDomainCombo({combo_id: id, domain_id: currentDomainId})));
                 }
                 message.success({content: 'Sauces successfully saved!', key, duration: 2});
-                data && navigate('/coupons')
+                data && navigate(PageConfig.domains)
               } catch (e) {
                 console.log('validations errors: ', e);
               }
             }} type="primary" htmlType="submit">
-              Update Coupons
+              Update Domain
             </Button>
           </Form.Item>
         </Form>
@@ -239,4 +177,4 @@ const UpdateCoupon = () => {
   );
 };
 
-export default UpdateCoupon;
+export default UpdateDomain;

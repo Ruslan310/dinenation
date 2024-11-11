@@ -1,14 +1,19 @@
-import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import classNames from 'classnames';
 import {useTypedQuery} from "@dinenation-postgresql/graphql/urql";
-import Loading from "../../components/Loader/Loading";
-import Empty from "../../components/Empty";
+import LogoLoader from "../../components/LogoLoader/LogoLoader";
 import {useNavigate} from "react-router-dom";
 import {Modal} from "antd";
 import checked from '../../assets/image/checked.svg'
 import Avatar from "../../components/Avatar/Avatar";
-import {EWEEK_DAY, WEEKDAY_ORDER} from "../../utils/utils";
-import {ComponentType, DishType} from "../../utils/utils";
+import {
+  CATEGORIES_TYPE,
+  CATEGORIES_TYPE_SORT,
+  ComponentType,
+  DishType, EStatusType,
+  EWEEK_DAY, PageConfig,
+  WEEKDAY_ORDER
+} from "../../utils/utils";
 import CartSvg from "../../components/svg/CartSvg";
 import ProductItem from "./ProductItem";
 import closeImage from "../../assets/image/closeImage.svg";
@@ -21,13 +26,16 @@ import {
   currency,
   currentDayIndex,
   encryptData,
-  generateUniqueId, openDay, openWeek,
+  generateUniqueId,
+  openDay,
+  openWeek,
 } from "../../utils/handle";
 import ArrowsSwg from "../../components/svg/ArrowsSWG";
 import LogoSvg, {logoType} from "../../components/svg/LogoSvg";
 import WaitDish from "./WaitDish";
 import {ProductForm, SideDishType} from "../../utils/type";
-import DishPopup from "./DishPopup";
+import MenuSvg from "../../components/svg/MenuSvg";
+import dayjs from "dayjs";
 
 
 export interface ComboForm {
@@ -67,16 +75,15 @@ export interface AddCartType {
 const WeeklyMenu = () => {
   const navigate = useNavigate();
   const [daysList, setDaysList] = useState<EWEEK_DAY[]>([]);
+  const [exceptionWeekDays, setExceptionWeekDays] = useState<EWEEK_DAY[]>([]);
   const [showResizeModal, setShowResizeModal] = useState<string>('')
   const [showProductInfo, setShowProductInfo] = useState<number>()
   const [selectDay, setSelectDay] = useState<EWEEK_DAY>(EWEEK_DAY.MONDAY)
   const [selectCombo, setSelectCombo] = useState<ComboForm | undefined>(undefined);
   const {cartList, setCartList, userData} = useContext(MainContext);
   const pageRef = useRef<HTMLDivElement>(null);
-
-  const changeTimeMenu = (): boolean => {
-    return false
-  }
+  const daysRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [imageWidth, setImageWidth] = useState<number | undefined>(undefined);
 
   const [sideDishes] = useTypedQuery({
     query: {
@@ -85,67 +92,108 @@ const WeeklyMenu = () => {
         type: true,
       },
     },
+    requestPolicy: 'cache-and-network',
   });
 
+  const [orders] = useTypedQuery({
+    query: {
+      ordersCheckById: {
+        __args: {
+          customer_id: userData?.id ?? 0,
+          status: EStatusType.PROCESSING,
+        },
+        id: true,
+        number: true,
+        products: {
+          week_day: true,
+        }
+      },
+    },
+    pause: !userData?.id,
+    requestPolicy: 'cache-and-network',
+  });
 
   const [combos] = useTypedQuery({
     query: {
-      combosByCoupon: {
+      domain: {
         __args: {
-          domain_id: userData?.coupon.domain.id || 0
+          id: userData?.coupon.domain.id ?? 0
         },
         id: true,
         title: true,
-        description: true,
-        price: true,
-        image: true,
-        week_day: true,
-        type: true,
-        products: {
-          id: true,
-          title: true,
+        combos: {
           description: true,
           price: true,
           image: true,
-          categories: true,
-          dish_type: true,
-          allergens: true,
-          sauces: true,
-          calories: true,
+          week_day: true,
+          type: true,
+          products: {
+            id: true,
+            title: true,
+            description: true,
+            price: true,
+            image: true,
+            small_img: true,
+            categories: true,
+            dish_type: true,
+            allergens: true,
+            sauces: true,
+            calories: true,
+            is_dish: true,
+          },
         },
       },
     },
+    pause: !userData?.coupon.domain.id,
+    // requestPolicy: 'cache-and-network',
+    requestPolicy: 'network-only',
   });
 
   useEffect(() => {
-    const currentCombo = combos.data?.combosByCoupon;
-    if (currentCombo && currentCombo.length > 0) {
-      const todayIndex = currentDayIndex; // Индекс текущего дня
-      const isAfterTenAM = openDay(); // Проверка, после ли 10:00 текущее время
-      const isFriday = currentDayIndex === WEEKDAY_ORDER.indexOf(EWEEK_DAY.FRIDAY); // Проверка, что текущий день — пятница
+    const currentCombo = combos.data?.domain.combos;
+    // let exceptionDays: string[] = []
+    if (orders.data && orders.data.ordersCheckById && userData?.coupon.check_order) {
+      const days = orders?.data?.ordersCheckById
+        .flatMap(order =>
+          order.products.map(product => product.week_day))
+        .filter((value, index, self) => self.indexOf(value) === index) || [];
+
+      if (days?.length) {
+        setExceptionWeekDays(days as EWEEK_DAY[])
+      }
+    }
+    if (currentCombo && currentCombo?.length > 0) {
+      const todayIndex = currentDayIndex;
+      const isAfterTenAM = openDay(); // Проверка, что время после 10:00
+      const isFriday = currentDayIndex === WEEKDAY_ORDER.indexOf(EWEEK_DAY.FRIDAY);
+      const isAfterFridayThreePM = isFriday && openWeek(); // Пятница после 15:00
+      const isFridayBetweenTenAndThree = isFriday && isAfterTenAM && !openWeek(); // Пятница с 10:00 до 15:00
+      const isWeekend = currentDayIndex > WEEKDAY_ORDER.indexOf(EWEEK_DAY.FRIDAY); // Пятница или выходные
+      const isBeforeMondayTenAM = todayIndex === WEEKDAY_ORDER.indexOf(EWEEK_DAY.MONDAY) && !isAfterTenAM; // Понедельник до 10:00
+
+      const comboDays = currentCombo.map(combo => capitalizeFirstLetter(combo.week_day)) as EWEEK_DAY[];
 
       let days: EWEEK_DAY[];
 
-      if (isFriday && openWeek()) {
-        days = WEEKDAY_ORDER.slice() as EWEEK_DAY[];
-      } else if (isFriday && isAfterTenAM) {
+      if (isFridayBetweenTenAndThree) {
         days = [];
+      } else if (isAfterFridayThreePM || isWeekend || isBeforeMondayTenAM) {
+        days = comboDays.slice();
       } else {
-        days = currentCombo
-          .map(combo => capitalizeFirstLetter(combo.week_day))
-          .filter(day => {
-            const dayIndex = WEEKDAY_ORDER.indexOf(day as EWEEK_DAY);
-            return dayIndex > todayIndex || (dayIndex === todayIndex && !isAfterTenAM);
-          }) as EWEEK_DAY[];
+        days = comboDays.filter(day => {
+          const dayIndex = WEEKDAY_ORDER.indexOf(day as EWEEK_DAY);
+          return dayIndex > todayIndex || (dayIndex === todayIndex && !isAfterTenAM);
+        }) as EWEEK_DAY[];
       }
 
-      setDaysList(days);
+      setDaysList(days.sort((a, b) => WEEKDAY_ORDER.indexOf(a as EWEEK_DAY) - WEEKDAY_ORDER.indexOf(b as EWEEK_DAY)));
 
-      if (days.length > 0) {
+      if (days?.length > 0) {
         handleSelectDay(days[0]);
       }
     }
-  }, [combos.data]);
+  }, [combos.data, orders.data]);
+
 
 
   useEffect(() => {
@@ -154,17 +202,25 @@ const WeeklyMenu = () => {
     }
   }, [selectDay]);
 
-
   const currentList = useMemo(() => cartList.find(list => list.day === selectDay), [selectDay, cartList])
-  const isTypeDish = (type: ComponentType)=> currentList ? currentList.products[type] : false
 
-  const handleSelectDay = (day: EWEEK_DAY) => {
-    const currentCombo = combos.data?.combosByCoupon.find(comboDay => comboDay.week_day === day.toUpperCase())
+  const isTypeDish = (type: ComponentType)=> currentList ? currentList.products[type] : false
+  const isSecond = () => !!selectCombo?.products.find(product => product.dish_type === ComponentType.SECOND)
+
+  const handleSelectDay = useCallback((day: EWEEK_DAY) => {
+    const currentCombo = combos.data?.domain.combos.find(comboDay => comboDay.week_day === day.toUpperCase())
     setSelectDay(day)
     setSelectCombo(currentCombo as ComboForm | undefined);
-  }
+    if (daysRefs.current[day]) {
+      daysRefs.current[day]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    }
+  }, [combos.data, daysRefs])
+
   const isBlockDay = (day: EWEEK_DAY): boolean => cartList.find(list => list.day === day)?.isBlockDay ?? false;
-  const closeModal = () => setShowResizeModal('')
 
   const productSelectHandle = (e: React.MouseEvent, image: string) => {
     e.preventDefault()
@@ -173,11 +229,38 @@ const WeeklyMenu = () => {
     setShowProductInfo(undefined)
   }
 
+  const isNextDay = () => {
+    let isNext = true
+    const currentIndex = daysList?.indexOf(selectDay);
+    for (let i = 1; i < daysList?.length; i++) {
+      const nextDay = daysList && daysList[(currentIndex + i) % daysList?.length];
+      if (!isBlockDay(nextDay)) {
+        isNext = false
+        break
+      }
+    }
+    return isNext
+  };
+
+
+  const currentComboPrice = useMemo(() => {
+    let total = 0;
+    if (currentList?.products) {
+      if (currentList.products[DishType.MAIN] && currentList.products[DishType.MAIN].price) {
+        total += currentList.products[DishType.MAIN].price || 0;
+      }
+      if (currentList.products.Dessert && currentList.products.Dessert.price) {
+        total += currentList.products.Dessert.price || 0;
+      }
+    }
+    return total;
+  }, [selectCombo, cartList]);
+
   const handleNextDay = () => {
     addToCart({isBlockDay: true})
     const currentIndex = daysList?.indexOf(selectDay);
     for (let i = 1; i < daysList?.length; i++) {
-      const nextDay = daysList && daysList[(currentIndex + i) % daysList.length];
+      const nextDay = daysList && daysList[(currentIndex + i) % daysList?.length];
       if (!isBlockDay(nextDay)) {
         handleSelectDay(nextDay)
         break
@@ -189,20 +272,39 @@ const WeeklyMenu = () => {
     <div
       key={day}
       onClick={() => handleSelectDay(day)}
-      className={classNames(
-        styles.daysBlock,
+      className={classNames(styles.daysBlock,
         {
           [styles.selectDay]: selectDay === day,
-          [styles.closeDay]: isBlockDay(day)
+          [styles.closeDay]: selectDay !== day && isBlockDay(day),
+          [styles.blockDay]: exceptionWeekDays.includes(day)
         })}>
-      <img src={checked} alt=""/>
+      <img src={checked} alt="checked"/>
+      <span>{day}</span>
+    </div>
+  ));
+
+
+  const weekDaysListMobile= daysList?.map(day => (
+    <div
+      key={day}
+      onClick={() => handleSelectDay(day)}
+      ref={(el) => (daysRefs.current[day] = el)} // Устанавливаем ref для каждого дня
+      className={classNames(styles.daysBlockMobile,
+        {
+          [styles.selectDay]: selectDay === day,
+          [styles.closeDay]: selectDay !== day && isBlockDay(day)
+        })}>
+      <img src={checked} alt="checked"/>
       <span>{day}</span>
     </div>
   ));
 
   const addToCart = ({product, sauce = '', sideDish, isBlockDay = false}: AddCartType) => {
+    if (!localStorage.getItem('cartTimestamp')) {
+      localStorage.setItem('cartTimestamp', new Date().getTime().toString());
+    }
     setCartList((prevState: CartList[]) => {
-      const updatedCartList = prevState.map(cartItem => {
+      const updatedCartList = prevState?.map(cartItem => {
         if (cartItem.day === selectDay) {
           // update current day in cart
           return {
@@ -247,43 +349,50 @@ const WeeklyMenu = () => {
     setShowProductInfo(undefined);
   };
 
-  // if (changeTimeMenu()) {
-  //   return <WaitDish />
-  // }
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const imgElement = e.currentTarget;
+    setImageWidth(imgElement.naturalWidth);
+  };
+
+  const isDisableNext = !isTypeDish(ComponentType.MAIN) ||
+    (isSecond() && !isTypeDish(ComponentType.SECOND)) ||
+    (!isSecond() && !isTypeDish(ComponentType.MAIN))
 
   return (
     <div className={styles.home}>
       {/* show image modal */}
       <Modal
-        closeIcon={<img src={closeImage} alt="component photo"/>}
+        closeIcon={<img src={closeImage} alt="close"/>}
         open={!!showResizeModal}
-        onCancel={closeModal}
-        footer={false}
-        width={900}
+        onCancel={() => setShowResizeModal('')}
+        footer={null}
         centered
         styles={{
           content: {padding: 0},
           body: {lineHeight: 0}
         }}
-        style={{width: '900px'}}
+        style={{ width: imageWidth || 'auto'}}
       >
         <img
-          onClick={closeModal}
           src={showResizeModal}
           alt="full screen"
+          onLoad={handleImageLoad}
           style={{
+            borderRadius: 8,
             width: '100%',
             height: 'auto',
-            maxHeight: '90vh'
+            maxHeight: '90vh',
           }}
         />
       </Modal>
       <div className={styles.navbar}>
-        <LogoSvg type={logoType.VERTICAL} style={{marginBottom: '64px'}}/>
-        {weekDaysList}
+        <LogoSvg type={logoType.VERTICAL} />
+        <div className={styles.weekList}>
+          {weekDaysList}
+        </div>
         <div>
           <div
-            onClick={() => navigate('checkout')}
+            onClick={() => navigate(PageConfig.checkout)}
             className={classNames(styles.cartBox,
               {[styles.cartBoxDisabled]: !cartList.find(item => item.isBlockDay)}
             )}
@@ -294,41 +403,60 @@ const WeeklyMenu = () => {
             size={56}
             classNamesContainer={styles.avatar}
             isActive
-            click={() => navigate('history')}
+            click={() => navigate(PageConfig.history)}
           />
         </div>
       </div>
-      {combos.fetching ?
-        <Loading/> :
+      {combos.fetching && !selectCombo ?
+        <LogoLoader /> :
         selectCombo ?
           <div className={styles.page}>
-            {/* footer */}
+            {/* footer web */}
             <div className={styles.footerButtonBlock}>
               <Button
-                disabled={!isTypeDish(ComponentType.SECOND)}
-                onClick={handleNextDay}
+                disabled={isDisableNext}
+                onClick={() => {
+                  if (!isDisableNext) {
+                    handleNextDay()
+                    if (isNextDay()) {
+                      navigate(PageConfig.checkout)
+                    }
+                  }
+                }}
                 className={styles.nextButton}>
                 <div className={styles.buttonContainer}>
                   <p>Next</p>
-                  <ArrowsSwg type='right' color={colorTheme.white} />
+                  <ArrowsSwg type='right' color={colorTheme.white}/>
                 </div>
               </Button>
               <Button
-                disabled={!isTypeDish(ComponentType.SECOND)}
+                disabled={!cartList.find(item => item.isBlockDay)}
                 onClick={() => {
-                  handleNextDay()
-                  navigate('checkout')
+                  // if (isTypeDish(ComponentType.SECOND)) {
+                  //   handleNextDay()
+                  // }
+                  navigate(PageConfig.checkout)
                 }}
                 iconPosition='right'
                 className={styles.checkoutButton}>
                 <div className={styles.buttonContainer}>
                   <p>Proceed to Checkout</p>
-                  <CartSvg color={colorTheme.white} style={{marginLeft: '8px'}}/>
+                  <CartSvg color={colorTheme.white} style={{marginLeft: 8}}/>
                 </div>
               </Button>
             </div>
+
             {/* main menu */}
-            <div ref={pageRef} style={{paddingTop: '23px'}}>
+            <div ref={pageRef} className={styles.headerBlock}>
+              <div className={classNames(styles.titleComboMobile,
+                {[styles.hidePrice]: userData?.coupon.hide_price}
+              )}>
+                <span> Select Your Corporate Lunch Combo</span>
+                <span className={styles.priceDish}>{currency(currentComboPrice, userData?.coupon.hide_price)}</span>
+              </div>
+              <div className={styles.headerMobile}>
+                {weekDaysListMobile}
+              </div>
               <div className={styles.pageTitleBlock}>
                 <div className={styles.titleDish}>
                   <span className={classNames(styles.titleNumber,
@@ -338,90 +466,132 @@ const WeeklyMenu = () => {
                     {[styles.activeTitleText]: isTypeDish(ComponentType.MAIN)}
                   )}>Step / {ComponentType.MAIN}</span>
                 </div>
-                <div className={styles.titleDish}>
+                <div className={styles.titleCombo}>
                   <span> Select Your Corporate Lunch Combo</span>
-                  <span className={styles.priceDish}>{currency(selectCombo.price)}</span>
+                  <span className={styles.priceDish}>{currency(currentComboPrice, userData?.coupon.hide_price)}</span>
                 </div>
               </div>
               <ProductItem
-                productList={selectCombo?.products.filter(product => product.dish_type === ComponentType.MAIN)}
+                productList={selectCombo?.products
+                  .filter(product => product.dish_type === ComponentType.MAIN)
+                  .sort((a, b) => CATEGORIES_TYPE_SORT.indexOf(a.categories as CATEGORIES_TYPE) - CATEGORIES_TYPE_SORT.indexOf(b.categories as CATEGORIES_TYPE))
+                }
+                exceptionWeekDays={exceptionWeekDays}
+                selectDay={selectDay}
                 cart={currentList}
                 showInfo={showProductInfo}
                 onProductClick={productSelectHandle}
                 setShowInfo={setShowProductInfo}
-                popoverHandle={(data) =>
-                  <DishPopup
-                    data={data}
-                    isMain
-                    sideDishes={sideDishes.data?.sideDishes || []}
-                    selectDay={selectDay}
-                    addToCart={addToCart}
-                  />}
+                sideDishes={sideDishes.data?.sideDishes || []}
+                addToCart={addToCart}
                 isMain
               />
             </div>
+
             {/* side menu */}
-            <div className={classNames(styles.productSection,
-              {[styles.productSectionActive]: isTypeDish(ComponentType.MAIN)}
-            )}>
-              <div className={styles.pageTitleBlock}>
-                <div className={styles.titleDish}>
-                  <span className={classNames(styles.titleNumber,
-                    {[styles.activeTitleNumber]: isTypeDish(ComponentType.SECOND)}
-                  )}>2</span>
-                  <span className={classNames(styles.titleText,
-                    {[styles.activeTitleText]: isTypeDish(ComponentType.SECOND)}
-                  )}>Step / {ComponentType.SECOND}</span>
+            {!!selectCombo?.products.filter(product => product.dish_type === ComponentType.SECOND)?.length &&
+              <div className={classNames(styles.productSection, {[styles.productSectionActive]: isTypeDish(ComponentType.MAIN)})}>
+                <div className={styles.pageTitleBlock}>
+                  <div className={styles.titleDish}>
+                    <span className={classNames(styles.titleNumber, {[styles.activeTitleNumber]: isTypeDish(ComponentType.SECOND)})}>
+                      2
+                    </span>
+                    <span className={classNames(styles.titleText,
+                      {[styles.activeTitleText]: isTypeDish(ComponentType.SECOND)})}>Step / {ComponentType.SECOND}
+                    </span>
+                  </div>
                 </div>
+                <ProductItem
+                  productList={selectCombo?.products
+                    .filter(product => product.dish_type === ComponentType.SECOND)
+                    .sort((a, b) => CATEGORIES_TYPE_SORT.indexOf(a.categories as CATEGORIES_TYPE) - CATEGORIES_TYPE_SORT.indexOf(b.categories as CATEGORIES_TYPE))
+                  }
+                  exceptionWeekDays={exceptionWeekDays}
+                  selectDay={selectDay}
+                  cart={currentList}
+                  showInfo={showProductInfo}
+                  onProductClick={productSelectHandle}
+                  setShowInfo={setShowProductInfo}
+                  sideDishes={sideDishes.data?.sideDishes || []}
+                  addToCart={addToCart}
+                />
               </div>
-              <ProductItem
-                productList={selectCombo?.products.filter(product => product.dish_type === ComponentType.SECOND)}
-                cart={currentList}
-                showInfo={showProductInfo}
-                onProductClick={productSelectHandle}
-                setShowInfo={setShowProductInfo}
-                popoverHandle={(data) =>
-                  <DishPopup
-                    data={data}
-                    isMain
-                    sideDishes={sideDishes.data?.sideDishes || []}
-                    selectDay={selectDay}
-                    addToCart={addToCart}
-                  />}
-              />
-            </div>
-            <div className={classNames(styles.productSection,
-              {[styles.productSectionActive]: isTypeDish(ComponentType.SECOND)}
-            )}>
-              <div className={styles.pageTitleBlock}>
-                <div className={styles.titleDish}>
-                  <span className={classNames(styles.titleNumber,
-                    {[styles.activeTitleNumber]: isTypeDish(ComponentType.DESSERT)}
-                  )}>3</span>
-                  <span className={classNames(styles.titleText,
-                    {[styles.activeTitleText]: isTypeDish(ComponentType.DESSERT)}
-                  )}>Step / {ComponentType.DESSERT}</span>
+            }
+
+            {/* dessert */}
+            {!!selectCombo?.products.filter(product => product.dish_type === ComponentType.DESSERT)?.length &&
+              <div className={classNames(styles.productSection, styles.sss,{[styles.productSectionActive]: isTypeDish(ComponentType.SECOND)})}>
+                <div className={styles.pageTitleBlock}>
+                  <div className={styles.titleDish}>
+                    <span className={classNames(styles.titleNumber, {[styles.activeTitleNumber]: isTypeDish(ComponentType.DESSERT)})}>
+                      3
+                    </span>
+                    <span className={classNames(styles.titleText, {[styles.activeTitleText]: isTypeDish(ComponentType.DESSERT)})}>
+                      Step / {ComponentType.DESSERT}
+                    </span>
+                  </div>
                 </div>
+                <ProductItem
+                  productList={selectCombo?.products
+                    .filter(product => product.dish_type === ComponentType.DESSERT)
+                    .sort((a, b) => CATEGORIES_TYPE_SORT.indexOf(a.categories as CATEGORIES_TYPE) - CATEGORIES_TYPE_SORT.indexOf(b.categories as CATEGORIES_TYPE))
+                  }
+                  exceptionWeekDays={exceptionWeekDays}
+                  selectDay={selectDay}
+                  cart={currentList}
+                  showInfo={showProductInfo}
+                  onProductClick={productSelectHandle}
+                  setShowInfo={setShowProductInfo}
+                  sideDishes={sideDishes.data?.sideDishes || []}
+                  addToCart={addToCart}
+                />
               </div>
-              <ProductItem
-                productList={selectCombo?.products.filter(product => product.dish_type === ComponentType.DESSERT)}
-                cart={currentList}
-                showInfo={showProductInfo}
-                onProductClick={productSelectHandle}
-                setShowInfo={setShowProductInfo}
-                popoverHandle={(data) =>
-                  <DishPopup
-                    data={data}
-                    isMain
-                    sideDishes={sideDishes.data?.sideDishes || []}
-                    selectDay={selectDay}
-                    addToCart={addToCart}
-                />}
+            }
+
+            {/* footer mobil */}
+            <div className={styles.mobileFooterBlock}>
+              <div className={styles.avatarMobile}>
+                <Button
+                  disabled={!cartList.find(item => item.isBlockDay)}
+                  onClick={() => {
+                    // handleNextDay()
+                    navigate(PageConfig.checkout)
+                  }}
+                  className={styles.buttonContainerMobile}>
+                  <MenuSvg
+                    color={!cartList.find(item => item.isBlockDay) ?
+                      colorTheme.white :
+                      colorTheme.active
+                    }
+                  />
+                </Button>
+                <p className={styles.avatarMobileText}>Cart</p>
+              </div>
+              <div className={styles.buttonContainerCenter}>
+                <Button
+                  disabled={isSecond() && !isTypeDish(ComponentType.SECOND) || !isSecond() && !isTypeDish(ComponentType.MAIN)}
+                  onClick={() => {
+                    handleNextDay()
+                    if (isNextDay()) {
+                      navigate(PageConfig.checkout)
+                    }
+                  }}
+                  className={styles.mobileFooterButton}>
+                  <CartSvg color={colorTheme.white}/>
+                </Button>
+                <p className={styles.avatarMobileText}>Add to Cart</p>
+              </div>
+              <Avatar
+                size={36}
+                // classNamesContainer={styles.avatarMobile}
+                isActive
+                click={() => navigate(PageConfig.history)}
+                showFullName
+                fullNameStyle={styles.avatarMobileText}
               />
             </div>
           </div>
-          // : <Empty>&#10024; Dish list is empty &#10024;</Empty>
-          : <WaitDish />
+          : <WaitDish/>
       }
     </div>
   );

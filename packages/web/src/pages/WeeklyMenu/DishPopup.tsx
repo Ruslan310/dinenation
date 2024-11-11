@@ -1,23 +1,26 @@
-import React, {useContext, useState} from 'react';
-import {ConfigProvider, Radio} from 'antd';
+import React, {useState} from 'react';
+import {ConfigProvider, Modal, Radio} from 'antd';
 import styles from './WeeklyMenu.module.css';
-import {EAllergensList, EColorSideDishList, EWEEK_DAY} from '../../utils/utils';
+import {DishType, EAllergensList, EColorSideDishList, EWEEK_DAY} from '../../utils/utils';
 import {SideDishType, ProductForm} from '../../utils/type';
 import Button from '../../components/Button/Button';
 import CartSvg from '../../components/svg/CartSvg';
-import SideDishSvg from '../../components/svg/SideDishSvg';
+import SideDishListSvg from '../../components/svg/SideDishListSvg';
 import AllergensSvg from '../../components/svg/AllergensSvg';
-import calories from '../../assets/image/calories.svg';
 import {colorSideDishList, colorTheme} from '../../utils/theme';
-import {MainContext} from "../../contexts/MainProvider";
+import CaloriesSvg from "../../components/svg/CaloriesSvg";
 
 const noSauce = 'no sauce';
 
 interface PopoverContentProps {
   data: ProductForm;
-  isMain: boolean;
+  isMain?: boolean;
   sideDishes: SideDishType[];
+  open: boolean;
+  exceptionWeekDays: string[];
   selectDay: EWEEK_DAY;
+  setShowInfo: (value: number | undefined) => void;
+  setOpen: (value: boolean) => void;
   addToCart: (params: {
     product?: ProductForm;
     sauce?: string;
@@ -27,28 +30,78 @@ interface PopoverContentProps {
 }
 
 const DishPopup: React.FC<PopoverContentProps> = ({
-                                                         data,
-                                                         isMain,
-                                                         sideDishes,
-                                                         selectDay,
-                                                         addToCart,
-                                                       }) => {
+                                                    data,
+                                                    isMain,
+                                                    sideDishes,
+                                                    addToCart,
+                                                    open,
+                                                    exceptionWeekDays,
+                                                    selectDay,
+                                                    setOpen,
+                                                    setShowInfo,
+}) => {
   const [selectSauce, setSelectSauce] = useState<string>('');
   const [selectSideDish, setSideDish] = useState<SideDishType>();
   const [colorSideDish, setColorSideDish] = useState<string>('');
-  const {cartList} = useContext(MainContext);
 
-  const isBlockDay = (day: EWEEK_DAY): boolean => cartList.find(list => list.day === day)?.isBlockDay ?? false;
+  const addProduct = () => {
+    setOpen(false);
+    setTimeout(() => {
+      addToCart({
+        product: data,
+        sauce: selectSauce,
+        sideDish: selectSideDish,
+        isBlockDay: false,
+      })
+    }, 100);
+    // console.log('Product added ...');
+  }
+  const addHandle = () => {
+    if ((isMain && data.sauces?.length > 0 && !selectSauce) || (isMain && data.is_dish && !selectSideDish)) {
+      setOpen(true)
+    } else {
+      addProduct()
+    }
+  }
+
 
   return (
     <div className={styles.popoverContent}>
+      <Modal
+        closeIcon={false}
+        open={open}
+        onCancel={() => setOpen(false)}
+        width={400}
+        centered
+        maskClosable={false}
+        onOk={addProduct}
+      >
+        <>
+          <h4 style={{textAlign: 'center'}}>
+            Are you sure you want to order
+          </h4>
+          <h4 style={{textAlign: 'center'}}>
+            without
+            {data.sauces?.length > 0 && !selectSauce && !selectSideDish && data.is_dish && ' sauce and side dish'}
+            {data.sauces?.length > 0 && !selectSauce && (!data.is_dish || selectSideDish) && ' sauce'}
+            {!selectSideDish && data.is_dish && (!data.sauces?.length || selectSauce) && ' side dish'}?
+          </h4>
+        </>
+      </Modal>
       <div className={styles.popoverCategories}>
-        <p className={styles.titlePopover}>Categories: {data.categories}</p>
-        <p className={styles.subTextPopover}>{data?.description}</p>
-        <div className={styles.calories}>
-          <img src={calories} alt="" />
-          <p>{data.calories || 0} calories</p>
+        <div className={styles.descriptionBlock}>
+          <div>
+            <p className={styles.titlePopover}>Categories: {data.categories}</p>
+            <p className={styles.subTextPopover}>{data?.description}</p>
+          </div>
+          <div className={styles.close} onClick={() => setShowInfo(undefined)}></div>
         </div>
+        {data.calories &&
+          <div className={styles.calories}>
+            <CaloriesSvg/>
+            <p>{data.calories || ''}</p>
+          </div>
+        }
         <div className={styles.blockAllergen}>
           <p className={styles.titlePopover}>List of allergens</p>
           <div>
@@ -64,12 +117,12 @@ const DishPopup: React.FC<PopoverContentProps> = ({
             )}
           </div>
         </div>
-        {data.sauces && data.sauces.length && isMain && (
+        {data?.sauces && data?.sauces?.length && isMain && (
           <div className={styles.popoverSauceBlock}>
-            <p className={styles.titlePopover}>Choose a Sauce</p>
+            <p className={styles.titlePopover}>Choose a {DishType.SAUCE}</p>
             <ConfigProvider theme={{ token: { paddingXS: 16, colorPrimary: colorTheme.black } }}>
               <Radio.Group onChange={e => setSelectSauce(e.target.value)} value={selectSauce}>
-                {data.sauces?.split(',').map((sauce: string, index: number) => (
+                {data?.sauces?.split(',').map((sauce: string, index: number) => (
                   <Radio key={`${index}-${sauce}`} value={sauce}>
                     {sauce}
                   </Radio>
@@ -81,9 +134,9 @@ const DishPopup: React.FC<PopoverContentProps> = ({
         )}
       </div>
       <div className={styles.popoverChoose}>
-        {isMain ? (
+        {isMain && data.is_dish ? (
           <div>
-            <p className={styles.titlePopover}>Choose Side Dish</p>
+            <p className={styles.titlePopover}>Choose {DishType.SIDE}</p>
             <div className={styles.sideDishBlock}>
               {/* radio */}
               <ConfigProvider theme={{ token: { colorPrimary: colorSideDish, fontSize: 12 } }}>
@@ -105,8 +158,8 @@ const DishPopup: React.FC<PopoverContentProps> = ({
                       key={type}
                     >
                       <div className={styles.sideDishRadioContent}>
-                        <SideDishSvg type={type} active={selectSideDish?.title === title} />
-                        <span>{title}</span>
+                        <SideDishListSvg type={type} active={selectSideDish?.title === title} />
+                        <p className={styles.radioText}>{title}</p>
                       </div>
                     </Radio>
                   ))}
@@ -118,20 +171,10 @@ const DishPopup: React.FC<PopoverContentProps> = ({
           <div></div>
         )}
         <Button
-          icon={<CartSvg color={colorTheme.white} style={{ marginLeft: '8px' }} />}
+          icon={<CartSvg color={colorTheme.white} style={{marginLeft: 8}} />}
           iconPosition="right"
-          disabled={
-            (isMain && (!selectSideDish?.title || (data.sauces.length > 0 && !selectSauce))) ||
-            isBlockDay(selectDay)
-          }
-          onClick={() =>
-            addToCart({
-              product: data,
-              sauce: selectSauce,
-              sideDish: selectSideDish,
-              isBlockDay: false,
-            })
-          }
+          onClick={addHandle}
+          disabled={exceptionWeekDays.includes(selectDay)}
         >
           <p>Add to Cart</p>
         </Button>

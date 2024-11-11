@@ -2,6 +2,9 @@
     padding: 20px;
     display: flex;
     height: 100vh;
+    @media (max-width: 700px) {
+        padding: 10px;
+    }
 }
 
 .container {
@@ -10,12 +13,13 @@
     background-color: var(--color-navbar);
     border-radius: 16px;
     overflow: hidden;
-    background-image: url('../../assets/image/MaskAddress.png');
+    background-image: url('../../assets/image/maskAddress-min.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     display: flex;
     align-items: center;
+    box-shadow: 0 0 16px 0 #00000040;
 }
 
 .menuContainer {

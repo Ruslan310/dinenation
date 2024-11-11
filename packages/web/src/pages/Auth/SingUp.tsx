@@ -1,10 +1,8 @@
 import React from 'react';
 import {Form, Input} from "antd";
 import styles from "./Auth.module.css";
-import {EyeOutlined} from "@ant-design/icons";
-import closeEye from "../../assets/image/eyeClosed.svg";
 import Button from "../../components/Button/Button";
-import smile from "../../assets/image/smile.svg";
+import SmileSvg from "../../components/svg/SmileSvg";
 
 export type FieldTypeSingUp = {
   coupon: string;
@@ -15,7 +13,12 @@ export type FieldTypeSingUp = {
   password: string;
 };
 
-const SingUp = ({submit, loading}: {submit: (value: FieldTypeSingUp) => void, loading: boolean}) => (
+interface Props {
+  submit: (value: FieldTypeSingUp) => void
+  loading: boolean;
+}
+
+const SingUp = ({submit, loading}: Props) => (
   <Form
     name="basic"
     layout="vertical"
@@ -28,27 +31,31 @@ const SingUp = ({submit, loading}: {submit: (value: FieldTypeSingUp) => void, lo
       <Form.Item<FieldTypeSingUp>
         label="Your coupon"
         name="coupon"
+        className={styles.input}
         rules={[{ required: true, message: 'Please input your coupon!' }]}
       >
-        <Input className={styles.input} placeholder="Enter your coupon" />
+        <Input placeholder="Enter your coupon" />
       </Form.Item>
       <Form.Item<FieldTypeSingUp>
         label="First Name"
         name="first_name"
-        rules={[{ required: true, message: 'Please input your full name!' }]}
+        className={styles.input}
+        rules={[{ required: true, message: 'Please input your first name!' }]}
       >
-        <Input className={styles.input} placeholder="Enter your full name" />
+        <Input placeholder="Enter your first name" />
       </Form.Item>
       <Form.Item<FieldTypeSingUp>
         label="Last Name"
         name="last_name"
-        rules={[{ required: true, message: 'Please input your full name!' }]}
+        className={styles.input}
+        rules={[{ required: true, message: 'Please input your last name!' }]}
       >
-        <Input className={styles.input} placeholder="Enter your full name" />
+        <Input placeholder="Enter your last name" />
       </Form.Item>
       <Form.Item<FieldTypeSingUp>
         label="Email address"
         name="email"
+        className={styles.input}
         rules={[
           {required: true, message: 'Please input your email!'},
           {
@@ -57,11 +64,12 @@ const SingUp = ({submit, loading}: {submit: (value: FieldTypeSingUp) => void, lo
           },
         ]}
       >
-        <Input className={styles.input} placeholder="Your email" />
+        <Input placeholder="Your email" />
       </Form.Item>
       <Form.Item<FieldTypeSingUp>
         label="Telephone"
         name="phone"
+        className={styles.input}
         rules={[
           { required: true, message: 'Please input your phone number!' },
           {
@@ -70,25 +78,23 @@ const SingUp = ({submit, loading}: {submit: (value: FieldTypeSingUp) => void, lo
           },
         ]}
       >
-        <Input className={styles.input} placeholder="+357" />
+        <Input placeholder="+357" />
       </Form.Item>
       <Form.Item<FieldTypeSingUp>
         label="Password"
         name="password"
+        className={styles.input}
         rules={[
           {required: true, message: 'Please input your password!' },
           {min: 8, message: 'Password must be at least 8 characters!'},
         ]}
       >
-        <Input.Password
-          placeholder="Create password"
-          iconRender={(visible) => (visible ? <EyeOutlined /> : <img style={{cursor: "pointer"}} src={closeEye} alt='' />)}
-        />
+        <Input.Password placeholder="Create password" />
       </Form.Item>
     </div>
     <Form.Item>
       <Button loading={!loading} className={styles.submitButton} type="submit">
-        <img src={smile} alt='' className={styles.logoImg}/>
+        <SmileSvg />
         <p>Registration</p>
       </Button>
     </Form.Item>

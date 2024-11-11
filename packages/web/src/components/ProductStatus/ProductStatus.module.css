@@ -1,13 +1,12 @@
 .statusBlock {
     display: flex;
     align-items: center;
-    border-radius: 16px;
+    justify-content: center;
+    border-radius: 8px;
     padding: 0 8px;
     background-color: var(--color-base-white);
-    width: fit-content;
-    border-width: 1px;
-    border-color: red;
-    border-style: solid;
+    width: 100px;
+    color: black;
 
     & p {
         font-weight: var(--font-weight-normal);

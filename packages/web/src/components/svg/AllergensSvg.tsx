@@ -113,7 +113,7 @@ const AllergensSvg = ({color = "black", type = 'rise', style, className}: Props)
           />
         </svg>
       );
-    case EAllergensList.SULFITES:
+    case EAllergensList.SULPHITES:
       return (
         <svg style={style} className={className} width="25" height="24" viewBox="0 0 25 24" fill={color}
              xmlns="http://www.w3.org/2000/svg">

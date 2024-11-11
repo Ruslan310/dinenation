@@ -4,7 +4,7 @@ import {useTypedMutation} from "@dinenation-postgresql/graphql/urql";
 import {useNavigate} from "react-router-dom";
 import {Button, Form, Input, message, Select} from 'antd';
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
-import {EColorSideDishList, ProductStatus} from "../../../utils/utils";
+import {EColorSideDishList, PageConfig, ProductStatus} from "../../../utils/utils";
 
 interface SideDishForm {
   title: string;
@@ -71,12 +71,12 @@ const AddSideDish = () => {
               message.loading({content: 'Saving component...', key});
               const {data} = await addDish(form.getFieldsValue());
               message.success({content: 'Sauces successfully saved!', key, duration: 2});
-              data && navigate('/sideDishes')
+              data && navigate(PageConfig.side_dishes)
             } catch (e) {
               console.log('validations errors: ', e);
             }
           }} type="primary" htmlType="submit">
-            Add Dishes
+            Add Side Dish
           </Button>
         </Form.Item>
       </Form>

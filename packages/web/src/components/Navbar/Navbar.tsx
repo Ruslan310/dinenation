@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import styles from "./Navbar.module.css";
-import {ConfigProvider, Menu, Modal} from "antd";
+import {Menu, Modal} from "antd";
 import {useNavigate} from "react-router-dom";
 import type { MenuProps } from 'antd';
 import AddressSvg from "../svg/AddressSvg";
@@ -14,15 +14,21 @@ import {useAuthenticator} from "@aws-amplify/ui-react";
 import Button from "../Button/Button";
 import {colorTheme} from "../../utils/theme";
 import LogoSvg, {logoType} from "../svg/LogoSvg";
+import MenuSvg from "../svg/MenuSvg";
+import {MainContext} from "../../contexts/MainProvider";
+import {PageConfig, ROLE} from "../../utils/utils";
+import SettingSvg from "../svg/SettingSvg";
+import {useResize} from "../../hooks/useResize";
+import OrderSvg from "../svg/OrderSvg";
 
 const Navbar = () => {
   const {signOut} = useAuthenticator((context) => [context.user]);
   const path = window.location.pathname.replace(new RegExp("/(\\w*)"), "$1")
   const navigate = useNavigate();
   const [open, setOpen] = useState<boolean>(false)
-
+  const {userData} = useContext(MainContext);
+  const {isScreenLg } = useResize();
   const onClick: MenuProps['onClick'] = (e) => {
-    console.log('go to ', e.key);
     if (e.key === 'logOut') {
       setOpen(true)
     } else {
@@ -30,17 +36,28 @@ const Navbar = () => {
     }
   };
 
-
   type MenuItem = Required<MenuProps>['items'][number];
 
   const items: MenuItem[] = [
-    {key: 'history', icon: <HistorySvg color={path === 'history' ? colorTheme.primary : "#68696D"}/>, label: 'Order history'},
-    {key: 'address', icon: <AddressSvg color={path === 'address' ? colorTheme.primary : "#68696D"}/>, label: 'My Address'},
-    {key: 'reviews', icon: <ReviewsSvg color={path === 'reviews' ? colorTheme.primary : "#68696D"}/>, label: 'My reviews'},
-    {key: 'contactUs', icon: <ContactUsSvg color={path === 'contactUs' ? colorTheme.primary : "#68696D"}/>, label: 'Contact Us'},
-    {key: 'profile', icon: <ProfileSvg color={path === 'profile' ? colorTheme.primary : "#68696D"}/>, label: 'Edit Profile'},
-    {key: 'logOut', icon: <LogOutSvg color={colorTheme.primary}/>, label: 'Log Out', danger: true},
+    {key: 'menu', icon: <MenuSvg className={styles.svgIcon} color={path === '/' ? colorTheme.primary : colorTheme.secondary}/>, label: !isScreenLg && 'Menu'},
+    {key: 'history', icon: <HistorySvg className={styles.svgIcon} color={path === 'history' ? colorTheme.primary : colorTheme.secondary}/>, label: !isScreenLg && 'Order history'},
+    // {key: 'address', icon: <AddressSvg className={styles.svgIcon} color={path === 'address' ? colorTheme.primary : colorTheme.secondary}/>, label: !isScreenLg && 'My Address'},
+    {key: 'reviews', icon: <ReviewsSvg className={styles.svgIcon} color={path === 'reviews' ? colorTheme.primary : colorTheme.secondary}/>, label: !isScreenLg && 'My reviews'},
+    {key: 'contact', icon: <ContactUsSvg className={styles.svgIcon} color={path === 'contact' ? colorTheme.primary : colorTheme.secondary}/>, label: !isScreenLg && 'Contact Us'},
+    {key: 'profile', icon: <ProfileSvg className={styles.svgIcon} color={path === 'profile' ? colorTheme.primary : colorTheme.secondary}/>, label: !isScreenLg && 'Edit Profile'},
+    {key: 'logOut', icon: <LogOutSvg className={styles.svgIcon} color={colorTheme.primary}/>, label: !isScreenLg && 'Log Out', danger: true},
   ];
+
+  if (userData?.role === ROLE.ADMIN) {
+    items.unshift(
+      {key: 'orders', icon: <SettingSvg className={styles.svgIcon} color={path === 'orders' ? colorTheme.primary : colorTheme.secondary}/>, label: !isScreenLg && 'Admin'},
+    )
+  }
+  if (userData?.role === ROLE.ADMIN || userData?.role === ROLE.HR) {
+    items.unshift(
+      {key: 'company-orders', icon: <OrderSvg className={styles.svgIcon} color={path === 'company-orders' ? colorTheme.primary : colorTheme.secondary}/>, label: !isScreenLg && 'Company orders'},
+    )
+  }
 
   return (
     <div className={styles.navbarContainer}>
@@ -53,40 +70,23 @@ const Navbar = () => {
           <h3>Are you sure you want to log out?</h3>
           <Button onClick={() => {
             signOut()
-            localStorage.setItem('cartList', '')
-            navigate('/auth')
+            localStorage.removeItem('cartList')
+            localStorage.removeItem('cartTimestamp');
+            localStorage.removeItem('cartTComment');
+            navigate(PageConfig.auth)
             setOpen(false)
           }}>OK</Button>
         </div>
       </Modal>
-      <LogoSvg type={logoType.VERTICAL} click={() => navigate('/')} style={{cursor: 'pointer'}}/>
-      <Avatar size={100} showFullName />
-      <ConfigProvider
-        theme={{
-          components: {
-            Menu: {
-              itemSelectedBg: colorTheme.navbar,
-              itemActiveBg: colorTheme.navbar,
-              itemSelectedColor: colorTheme.darkPrimary,
-              dangerItemHoverColor: colorTheme.primary,
-              dangerItemColor: colorTheme.primary,
-              dangerItemActiveBg: colorTheme.primary,
-              dangerItemSelectedColor: colorTheme.primary,
-              dangerItemSelectedBg: colorTheme.navbar,
-              itemBg: colorTheme.navbar,
-              lineWidth: 0
-            },
-          },
-        }}
-      >
-        <Menu
-          className={styles.menuContainer}
-          defaultSelectedKeys={[path]}
-          mode="inline"
-          items={items}
-          onClick={onClick}
-        />
-      </ConfigProvider>
+      <LogoSvg size={!isScreenLg ? 100 : 40} type={logoType.VERTICAL} click={() => navigate(PageConfig.home)} style={{cursor: 'pointer'}}/>
+      <Avatar size={100} showFullName={!isScreenLg} />
+      <Menu
+        className={styles.menuContainer}
+        defaultSelectedKeys={[path]}
+        mode="inline"
+        items={items}
+        onClick={onClick}
+      />
     </div>
   );
 };

@@ -14,6 +14,8 @@
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.4",
+    "@types/mailgun-js": "^0.22.18",
+    "@types/nodemailer": "^6.4.16",
     "aws-cdk-lib": "2.132.1",
     "constructs": "10.3.0",
     "hygen": "^6.2.11",

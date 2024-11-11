@@ -9,9 +9,11 @@ export const ProductType = builder.objectRef<SQL.Row["product"]>("Product").impl
     price: t.exposeFloat("price"),
     allergens: t.exposeString("allergens", {nullable: true}),
     sauces: t.exposeString("sauces", {nullable: true}),
+    is_dish: t.exposeBoolean("is_dish"),
     categories: t.exposeString("categories"),
     dish_type: t.exposeString("dish_type"),
     image: t.exposeString("image"),
+    small_img: t.exposeString("small_img"),
     description: t.exposeString("description", {nullable: true}),
     week_day: t.exposeString("week_day"),
     status: t.exposeString("status"),
@@ -25,15 +27,7 @@ builder.queryFields((t)=> ({
     args: {
       id: t.arg.int({required: true}),
     },
-    resolve: async (_, args)=> {
-      const result = await Product.getProduct(args.id);
-
-      if (!result) {
-        throw new Error("Product not found");
-      }
-
-      return result;
-    },
+    resolve: (_, args) => Product.getProduct(args.id)
   }),
   products: t.field({
     type: [ProductType],
@@ -49,9 +43,11 @@ builder.mutationFields((t) => ({
       price: t.arg.float({required: true}),
       allergens: t.arg.string({required: false}),
       sauces: t.arg.string({required: false}),
+      is_dish: t.arg.boolean({required: true}),
       categories: t.arg.string({required: true}),
       dish_type: t.arg.string({required: true}),
       image: t.arg.string({required: true}),
+      small_img: t.arg.string({required: true}),
       description: t.arg.string({required: false}),
       week_day: t.arg.string({required: true}),
       status: t.arg.string({required: true}),
@@ -62,8 +58,10 @@ builder.mutationFields((t) => ({
       args.price,
       args.allergens,
       args.sauces,
+      args.is_dish,
       args.categories,
       args.dish_type,
+      args.image,
       args.image,
       args.description,
       args.week_day,
@@ -79,9 +77,11 @@ builder.mutationFields((t) => ({
       price: t.arg.float({required: true}),
       allergens: t.arg.string({required: false}),
       sauces: t.arg.string({required: false}),
+      is_dish: t.arg.boolean({required: true}),
       categories: t.arg.string({required: true}),
       dish_type: t.arg.string({required: true}),
       image: t.arg.string({required: true}),
+      small_img: t.arg.string({required: true}),
       description: t.arg.string({required: false}),
       week_day: t.arg.string({required: true}),
       status: t.arg.string({required: true}),
@@ -93,9 +93,11 @@ builder.mutationFields((t) => ({
       args.price,
       args.allergens,
       args.sauces,
+      args.is_dish,
       args.categories,
       args.dish_type,
       args.image,
+      args.small_img,
       args.description,
       args.week_day,
       args.status,
@@ -103,7 +105,8 @@ builder.mutationFields((t) => ({
     ),
   }),
   deleteProduct: t.field({
-    type: 'Boolean',
+    type: ProductType,
+    nullable: true,
     args: {
       id: t.arg.int({required: true}),
     },

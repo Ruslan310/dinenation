@@ -7,16 +7,15 @@ interface Props {
   style?: CSSProperties;
 }
 
-const BoxesSvg = ({color = colorTheme.secondary, className, style}: Props) => (
+const DomainSvg = ({color = colorTheme.secondary, className, style}: Props) => (
   <svg
-    stroke={color}
     strokeWidth="0.02"
     className={className}
     style={style}
     width="24"
     height="24"
     viewBox="0 0 16 16"
-    fill="currentColor"
+    fill={color}
     xmlns="http://www.w3.org/2000/svg"
   >
     <path fillRule="evenodd"
@@ -28,4 +27,4 @@ const BoxesSvg = ({color = colorTheme.secondary, className, style}: Props) => (
   </svg>
 );
 
-export default BoxesSvg;
+export default DomainSvg;

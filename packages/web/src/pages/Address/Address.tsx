@@ -17,6 +17,7 @@ const Address = () => {
   const [form] = Form.useForm();
   const [isFormValid, setIsFormValid] = useState(false);
 
+
   const submit: FormProps<FieldTypeAddress>['onFinish'] = (values) => {
     console.log('Success onSingIn:', values);
     // setData(values)
@@ -25,7 +26,7 @@ const Address = () => {
 
   return (
     <div className={styles.page}>
-      <Navbar />
+      <Navbar/>
       <div className={styles.container}>
         <Form
           form={form}
@@ -44,7 +45,7 @@ const Address = () => {
             }
           }}
         >
-          <p style={{marginBottom: '10px'}}>Add New Address</p>
+          <p style={{marginBottom: 10}}>Add New Address</p>
           <div className={styles.addressBlock}>
             <Form.Item<FieldTypeAddress>
               className={styles.inputAddress}

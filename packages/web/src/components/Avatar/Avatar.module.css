@@ -3,7 +3,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-
 }
 
 .imageContainer {
@@ -19,7 +18,7 @@
 .activeAvatar {
     cursor: pointer;
     &:hover {
-        box-shadow: 0 0 8px 0 #A8B6C78F;
+        box-shadow: 0 0 8px 0 var(--color-shadow);
     }
 }
 
@@ -39,15 +38,21 @@
 
 .editAvatar {
     position: absolute;
-    bottom: -3%;
-    right: -35%;
+    bottom: -2%;
+    right: -15%;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     background-color: var(--color-navbar);
+
+    @media (max-width: 800px) {
+        bottom: -3%;
+        right: -15%;
+    }
+
     &:hover {
-        box-shadow: 0 0 4px 0 #A8B6C78F;
+        box-shadow: 0 0 4px 0 var(--color-shadow);
     }
 }
 
@@ -56,7 +61,10 @@
     margin-top: 16px;
     font-size: 18px;
     line-height: 27px;
+    text-align: center;
     font-weight: var(--font-weight-wbolt);
+    padding: 0 5px;
+    user-select: none;
 }
 
 .spinContainer {

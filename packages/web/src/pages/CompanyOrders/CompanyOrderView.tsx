@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
-import styles from "./OrderHistoryView.module.css";
+import styles from "./CompanyOrder.module.css";
 import {useNavigate, useParams} from "react-router-dom";
 import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import {MainContext} from "../../contexts/MainProvider";
@@ -7,7 +7,7 @@ import OrderStatus from "../../components/OrderStatus/OrderStatus";
 import {
   ComponentType,
   DishType, EStatusType,
-  EWEEK_DAY,
+  EWEEK_DAY, PageConfig,
   TStatusType,
   WEEKDAY_ORDER,
   WEEKDAY_ORDER_TYPE
@@ -45,7 +45,7 @@ export type Product = {
 };
 
 const currentDayIndex = dayjs().day() - 1;
-const OrderHistoryView = () => {
+const CompanyOrderView = () => {
   const navigate = useNavigate();
   const {id: comboIdParam} = useParams();
   const currentComboId = Number(comboIdParam);
@@ -63,10 +63,9 @@ const OrderHistoryView = () => {
 
   const [order] = useTypedQuery({
     query: {
-      orderCustomerId: {
+      order: {
         __args: {
           id: currentComboId,
-          customer_id: userData?.id || 0
         },
         id: true,
         number: true,
@@ -102,7 +101,7 @@ const OrderHistoryView = () => {
 
   useEffect(() => {
     if (order.data) {
-      let groupOrder = groupByWeekDayAndComboId(order.data?.orderCustomerId?.products)
+      let groupOrder = groupByWeekDayAndComboId(order.data?.order?.products)
       setCurrentOrder(groupOrder)
     }
   }, [order.data]);
@@ -115,7 +114,7 @@ const OrderHistoryView = () => {
   const removeBox = async (id: number) => {
     setRemoveModal(undefined);
     try {
-      if (userData?.id && order.data?.orderCustomerId) {
+      if (userData?.id && order.data?.order) {
         let timeRemoveOff = '';
         let boxes = Object.values(currentOrder || {})
           .flatMap(dayObject => Object.values(dayObject || {}))
@@ -133,7 +132,7 @@ const OrderHistoryView = () => {
           message.error({ content: `Cannot remove the day, as ${timeRemoveOff} is already closed.`, duration: 2 });
           return;
         }
-        const currentStatus = !boxes.length ? EStatusType.CANCEL_REQUEST : order.data?.orderCustomerId.status
+        const currentStatus = !boxes.length ? EStatusType.CANCEL_REQUEST : order.data?.order.status
         let newPrice = boxes.reduce((sum: number, product: { price: number }) => sum + product.price, 0);
 
         await updateOrderWithBoxes({
@@ -161,7 +160,7 @@ const OrderHistoryView = () => {
 
   return (
     <Spin size="large" spinning={order.fetching || up_box.fetching}>
-      <div className={styles.page}>
+      <div className={styles.pageView}>
         <Modal
           open={!!removeModal}
           onCancel={() => setRemoveModal(undefined)}
@@ -177,10 +176,10 @@ const OrderHistoryView = () => {
           <div className={styles.orderContainer}>
             <div className={styles.header}>
               <div className={styles.headerNumber}>
-                <h3>{order.data.orderCustomerId.number}</h3>
-                <OrderStatus status={order.data.orderCustomerId.status as TStatusType}/>
+                <h3>{order.data.order.number}</h3>
+                <OrderStatus status={order.data.order.status as TStatusType}/>
               </div>
-              <div className={styles.close} onClick={() => navigate('/history')}></div>
+              <div className={styles.close} onClick={() => navigate(PageConfig.company_orders)}></div>
             </div>
             <div className={styles.orderBlock}>
               {currentOrder && Object.keys(currentOrder as GroupedProducts)
@@ -296,7 +295,7 @@ const OrderHistoryView = () => {
               {!hidePrice ?
                 <div className={styles.footerInfoBlock}>
                   <div className={styles.footerInfo}>
-                    {infoItem('Subtotal:', currency(order.data.orderCustomerId.price))}
+                    {infoItem('Subtotal:', currency(order.data.order.price))}
                     {infoItem('Discount:', currency(0))}
                   </div>
                 </div>
@@ -312,4 +311,4 @@ const OrderHistoryView = () => {
   )
 };
 
-export default OrderHistoryView;
+export default CompanyOrderView;

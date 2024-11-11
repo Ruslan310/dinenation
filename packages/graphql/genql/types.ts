@@ -2,13 +2,57 @@ export default {
     "scalars": [
         1,
         2,
-        7,
-        10
+        3,
+        11
     ],
     "types": {
+        "BoxInput": {
+            "combo_id": [
+                1
+            ],
+            "image": [
+                2
+            ],
+            "office": [
+                2
+            ],
+            "price": [
+                3
+            ],
+            "sauce": [
+                2
+            ],
+            "side_dish": [
+                2
+            ],
+            "side_dish_type": [
+                2
+            ],
+            "small_img": [
+                2
+            ],
+            "sticker": [
+                2
+            ],
+            "type": [
+                2
+            ],
+            "week_day": [
+                2
+            ],
+            "__typename": [
+                2
+            ]
+        },
+        "Int": {},
+        "String": {},
+        "Float": {},
         "Boxes": {
             "combo_id": [
                 1
+            ],
+            "date_updated": [
+                2
             ],
             "id": [
                 1
@@ -23,7 +67,7 @@ export default {
                 1
             ],
             "price": [
-                1
+                3
             ],
             "sauce": [
                 2
@@ -32,6 +76,9 @@ export default {
                 2
             ],
             "side_dish_type": [
+                2
+            ],
+            "small_img": [
                 2
             ],
             "status": [
@@ -50,17 +97,15 @@ export default {
                 2
             ]
         },
-        "Int": {},
-        "String": {},
         "CheckUser": {
             "checkDomain": [
-                4
+                6
             ],
             "checkEmail": [
-                5
+                7
             ],
             "coupons": [
-                9
+                10
             ],
             "__typename": [
                 2
@@ -98,9 +143,6 @@ export default {
             "description": [
                 2
             ],
-            "domain_id": [
-                1
-            ],
             "id": [
                 1
             ],
@@ -108,10 +150,10 @@ export default {
                 2
             ],
             "price": [
-                7
+                3
             ],
             "products": [
-                15
+                17
             ],
             "status": [
                 2
@@ -129,7 +171,6 @@ export default {
                 2
             ]
         },
-        "Float": {},
         "ComboProduct": {
             "combo_id": [
                 1
@@ -138,7 +179,7 @@ export default {
                 2
             ],
             "price": [
-                7
+                3
             ],
             "product_id": [
                 1
@@ -151,20 +192,26 @@ export default {
             "address": [
                 2
             ],
-            "domain": [
+            "check_order": [
                 11
+            ],
+            "domain": [
+                12
             ],
             "expiration_date": [
                 2
             ],
             "has_domain": [
-                10
+                11
+            ],
+            "hide_price": [
+                11
             ],
             "id": [
                 1
             ],
             "office": [
-                13
+                15
             ],
             "status": [
                 2
@@ -178,8 +225,11 @@ export default {
         },
         "Boolean": {},
         "Domain": {
+            "combos": [
+                8
+            ],
             "discount": [
-                7
+                3
             ],
             "expired_date": [
                 2
@@ -194,24 +244,38 @@ export default {
                 2
             ]
         },
+        "DomainCombo": {
+            "combo_id": [
+                1
+            ],
+            "domain_id": [
+                1
+            ],
+            "id": [
+                1
+            ],
+            "__typename": [
+                2
+            ]
+        },
         "Mutation": {
             "addCombo": [
-                6,
+                8,
                 {
                     "description": [
                         2
-                    ],
-                    "domain_id": [
-                        1,
-                        "Int!"
                     ],
                     "image": [
                         2,
                         "String!"
                     ],
                     "price": [
-                        7,
+                        3,
                         "Float!"
+                    ],
+                    "products": [
+                        18,
+                        "[ProductInput!]!"
                     ],
                     "status": [
                         2,
@@ -232,7 +296,7 @@ export default {
                 }
             ],
             "addComboProducts": [
-                8,
+                9,
                 {
                     "combo_id": [
                         1,
@@ -243,7 +307,7 @@ export default {
                         "String!"
                     ],
                     "price": [
-                        7,
+                        3,
                         "Float!"
                     ],
                     "product_id": [
@@ -253,11 +317,15 @@ export default {
                 }
             ],
             "addCoupon": [
-                9,
+                10,
                 {
                     "address": [
                         2,
                         "String!"
+                    ],
+                    "check_order": [
+                        11,
+                        "Boolean!"
                     ],
                     "domain_id": [
                         1,
@@ -267,7 +335,11 @@ export default {
                         2
                     ],
                     "has_domain": [
-                        10,
+                        11,
+                        "Boolean!"
+                    ],
+                    "hide_price": [
+                        11,
                         "Boolean!"
                     ],
                     "status": [
@@ -281,15 +353,13 @@ export default {
                 }
             ],
             "addDomain": [
-                11,
+                12,
                 {
                     "discount": [
-                        7,
-                        "Float!"
+                        3
                     ],
                     "expired_date": [
-                        2,
-                        "String!"
+                        2
                     ],
                     "title": [
                         2,
@@ -297,8 +367,21 @@ export default {
                     ]
                 }
             ],
-            "addOffice": [
+            "addDomainCombo": [
                 13,
+                {
+                    "combo_id": [
+                        1,
+                        "Int!"
+                    ],
+                    "domain_id": [
+                        1,
+                        "Int!"
+                    ]
+                }
+            ],
+            "addOffice": [
+                15,
                 {
                     "coupon_id": [
                         1,
@@ -311,7 +394,7 @@ export default {
                 }
             ],
             "addReview": [
-                17,
+                20,
                 {
                     "dish_name": [
                         2,
@@ -332,7 +415,7 @@ export default {
                 }
             ],
             "addSauce": [
-                18,
+                21,
                 {
                     "status": [
                         2,
@@ -345,7 +428,7 @@ export default {
                 }
             ],
             "addSideDish": [
-                19,
+                22,
                 {
                     "status": [
                         2,
@@ -362,7 +445,7 @@ export default {
                 }
             ],
             "addUser": [
-                20,
+                23,
                 {
                     "address": [
                         2
@@ -390,7 +473,7 @@ export default {
                 }
             ],
             "createBox": [
-                0,
+                4,
                 {
                     "combo_id": [
                         1,
@@ -408,8 +491,8 @@ export default {
                         "Int!"
                     ],
                     "price": [
-                        1,
-                        "Int!"
+                        3,
+                        "Float!"
                     ],
                     "sauce": [
                         2
@@ -419,6 +502,10 @@ export default {
                     ],
                     "side_dish_type": [
                         2
+                    ],
+                    "small_img": [
+                        2,
+                        "String!"
                     ],
                     "sticker": [
                         2,
@@ -435,7 +522,7 @@ export default {
                 }
             ],
             "createCheckDomain": [
-                4,
+                6,
                 {
                     "coupon_id": [
                         1,
@@ -448,7 +535,7 @@ export default {
                 }
             ],
             "createCheckEmail": [
-                5,
+                7,
                 {
                     "coupon_id": [
                         1,
@@ -460,14 +547,18 @@ export default {
                     ]
                 }
             ],
-            "createOrder": [
-                14,
+            "createOrderWithBoxes": [
+                16,
                 {
                     "address": [
                         2
                     ],
+                    "boxes": [
+                        0,
+                        "[BoxInput!]!"
+                    ],
                     "combo_price": [
-                        7,
+                        3,
                         "Float!"
                     ],
                     "comment": [
@@ -482,17 +573,13 @@ export default {
                         "Int!"
                     ],
                     "price": [
-                        7,
+                        3,
                         "Float!"
-                    ],
-                    "status": [
-                        2,
-                        "String!"
                     ]
                 }
             ],
             "createProduct": [
-                15,
+                17,
                 {
                     "allergens": [
                         2
@@ -515,12 +602,20 @@ export default {
                         2,
                         "String!"
                     ],
+                    "is_dish": [
+                        11,
+                        "Boolean!"
+                    ],
                     "price": [
-                        7,
+                        3,
                         "Float!"
                     ],
                     "sauces": [
                         2
+                    ],
+                    "small_img": [
+                        2,
+                        "String!"
                     ],
                     "status": [
                         2,
@@ -537,7 +632,7 @@ export default {
                 }
             ],
             "deleteBox": [
-                10,
+                11,
                 {
                     "id": [
                         1,
@@ -546,7 +641,7 @@ export default {
                 }
             ],
             "deleteBoxCombo": [
-                10,
+                11,
                 {
                     "combo_id": [
                         1,
@@ -559,7 +654,7 @@ export default {
                 }
             ],
             "deleteCheckDomain": [
-                10,
+                11,
                 {
                     "id": [
                         1,
@@ -568,7 +663,7 @@ export default {
                 }
             ],
             "deleteCheckEmail": [
-                10,
+                11,
                 {
                     "id": [
                         1,
@@ -577,7 +672,7 @@ export default {
                 }
             ],
             "deleteCombo": [
-                6,
+                8,
                 {
                     "id": [
                         1,
@@ -586,7 +681,7 @@ export default {
                 }
             ],
             "deleteComboProduct": [
-                10,
+                11,
                 {
                     "combo_id": [
                         1,
@@ -604,7 +699,7 @@ export default {
                 }
             ],
             "deleteDomain": [
-                10,
+                11,
                 {
                     "id": [
                         1,
@@ -612,8 +707,17 @@ export default {
                     ]
                 }
             ],
+            "deleteDomainCombo": [
+                11,
+                {
+                    "domain_id": [
+                        1,
+                        "Int!"
+                    ]
+                }
+            ],
             "deleteOffice": [
-                10,
+                11,
                 {
                     "coupon_id": [
                         1,
@@ -622,7 +726,7 @@ export default {
                 }
             ],
             "deleteOrder": [
-                10,
+                11,
                 {
                     "id": [
                         1,
@@ -631,7 +735,7 @@ export default {
                 }
             ],
             "deleteProduct": [
-                10,
+                17,
                 {
                     "id": [
                         1,
@@ -640,7 +744,7 @@ export default {
                 }
             ],
             "deleteReview": [
-                10,
+                11,
                 {
                     "id": [
                         1,
@@ -649,7 +753,7 @@ export default {
                 }
             ],
             "deleteSauces": [
-                10,
+                11,
                 {
                     "id": [
                         1,
@@ -658,7 +762,7 @@ export default {
                 }
             ],
             "deleteSideDish": [
-                10,
+                11,
                 {
                     "id": [
                         1,
@@ -667,7 +771,7 @@ export default {
                 }
             ],
             "deleteUser": [
-                10,
+                11,
                 {
                     "id": [
                         1,
@@ -676,7 +780,7 @@ export default {
                 }
             ],
             "deleteUserReview": [
-                10,
+                11,
                 {
                     "user_id": [
                         1,
@@ -684,8 +788,21 @@ export default {
                     ]
                 }
             ],
+            "permissionUser": [
+                23,
+                {
+                    "id": [
+                        1,
+                        "Int!"
+                    ],
+                    "is_update": [
+                        11,
+                        "Boolean!"
+                    ]
+                }
+            ],
             "updateBox": [
-                0,
+                4,
                 {
                     "combo_id": [
                         1,
@@ -707,8 +824,8 @@ export default {
                         "Int!"
                     ],
                     "price": [
-                        1,
-                        "Int!"
+                        3,
+                        "Float!"
                     ],
                     "sauce": [
                         2
@@ -718,6 +835,10 @@ export default {
                     ],
                     "side_dish_type": [
                         2
+                    ],
+                    "small_img": [
+                        2,
+                        "String!"
                     ],
                     "status": [
                         2,
@@ -737,8 +858,17 @@ export default {
                     ]
                 }
             ],
+            "updateBoxList": [
+                11,
+                {
+                    "list": [
+                        1,
+                        "[Int!]!"
+                    ]
+                }
+            ],
             "updateCheckDomain": [
-                4,
+                6,
                 {
                     "coupon_id": [
                         1,
@@ -755,7 +885,7 @@ export default {
                 }
             ],
             "updateCheckEmail": [
-                5,
+                7,
                 {
                     "coupon_id": [
                         1,
@@ -772,14 +902,10 @@ export default {
                 }
             ],
             "updateCombo": [
-                6,
+                8,
                 {
                     "description": [
                         2
-                    ],
-                    "domain_id": [
-                        1,
-                        "Int!"
                     ],
                     "id": [
                         1,
@@ -790,8 +916,12 @@ export default {
                         "String!"
                     ],
                     "price": [
-                        7,
+                        3,
                         "Float!"
+                    ],
+                    "products": [
+                        18,
+                        "[ProductInput!]!"
                     ],
                     "status": [
                         2,
@@ -812,11 +942,15 @@ export default {
                 }
             ],
             "updateCoupon": [
-                9,
+                10,
                 {
                     "address": [
                         2,
                         "String!"
+                    ],
+                    "check_order": [
+                        11,
+                        "Boolean!"
                     ],
                     "domain_id": [
                         1,
@@ -826,7 +960,11 @@ export default {
                         2
                     ],
                     "has_domain": [
-                        10,
+                        11,
+                        "Boolean!"
+                    ],
+                    "hide_price": [
+                        11,
                         "Boolean!"
                     ],
                     "id": [
@@ -844,15 +982,13 @@ export default {
                 }
             ],
             "updateDomain": [
-                11,
+                12,
                 {
                     "discount": [
-                        7,
-                        "Float!"
+                        3
                     ],
                     "expired_date": [
-                        2,
-                        "String!"
+                        2
                     ],
                     "id": [
                         1,
@@ -865,7 +1001,7 @@ export default {
                 }
             ],
             "updateOffice": [
-                13,
+                15,
                 {
                     "coupon_id": [
                         1,
@@ -882,13 +1018,13 @@ export default {
                 }
             ],
             "updateOrder": [
-                14,
+                16,
                 {
                     "address": [
                         2
                     ],
                     "combo_price": [
-                        7,
+                        3,
                         "Float!"
                     ],
                     "comment": [
@@ -911,7 +1047,7 @@ export default {
                         "String!"
                     ],
                     "price": [
-                        7,
+                        3,
                         "Float!"
                     ],
                     "status": [
@@ -920,21 +1056,37 @@ export default {
                     ]
                 }
             ],
-            "updateOrderPrice": [
-                14,
+            "updateOrderWithBoxes": [
+                16,
                 {
+                    "boxes": [
+                        0,
+                        "[BoxInput!]!"
+                    ],
+                    "combo_id": [
+                        1,
+                        "Int!"
+                    ],
+                    "customer_id": [
+                        1,
+                        "Int!"
+                    ],
                     "id": [
                         1,
                         "Int!"
                     ],
                     "price": [
-                        1,
-                        "Int!"
+                        3,
+                        "Float!"
+                    ],
+                    "status": [
+                        2,
+                        "String!"
                     ]
                 }
             ],
             "updateProduct": [
-                15,
+                17,
                 {
                     "allergens": [
                         2
@@ -961,12 +1113,20 @@ export default {
                         2,
                         "String!"
                     ],
+                    "is_dish": [
+                        11,
+                        "Boolean!"
+                    ],
                     "price": [
-                        7,
+                        3,
                         "Float!"
                     ],
                     "sauces": [
                         2
+                    ],
+                    "small_img": [
+                        2,
+                        "String!"
                     ],
                     "status": [
                         2,
@@ -983,7 +1143,7 @@ export default {
                 }
             ],
             "updateReview": [
-                17,
+                20,
                 {
                     "dish_name": [
                         2,
@@ -1008,7 +1168,7 @@ export default {
                 }
             ],
             "updateSauces": [
-                18,
+                21,
                 {
                     "id": [
                         1,
@@ -1025,7 +1185,7 @@ export default {
                 }
             ],
             "updateSideDish": [
-                19,
+                22,
                 {
                     "id": [
                         1,
@@ -1046,7 +1206,7 @@ export default {
                 }
             ],
             "updateUser": [
-                20,
+                23,
                 {
                     "address": [
                         2
@@ -1067,8 +1227,9 @@ export default {
                         1,
                         "Int!"
                     ],
-                    "image": [
-                        2
+                    "is_update": [
+                        11,
+                        "Boolean!"
                     ],
                     "last_name": [
                         2,
@@ -1085,7 +1246,7 @@ export default {
                 }
             ],
             "updateUserImage": [
-                20,
+                23,
                 {
                     "id": [
                         1,
@@ -1093,6 +1254,27 @@ export default {
                     ],
                     "image": [
                         2
+                    ]
+                }
+            ],
+            "updateUserProfile": [
+                23,
+                {
+                    "first_name": [
+                        2,
+                        "String!"
+                    ],
+                    "id": [
+                        1,
+                        "Int!"
+                    ],
+                    "last_name": [
+                        2,
+                        "String!"
+                    ],
+                    "phone": [
+                        2,
+                        "String!"
                     ]
                 }
             ],
@@ -1119,16 +1301,16 @@ export default {
                 2
             ],
             "combo_price": [
-                7
+                3
             ],
             "comment": [
                 2
             ],
-            "coupon_id": [
-                1
+            "coupon": [
+                10
             ],
-            "customer_id": [
-                1
+            "customer": [
+                23
             ],
             "date_created": [
                 2
@@ -1140,10 +1322,10 @@ export default {
                 2
             ],
             "price": [
-                7
+                3
             ],
             "products": [
-                0
+                4
             ],
             "status": [
                 2
@@ -1174,10 +1356,16 @@ export default {
             "image": [
                 2
             ],
+            "is_dish": [
+                11
+            ],
             "price": [
-                7
+                3
             ],
             "sauces": [
+                2
+            ],
+            "small_img": [
                 2
             ],
             "status": [
@@ -1193,20 +1381,22 @@ export default {
                 2
             ]
         },
+        "ProductInput": {
+            "dish_type": [
+                2
+            ],
+            "price": [
+                3
+            ],
+            "product_id": [
+                1
+            ],
+            "__typename": [
+                2
+            ]
+        },
         "Query": {
             "box": [
-                0,
-                {
-                    "id": [
-                        1,
-                        "Int!"
-                    ]
-                }
-            ],
-            "boxes": [
-                0
-            ],
-            "checkDomain": [
                 4,
                 {
                     "id": [
@@ -1215,11 +1405,32 @@ export default {
                     ]
                 }
             ],
-            "checkDomains": [
+            "boxes": [
                 4
             ],
+            "boxesDay": [
+                4,
+                {
+                    "week_day": [
+                        2,
+                        "String!"
+                    ]
+                }
+            ],
+            "checkDomain": [
+                6,
+                {
+                    "id": [
+                        1,
+                        "Int!"
+                    ]
+                }
+            ],
+            "checkDomains": [
+                6
+            ],
             "checkEmail": [
-                5,
+                7,
                 {
                     "id": [
                         1,
@@ -1228,13 +1439,13 @@ export default {
                 }
             ],
             "checkEmails": [
-                5
+                7
             ],
             "checkUser": [
-                3
+                5
             ],
             "comboById": [
-                6,
+                8,
                 {
                     "id": [
                         1,
@@ -1242,20 +1453,11 @@ export default {
                     ]
                 }
             ],
-            "combosByCoupon": [
-                6,
-                {
-                    "domain_id": [
-                        1,
-                        "Int!"
-                    ]
-                }
-            ],
             "combosList": [
-                6
+                8
             ],
             "coupon": [
-                9,
+                10,
                 {
                     "id": [
                         1,
@@ -1264,10 +1466,10 @@ export default {
                 }
             ],
             "coupons": [
-                9
+                10
             ],
             "domain": [
-                11,
+                12,
                 {
                     "id": [
                         1,
@@ -1276,10 +1478,10 @@ export default {
                 }
             ],
             "domains": [
-                11
+                12
             ],
             "office": [
-                13,
+                15,
                 {
                     "id": [
                         1,
@@ -1288,10 +1490,10 @@ export default {
                 }
             ],
             "offices": [
-                13
+                15
             ],
             "officesByCoupon": [
-                13,
+                15,
                 {
                     "coupon_id": [
                         1,
@@ -1300,7 +1502,7 @@ export default {
                 }
             ],
             "order": [
-                14,
+                16,
                 {
                     "id": [
                         1,
@@ -1309,7 +1511,7 @@ export default {
                 }
             ],
             "orderCustomerId": [
-                14,
+                16,
                 {
                     "customer_id": [
                         1,
@@ -1322,10 +1524,39 @@ export default {
                 }
             ],
             "orders": [
-                14
+                16
+            ],
+            "ordersByBox": [
+                16
+            ],
+            "ordersByCoupon": [
+                16,
+                {
+                    "coupon_id": [
+                        1,
+                        "Int!"
+                    ]
+                }
+            ],
+            "ordersByCouponDate": [
+                16,
+                {
+                    "coupon_id": [
+                        1,
+                        "Int!"
+                    ],
+                    "date_end": [
+                        2,
+                        "String!"
+                    ],
+                    "date_start": [
+                        2,
+                        "String!"
+                    ]
+                }
             ],
             "ordersByCustomerId": [
-                14,
+                16,
                 {
                     "customer_id": [
                         1,
@@ -1333,8 +1564,36 @@ export default {
                     ]
                 }
             ],
+            "ordersByStatus": [
+                16,
+                {
+                    "limit": [
+                        1
+                    ],
+                    "offset": [
+                        1
+                    ],
+                    "status": [
+                        2,
+                        "String!"
+                    ]
+                }
+            ],
+            "ordersCheckById": [
+                16,
+                {
+                    "customer_id": [
+                        1,
+                        "Int!"
+                    ],
+                    "status": [
+                        2,
+                        "String!"
+                    ]
+                }
+            ],
             "product": [
-                15,
+                17,
                 {
                     "id": [
                         1,
@@ -1343,10 +1602,10 @@ export default {
                 }
             ],
             "products": [
-                15
+                17
             ],
             "review": [
-                17,
+                20,
                 {
                     "id": [
                         1,
@@ -1355,10 +1614,10 @@ export default {
                 }
             ],
             "reviews": [
-                17
+                20
             ],
             "sauce": [
-                18,
+                21,
                 {
                     "id": [
                         1,
@@ -1367,10 +1626,10 @@ export default {
                 }
             ],
             "sauces": [
-                18
+                21
             ],
             "sideDish": [
-                19,
+                22,
                 {
                     "id": [
                         1,
@@ -1379,10 +1638,19 @@ export default {
                 }
             ],
             "sideDishes": [
-                19
+                22
+            ],
+            "totalCount": [
+                1,
+                {
+                    "status": [
+                        2,
+                        "String!"
+                    ]
+                }
             ],
             "user": [
-                20,
+                23,
                 {
                     "email": [
                         2,
@@ -1390,8 +1658,17 @@ export default {
                     ]
                 }
             ],
+            "userId": [
+                23,
+                {
+                    "id": [
+                        1,
+                        "Int!"
+                    ]
+                }
+            ],
             "userReviews": [
-                17,
+                20,
                 {
                     "user_id": [
                         1,
@@ -1400,7 +1677,7 @@ export default {
                 }
             ],
             "users": [
-                20
+                23
             ],
             "__typename": [
                 2
@@ -1422,8 +1699,8 @@ export default {
             "review": [
                 2
             ],
-            "user_id": [
-                1
+            "user": [
+                23
             ],
             "__typename": [
                 2
@@ -1465,7 +1742,10 @@ export default {
                 2
             ],
             "coupon": [
-                9
+                10
+            ],
+            "date_created": [
+                2
             ],
             "email": [
                 2
@@ -1478,6 +1758,9 @@ export default {
             ],
             "image": [
                 2
+            ],
+            "is_update": [
+                11
             ],
             "last_name": [
                 2

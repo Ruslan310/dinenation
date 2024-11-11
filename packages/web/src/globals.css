@@ -15,6 +15,8 @@
   --color-base-select: #D5401E;
   --color-base-active: #FF4713;
   --color-sub-text: #68696D;
+  --color-shadow: #A8B6C78F;
+  --color-hover-text: #E1B4AA;
 
   --color-brand: hsl(var(--color-base-brand), 60%);
   --color-white: hsl(var(--color-base-white), 100%);
@@ -22,11 +24,15 @@
   --color-blue: hsl(var(--color-base-blue), 64%);
 
   --font-weight-normal: 400;
-  --font-weight-lithg: 500;
+  --font-weight-light: 500;
   --font-weight-bolt: 600;
   --font-weight-wbolt: 700;
 
   --border-radius: 8px;
+
+  --breakpoint-small: 600px;
+  --breakpoint-medium: 900px;
+  --breakpoint-large: 1200px;
 }
 
 :root {
@@ -53,6 +59,10 @@
   --input-focus-border: hsl(var(--color-base-white), 68%);
   --input-background: var(--color-white);
   --input-focus-glow: hsla(var(--color-base-blue), 64%, 0.35);
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -119,6 +129,7 @@ h6 {
 }
 
 a {
+  font-size: 14px;
   transition: color 0.2s;
   text-decoration: none;
   color: var(--link-color);

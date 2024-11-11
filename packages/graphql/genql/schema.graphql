@@ -1,13 +1,29 @@
+input BoxInput {
+  combo_id: Int!
+  image: String!
+  office: String
+  price: Float!
+  sauce: String
+  side_dish: String
+  side_dish_type: String
+  small_img: String!
+  sticker: String!
+  type: String!
+  week_day: String!
+}
+
 type Boxes {
   combo_id: Int!
+  date_updated: String!
   id: Int!
   image: String!
   office: String
   order_id: Int!
-  price: Int!
+  price: Float!
   sauce: String
   side_dish: String
   side_dish_type: String
+  small_img: String!
   status: String!
   sticker: String!
   type: String!
@@ -34,7 +50,6 @@ type CheckUserEmail {
 
 type Combo {
   description: String
-  domain_id: Int!
   id: Int!
   image: String!
   price: Float!
@@ -54,9 +69,11 @@ type ComboProduct {
 
 type Coupons {
   address: String!
+  check_order: Boolean!
   domain: Domain!
   expiration_date: String
   has_domain: Boolean!
+  hide_price: Boolean!
   id: Int!
   office: [Office!]!
   status: String!
@@ -64,58 +81,70 @@ type Coupons {
 }
 
 type Domain {
-  discount: Float!
+  combos: [Combo!]!
+  discount: Float
   expired_date: String
   id: Int!
   title: String!
 }
 
+type DomainCombo {
+  combo_id: Int!
+  domain_id: Int!
+  id: Int!
+}
+
 type Mutation {
-  addCombo(description: String, domain_id: Int!, image: String!, price: Float!, status: String!, title: String!, type: String!, week_day: String!): Combo!
+  addCombo(description: String, image: String!, price: Float!, products: [ProductInput!]!, status: String!, title: String!, type: String!, week_day: String!): Combo!
   addComboProducts(combo_id: Int!, dish_type: String!, price: Float!, product_id: Int!): ComboProduct!
-  addCoupon(address: String!, domain_id: Int!, expiration_date: String, has_domain: Boolean!, status: String!, title: String!): Coupons!
-  addDomain(discount: Float!, expired_date: String!, title: String!): Domain!
+  addCoupon(address: String!, check_order: Boolean!, domain_id: Int!, expiration_date: String, has_domain: Boolean!, hide_price: Boolean!, status: String!, title: String!): Coupons!
+  addDomain(discount: Float, expired_date: String, title: String!): Domain!
+  addDomainCombo(combo_id: Int!, domain_id: Int!): DomainCombo!
   addOffice(coupon_id: Int!, title: String!): Office!
   addReview(dish_name: String!, rate: Int!, review: String!, user_id: Int!): Review!
   addSauce(status: String!, title: String!): Sauces!
   addSideDish(status: String!, title: String!, type: String!): SideDish!
   addUser(address: String, coupon_id: Int!, email: String!, first_name: String!, last_name: String!, phone: String!): Users!
-  createBox(combo_id: Int!, image: String!, office: String, order_id: Int!, price: Int!, sauce: String, side_dish: String, side_dish_type: String, sticker: String!, type: String!, week_day: String!): Boxes!
+  createBox(combo_id: Int!, image: String!, office: String, order_id: Int!, price: Float!, sauce: String, side_dish: String, side_dish_type: String, small_img: String!, sticker: String!, type: String!, week_day: String!): Boxes!
   createCheckDomain(coupon_id: Int!, domain: String!): CheckUserDomain!
   createCheckEmail(coupon_id: Int!, email: String!): CheckUserEmail!
-  createOrder(address: String, combo_price: Float!, comment: String, coupon_id: Int!, customer_id: Int!, price: Float!, status: String!): Orders!
-  createProduct(allergens: String, calories: String, categories: String!, description: String, dish_type: String!, image: String!, price: Float!, sauces: String, status: String!, title: String!, week_day: String!): Product!
+  createOrderWithBoxes(address: String, boxes: [BoxInput!]!, combo_price: Float!, comment: String, coupon_id: Int!, customer_id: Int!, price: Float!): Orders!
+  createProduct(allergens: String, calories: String, categories: String!, description: String, dish_type: String!, image: String!, is_dish: Boolean!, price: Float!, sauces: String, small_img: String!, status: String!, title: String!, week_day: String!): Product!
   deleteBox(id: Int!): Boolean!
   deleteBoxCombo(combo_id: Int!, order_id: Int!): Boolean!
   deleteCheckDomain(id: Int!): Boolean!
   deleteCheckEmail(id: Int!): Boolean!
   deleteCombo(id: Int!): Combo
   deleteComboProduct(combo_id: Int!): Boolean!
-  deleteCoupon(id: Int!): Boolean!
+  deleteCoupon(id: Int!): Coupons
   deleteDomain(id: Int!): Boolean!
+  deleteDomainCombo(domain_id: Int!): Boolean!
   deleteOffice(coupon_id: Int!): Boolean!
   deleteOrder(id: Int!): Boolean!
-  deleteProduct(id: Int!): Boolean!
+  deleteProduct(id: Int!): Product
   deleteReview(id: Int!): Boolean!
   deleteSauces(id: Int!): Boolean!
   deleteSideDish(id: Int!): Boolean!
   deleteUser(id: Int!): Boolean!
   deleteUserReview(user_id: Int!): Boolean!
-  updateBox(combo_id: Int!, id: Int!, image: String!, office: String, order_id: Int!, price: Int!, sauce: String, side_dish: String, side_dish_type: String, status: String!, sticker: String!, type: String!, week_day: String!): Boxes!
+  permissionUser(id: Int!, is_update: Boolean!): Users!
+  updateBox(combo_id: Int!, id: Int!, image: String!, office: String, order_id: Int!, price: Float!, sauce: String, side_dish: String, side_dish_type: String, small_img: String!, status: String!, sticker: String!, type: String!, week_day: String!): Boxes!
+  updateBoxList(list: [Int!]!): Boolean!
   updateCheckDomain(coupon_id: Int!, domain: String!, id: Int!): CheckUserDomain!
   updateCheckEmail(coupon_id: Int!, email: String!, id: Int!): CheckUserEmail!
-  updateCombo(description: String, domain_id: Int!, id: Int!, image: String!, price: Float!, status: String!, title: String!, type: String!, week_day: String!): Combo!
-  updateCoupon(address: String!, domain_id: Int!, expiration_date: String, has_domain: Boolean!, id: Int!, status: String!, title: String!): Coupons!
-  updateDomain(discount: Float!, expired_date: String!, id: Int!, title: String!): Domain!
+  updateCombo(description: String, id: Int!, image: String!, price: Float!, products: [ProductInput!]!, status: String!, title: String!, type: String!, week_day: String!): Combo!
+  updateCoupon(address: String!, check_order: Boolean!, domain_id: Int!, expiration_date: String, has_domain: Boolean!, hide_price: Boolean!, id: Int!, status: String!, title: String!): Coupons!
+  updateDomain(discount: Float, expired_date: String, id: Int!, title: String!): Domain!
   updateOffice(coupon_id: Int!, id: Int!, title: String!): Office!
   updateOrder(address: String, combo_price: Float!, comment: String, coupon_id: Int!, customer_id: Int!, id: Int!, number: String!, price: Float!, status: String!): Orders!
-  updateOrderPrice(id: Int!, price: Int!): Orders!
-  updateProduct(allergens: String, calories: String, categories: String!, description: String, dish_type: String!, id: Int!, image: String!, price: Float!, sauces: String, status: String!, title: String!, week_day: String!): Product!
+  updateOrderWithBoxes(boxes: [BoxInput!]!, combo_id: Int!, customer_id: Int!, id: Int!, price: Float!, status: String!): Orders!
+  updateProduct(allergens: String, calories: String, categories: String!, description: String, dish_type: String!, id: Int!, image: String!, is_dish: Boolean!, price: Float!, sauces: String, small_img: String!, status: String!, title: String!, week_day: String!): Product!
   updateReview(dish_name: String!, id: Int!, rate: Int!, review: String!, user_id: Int!): Review!
   updateSauces(id: Int!, status: String!, title: String!): Sauces!
   updateSideDish(id: Int!, status: String!, title: String!, type: String!): SideDish!
-  updateUser(address: String, coupon_id: Int!, email: String!, first_name: String!, id: Int!, image: String, last_name: String!, phone: String!, role: String!): Users!
+  updateUser(address: String, coupon_id: Int!, email: String!, first_name: String!, id: Int!, is_update: Boolean!, last_name: String!, phone: String!, role: String!): Users!
   updateUserImage(id: Int!, image: String): Users!
+  updateUserProfile(first_name: String!, id: Int!, last_name: String!, phone: String!): Users!
 }
 
 type Office {
@@ -128,8 +157,8 @@ type Orders {
   address: String
   combo_price: Float!
   comment: String
-  coupon_id: Int!
-  customer_id: Int!
+  coupon: Coupons!
+  customer: Users!
   date_created: String!
   id: Int!
   number: String!
@@ -146,23 +175,31 @@ type Product {
   dish_type: String!
   id: Int!
   image: String!
+  is_dish: Boolean!
   price: Float!
   sauces: String
+  small_img: String!
   status: String!
   title: String!
   week_day: String!
 }
 
+input ProductInput {
+  dish_type: String!
+  price: Float!
+  product_id: Int!
+}
+
 type Query {
   box(id: Int!): Boxes!
   boxes: [Boxes!]!
+  boxesDay(week_day: String!): [Boxes!]!
   checkDomain(id: Int!): CheckUserDomain!
   checkDomains: [CheckUserDomain!]!
   checkEmail(id: Int!): CheckUserEmail!
   checkEmails: [CheckUserEmail!]!
   checkUser: CheckUser!
   comboById(id: Int!): Combo!
-  combosByCoupon(domain_id: Int!): [Combo!]!
   combosList: [Combo!]!
   coupon(id: Int!): Coupons!
   coupons: [Coupons!]!
@@ -174,7 +211,12 @@ type Query {
   order(id: Int!): Orders!
   orderCustomerId(customer_id: Int!, id: Int!): Orders!
   orders: [Orders!]!
+  ordersByBox: [Orders!]!
+  ordersByCoupon(coupon_id: Int!): [Orders!]!
+  ordersByCouponDate(coupon_id: Int!, date_end: String!, date_start: String!): [Orders!]!
   ordersByCustomerId(customer_id: Int!): [Orders!]!
+  ordersByStatus(limit: Int, offset: Int, status: String!): [Orders!]!
+  ordersCheckById(customer_id: Int!, status: String!): [Orders!]!
   product(id: Int!): Product!
   products: [Product!]!
   review(id: Int!): Review!
@@ -183,7 +225,9 @@ type Query {
   sauces: [Sauces!]!
   sideDish(id: Int!): SideDish!
   sideDishes: [SideDish!]!
+  totalCount(status: String!): Int!
   user(email: String!): Users
+  userId(id: Int!): Users
   userReviews(user_id: Int!): [Review!]!
   users: [Users!]!
 }
@@ -194,7 +238,7 @@ type Review {
   id: Int!
   rate: Int!
   review: String!
-  user_id: Int!
+  user: Users!
 }
 
 type Sauces {
@@ -213,10 +257,12 @@ type SideDish {
 type Users {
   address: String
   coupon: Coupons!
+  date_created: String!
   email: String!
   first_name: String!
   id: Int!
   image: String
+  is_update: Boolean!
   last_name: String!
   phone: String!
   role: String!

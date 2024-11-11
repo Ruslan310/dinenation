@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Button, Collapse, CollapseProps, Form, Input, InputNumber, message, Select} from "antd";
 import {useNavigate, useParams} from "react-router-dom";
 import styles from "./Combo.module.css";
-import {CATEGORIES_TYPE, ComponentType, ProductStatus, WeekDay} from "../../../utils/utils";
+import {CATEGORIES_TYPE, ComponentType, PageConfig, ProductStatus, WeekDay} from "../../../utils/utils";
 import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
 import Loading from "../../../components/Loader/Loading";
@@ -15,19 +15,18 @@ const {TextArea} = Input;
 export interface ComboForm {
   id: number;
   title: string;
-  domain_id: number;
   price: number;
   type: string;
   image: string;
   description: string;
   week_day: string;
   status: string;
+  products: ComboProductForm[]
 }
 
 export interface ComboFormInitial {
   id: number;
   title: string;
-  domain_id: number;
   price: number;
   type: string;
   image: string;
@@ -41,7 +40,6 @@ export interface ComboFormInitial {
 
 interface ComboProductForm {
   product_id: number;
-  combo_id: number;
   price: number;
   dish_type: ComponentType;
 }
@@ -55,6 +53,7 @@ const UpdateCombo = () => {
   const [picture, setPicture] = useState('');
   const [isLoadingImage, setLoadingImage] = useState(false);
   const [initialValues, setInitialValues] = useState<Partial<ComboFormInitial>>();
+  const navigate = useNavigate();
 
   const isValidId = (id: string | undefined): boolean => {
     return id !== undefined && /^\d+$/.test(id);
@@ -64,7 +63,7 @@ const UpdateCombo = () => {
     return <NotFound />;
   }
 
-  const navigate = useNavigate();
+
   const [combo] = useTypedQuery({
     query: {
       comboById: {
@@ -73,7 +72,6 @@ const UpdateCombo = () => {
         },
         id: true,
         title: true,
-        domain_id: true,
         price: true,
         type: true,
         image: true,
@@ -89,13 +87,6 @@ const UpdateCombo = () => {
       },
     },
   });
-
-  const [combo_prod, addComboProducts] = useTypedMutation((opts: ComboProductForm) => ({
-    addComboProducts: {
-      __args: opts,
-      product_id: true,
-    },
-  }));
 
   const [products] = useTypedQuery({
     query: {
@@ -151,12 +142,6 @@ const UpdateCombo = () => {
     },
   }));
 
-  const [del, deleteComboProduct] = useTypedMutation((opts: {combo_id: number}) => ({
-    deleteComboProduct: {
-      __args: opts,
-    },
-  }));
-
   const [domains] = useTypedQuery({
     query: {
       domains: {
@@ -208,26 +193,10 @@ const UpdateCombo = () => {
   return (
     <div className={styles.page}>
       <AdminNavbar />
-      {initialValues && domains.data?.domains ?
+      {initialValues && domains.data?.domains && products.data?.products ?
         <Form className={styles.form} layout="horizontal" form={form} initialValues={initialValues}>
           <Form.Item name="title" rules={[{ required: true, message: 'Please enter name!' }]} className={styles.field}>
             <Input placeholder='Enter product name' />
-          </Form.Item>
-          <Form.Item
-            name="domain_id"
-            rules={[{required: true, message: 'Select coupon!'}]}
-            style={{display: 'inline-block'}}
-            className={styles.field}
-          >
-            <Select<string, { value: string; children: string }>
-              placeholder="Select package type"
-              filterOption={(input, option) =>
-                option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
-              }
-            >
-              {domains.data?.domains
-                .map(({id, title}) => <Select.Option key={id} value={id}>{title}</Select.Option>)}
-            </Select>
           </Form.Item>
           <Form.Item className={styles.field} name="price" rules={[{ required: true, message: 'Please enter price!' }]}>
             <InputNumber placeholder='Price' min={0} className={styles.numberField} />
@@ -295,9 +264,9 @@ const UpdateCombo = () => {
               try {
                 await form.validateFields();
                 message.loading({ content: 'Saving component...', key });
+
                 const {
                   title,
-                  domain_id,
                   price,
                   type,
                   description,
@@ -307,49 +276,39 @@ const UpdateCombo = () => {
                   secondProducts,
                   dessertProducts
                 } = form.getFieldsValue();
-                const { data } = await updateCombo({
+
+                const products = [
+                  ...mainProducts?.map(({ product_id, price }: { product_id: number; price: number }) => ({
+                    product_id,
+                    price,
+                    dish_type: ComponentType.MAIN,
+                  })) || [],
+                  ...secondProducts?.map(({ product_id, price }: { product_id: number; price: number }) => ({
+                    product_id,
+                    price,
+                    dish_type: ComponentType.SECOND,
+                  })) || [],
+                  ...dessertProducts?.map(({ product_id, price }: { product_id: number; price: number }) => ({
+                    product_id,
+                    price,
+                    dish_type: ComponentType.DESSERT,
+                  })) || [],
+                ];
+
+                const {data} = await updateCombo({
                   id: currentComboId,
                   title,
-                  domain_id,
                   price,
                   type,
                   image: picture,
                   description,
                   week_day,
                   status,
+                  products,
                 });
 
-                await deleteComboProduct({combo_id: currentComboId});
-                const addMainProducts = mainProducts?.map(({id, price}: {id: number, price: number}) =>
-                  addComboProducts({
-                    combo_id: currentComboId,
-                    product_id: id,
-                    price,
-                    dish_type: ComponentType.MAIN,
-                  })
-                );
-
-                const addSecondProducts = secondProducts?.map(({id, price}: {id: number, price: number}) =>
-                  addComboProducts({
-                    combo_id: currentComboId,
-                    product_id: id,
-                    price,
-                    dish_type: ComponentType.SECOND,
-                  })
-                );
-
-                const addDessertProducts = dessertProducts?.map(({id, price}: {id: number, price: number}) =>
-                  addComboProducts({
-                    combo_id: currentComboId,
-                    product_id: id,
-                    price,
-                    dish_type: ComponentType.DESSERT,
-                  })
-                );
-
-                await Promise.all([...addMainProducts, ...addSecondProducts, ...addDessertProducts]);
                 message.success({content: 'Combo successfully saved!', key, duration: 2});
-                data && navigate('/combo');
+                data && navigate(PageConfig.combo);
               } catch (e) {
                 console.log('validations errors: ', e);
               }

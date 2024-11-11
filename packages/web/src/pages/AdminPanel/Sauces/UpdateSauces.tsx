@@ -5,7 +5,7 @@ import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/ur
 import styles from "./Sauces.module.css";
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
 import Loading from "../../../components/Loader/Loading";
-import {ProductStatus} from "../../../utils/utils";
+import {PageConfig, ProductStatus} from "../../../utils/utils";
 import {NotFound} from "../../index";
 
 interface SauceForm {
@@ -87,12 +87,12 @@ const UpdateSauces = () => {
                   ...form.getFieldsValue(),
                 });
                 message.success({content: 'Sauces successfully saved!', key, duration: 2});
-                data && navigate('/sauces')
+                data && navigate(PageConfig.sauces)
               } catch (e) {
                 console.log('validations errors: ', e);
               }
             }} type="primary" htmlType="submit">
-              Update Sauces
+              Update Sauce
             </Button>
           </Form.Item>
         </Form>

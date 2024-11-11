@@ -1,3 +1,26 @@
+export enum PageConfig {
+  home = "/",
+  wrong = "*",
+  auth = '/auth',
+  checkout = "/checkout",
+  profile = "/profile",
+  reviews = "/reviews",
+  history = "/history",
+  contact = "/contact",
+  company_orders = "/company-orders",
+  combo = "/combo",
+  product = "/product",
+  sauces = "/sauces",
+  side_dishes = "/side-dishes",
+  coupons = "/coupons",
+  domains = "/domains",
+  users = "/users",
+  orders = "/orders",
+  product_reviews = "/product-reviews",
+  invoice = "/invoice",
+  boxes = "/boxes",
+}
+
 export enum WeekDay {
   MONDAY = "MONDAY",
   TUESDAY = "TUESDAY",
@@ -6,19 +29,47 @@ export enum WeekDay {
   FRIDAY = "FRIDAY",
   SATURDAY = "SATURDAY",
   SUNDAY = "SUNDAY",
-  WITHOUT_DAY = "WITHOUT_DAY"
+  WITHOUT_DAY = "WITHOUT_DAY",
+  EVERY_DAY = "EVERY_DAY",
 }
 
 export enum CATEGORIES_TYPE {
-  SWEETS = "Sweets",
   MEAT = "Meat",
-  SEAFOOD = "Seafood",
   CHICKEN = "Chicken",
+  SEAFOOD = "Seafood",
   VEGETARIAN = "Vegetarian",
-  SOUP = "Soup",
+  MAIN_SALADS = "Main Salads",
   SIDE_SALADS = "Side Salads",
+  SOUP_SIDE_SALADS = "Soup + Side Salads",
+  SOUP = "Soup",
+  PELMENI = "Pelmeni",
+  SUSHI = "Sushi",
+  SWEETS = "Sweets",
+  MIK_BAO = "Mik Bao",
   SANDWICHES = "Sandwiches",
 }
+
+export enum dateFormat {
+  DATE_TIME = 'YYYY-MM-DD HH:mm',
+  DATE = 'YYYY-MM-DD',
+  DAY = 'dddd'
+}
+
+export const CATEGORIES_TYPE_SORT: CATEGORIES_TYPE[] = [
+  CATEGORIES_TYPE.MEAT,
+  CATEGORIES_TYPE.CHICKEN,
+  CATEGORIES_TYPE.SEAFOOD,
+  CATEGORIES_TYPE.VEGETARIAN,
+  CATEGORIES_TYPE.SOUP_SIDE_SALADS,
+  CATEGORIES_TYPE.MAIN_SALADS,
+  CATEGORIES_TYPE.SIDE_SALADS,
+  CATEGORIES_TYPE.SOUP,
+  CATEGORIES_TYPE.PELMENI,
+  CATEGORIES_TYPE.SUSHI,
+  CATEGORIES_TYPE.SWEETS,
+  CATEGORIES_TYPE.MIK_BAO,
+  CATEGORIES_TYPE.SANDWICHES,
+];
 
 export enum COMBO_TYPE {
   COMBO = "Combo",
@@ -29,10 +80,6 @@ export enum COMBO_TYPE {
 export enum BoxStatus {
   NEW = "NEW",
   PRINTED = "PRINTED",
-  COOKED = "COOKED",
-  IN_DELIVERY = "IN_DELIVERY",
-  DELIVERED = "DELIVERED",
-  CANCELLED = "CANCELLED"
 }
 
 export enum ProductStatus {
@@ -60,7 +107,7 @@ export enum EAllergensList {
   EGGS = 'Eggs',
   MUSTARD = 'Mustard',
   MILK = 'Milk',
-  SULFITES = 'Sulfites',
+  SULPHITES = 'Sulphites',
   PEANUTS = 'Peanuts',
   SOY = 'Soy',
   NUTS = 'Nuts',
@@ -109,13 +156,13 @@ export enum Role {
   DELIVERY = "DELIVERY",
   KITCHEN = "KITCHEN",
   ADMIN = "ADMIN",
-  GUEST = "GUEST"
+  GUEST = "GUEST",
 }
 
 export enum ComponentType {
   MAIN = "Main Dish",
   SECOND = "Second Dish",
-  DESSERT = "Desert"
+  DESSERT = "Dessert",
 }
 
 export const WEEKDAY_ORDER_TYPE: ComponentType[] = [
@@ -127,7 +174,7 @@ export const WEEKDAY_ORDER_TYPE: ComponentType[] = [
 export enum DishType {
   MAIN = "Main Dish",
   SECOND = "Second Dish",
-  DESSERT = "Desert",
+  DESSERT = "Dessert",
   SIDE = "Side Dish",
   SAUCE = "Sauce",
 }
@@ -154,4 +201,5 @@ export const WEEKDAY_ORDER: EWEEK_DAY[] = [
 export enum ROLE {
   PUBLIC = "public",
   ADMIN = "admin",
+  HR = "hr",
 }

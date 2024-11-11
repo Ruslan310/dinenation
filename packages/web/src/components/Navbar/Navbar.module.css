@@ -8,6 +8,16 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-around;
+    box-shadow: 0 0 16px 0 #00000040;
+
+    @media (max-width: 800px) {
+        width: 80px;
+        margin-right: 5px;
+    }
+}
+
+.svgIcon {
+    width: 25px;
 }
 
 .avatarContainer {
@@ -33,7 +43,7 @@
 
     &:hover {
         background: var(--color-base-white);
-        box-shadow: 0 0 8px 0 #A8B6C78F;
+        box-shadow: 0 0 8px 0 var(--color-shadow);
     }
 }
 

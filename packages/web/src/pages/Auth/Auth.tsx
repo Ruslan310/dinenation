@@ -1,21 +1,22 @@
 import React, {useRef, useState} from 'react';
 import styles from "../Auth/Auth.module.css";
-import login_main from "../../assets/image/login_main.png";
+import login_main from "../../assets/image/login_main-min.png";
 import {FormProps, Modal} from 'antd';
 import SegmentedControl from "../../components/SegmentedControl/SegmentedControl";
 import SingIn, {FieldTypeSingIn} from "./SingIn";
 import SingUp, {FieldTypeSingUp} from "./SingUp";
 import SendCode, {FieldTypeSendCode} from "./SendCode";
-import {AuthError, confirmSignUp, resendSignUpCode, signIn, signUp} from 'aws-amplify/auth';
+import {AuthError, confirmSignUp, resendSignUpCode, signIn, signUp, resetPassword, confirmResetPassword} from 'aws-amplify/auth';
 import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import {CheckCoupon, CheckDomain, CheckMail} from "../../utils/type";
 import LogoSvg, {logoType} from "../../components/svg/LogoSvg";
+import ConfirmEmail, {FieldTypeConfirmEmail} from "./ConfirmEmail";
+import ConfirmPassword, {FieldTypeConfirmPassword} from "./ConfirmPassword";
+import {PageConfig} from "../../utils/utils";
 
-
-const isConfirm = "CONFIRM_SIGN_UP";
 const isDone = "DONE";
-
-
+const isConfirm = "CONFIRM_SIGN_UP";
+const isConfirmPassword = "CONFIRM_RESET_PASSWORD_WITH_CODE";
 interface NewUserForm {
   first_name: string;
   last_name: string;
@@ -23,28 +24,38 @@ interface NewUserForm {
   phone: string;
   coupon_id: number;
 }
-
 interface User {
   email: string;
   password: string;
 }
 
-const singInText = 'Login'
-const singUpText = "Registration"
+interface ConfirmSignUpSignUpStep {
+  signUpStep: string;
+  codeDeliveryDetails: {
+    destination?: string;
+  }
+}
+
+export enum TypeAuth {
+  SING_IN = 'sing_in',
+  SING_UP = 'sing_up',
+  SEND_CODE = 'send_code',
+  CONFIRM_EMAIL = 'confirm_email',
+  CONFIRM_PASSWORD = 'confirm_password',
+}
 
 const Auth = () => {
   const [authMessage, setAuthMessage] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(true)
   const [authError, setAuthError] = useState<AuthError>()
-  const [typeAuth, setTypeAuth] = useState<string>(singInText);
-  const [isResendCode, setResendCode] = useState<boolean>(false);
+  const [typeAuth, setTypeAuth] = useState<TypeAuth>(TypeAuth.SING_IN);
   const [currentUser, setCurrentUser] = useState<User | undefined>();
   const [attribute, setAttribute] = useState<string>();
   const controlRef = useRef<HTMLDivElement | null>(null)
 
   const segments = [
-    { value: singInText, label: singInText, ref: useRef<HTMLDivElement | null>(null) },
-    { value: singUpText, label: singUpText, ref: useRef<HTMLDivElement | null>(null) },
+    { value: TypeAuth.SING_IN, label: 'Login', ref: useRef<HTMLDivElement | null>(null) },
+    { value: TypeAuth.SING_UP, label: "Registration", ref: useRef<HTMLDivElement | null>(null) },
   ];
 
   const [_, addUser] = useTypedMutation((opts: NewUserForm) => ({
@@ -77,17 +88,19 @@ const Auth = () => {
   const onSingIn: FormProps<FieldTypeSingIn>['onFinish'] = async (values) => {
     setLoading(false)
     try {
-      const {isSignedIn, nextStep} = await signIn({
+      const {isSignedIn} = await signIn({
         username: values.email,
         password: values.password,
       })
+
       if (isSignedIn) {
-        localStorage.setItem('cartList', '')
-        window.location.href = '/';
+        localStorage.removeItem('cartList')
+        localStorage.removeItem('cartTimestamp');
+        localStorage.removeItem('cartTComment');
+        window.location.href = PageConfig.home;
       } else {
-        console.log('----nextStep', nextStep)
         setCurrentUser({...values})
-        setResendCode(nextStep?.signInStep === isConfirm)
+        setTypeAuth(TypeAuth.SEND_CODE)
         await onResend(values.email)
       }
       setLoading(true)
@@ -101,13 +114,17 @@ const Auth = () => {
   const onSingUp: FormProps<FieldTypeSingUp>['onFinish'] = async (values) => {
 
     const {coupon, password, email, phone, last_name, first_name} = values
-    const isCoupon = checkUser.data?.checkUser.coupons.find((item: CheckCoupon) => item?.title === coupon)
+    const isCoupon = checkUser.data?.checkUser.coupons
+      .find((item: CheckCoupon) => item?.title.toLowerCase() === coupon.toLowerCase())
+
     if (!isCoupon) {
       setAuthMessage('your coupon is not registered')
       return
     }
-    const isEmail = checkUser.data?.checkUser.checkEmail.find((item: CheckMail) => item.email === email)
-    const isDomain = checkUser.data?.checkUser.checkDomain.find((item: CheckDomain) => item.domain === email.split('@')[1])
+    const isEmail = checkUser.data?.checkUser.checkEmail
+      .find((item: CheckMail) => item.email.toLowerCase() === email.toLowerCase())
+    const isDomain = checkUser.data?.checkUser.checkDomain
+      .find((item: CheckDomain) => item.domain.toLowerCase() === email.split('@')[1])
 
     const handleSignUp = async () => {
       try {
@@ -122,18 +139,22 @@ const Auth = () => {
             },
           },
         });
+        if (nextStep.signUpStep === isConfirm) {
+          const {codeDeliveryDetails} = nextStep as ConfirmSignUpSignUpStep;
+          const {destination} = codeDeliveryDetails;
+          setAttribute(destination);
+        }
         await addUser({
           coupon_id: isCoupon.id,
           first_name,
           last_name,
-          email,
+          email: email?.toLowerCase().trim(),
           phone,
         })
-        console.log('----nextStep', nextStep);
         setCurrentUser({
           ...values,
         });
-        setResendCode(nextStep?.signUpStep === isConfirm);
+        setTypeAuth(TypeAuth.SEND_CODE)
       } catch (err) {
         console.log('----err', err);
         setAuthError(err as AuthError);
@@ -164,7 +185,6 @@ const Auth = () => {
         });
         if (nextStep?.signUpStep === isDone) {
           onSingIn(currentUser)
-          setResendCode(false)
         }
       }
       setLoading(true)
@@ -180,14 +200,48 @@ const Auth = () => {
     try {
       const username= currentUser?.email || email;
       if (username) {
-        const result = await resendSignUpCode({username});
-        setAttribute(result?.destination);
+        const {destination} = await resendSignUpCode({username});
+        setAttribute(destination);
       }
       setLoading(true)
     } catch (err) {
       setLoading(true)
       console.log('----err', err)
       setAuthError(err as AuthError)
+    }
+  }
+
+  const onConfirmEmail : FormProps<FieldTypeConfirmEmail>['onFinish'] = async (values) => {
+    setLoading(false)
+    try {
+      const {nextStep} = await resetPassword({
+        username: values.email,
+      });
+      if (nextStep?.resetPasswordStep === isConfirmPassword) {
+        setTypeAuth(TypeAuth.CONFIRM_PASSWORD);
+      }
+      setLoading(true)
+    } catch (err) {
+      console.log('----', err)
+      setAuthError(err as AuthError)
+      setLoading(true)
+    }
+  }
+
+  const onSendPassword : FormProps<FieldTypeConfirmPassword>['onFinish'] = async (values) => {
+    setLoading(false)
+    try {
+      await confirmResetPassword({
+        username: values.email,
+        confirmationCode: values.confirmationCode,
+        newPassword: values.newPassword,
+      });
+      setTypeAuth(TypeAuth.SING_IN);
+      setLoading(true)
+    } catch (err) {
+      console.log('----', err)
+      setAuthError(err as AuthError)
+      setLoading(true)
     }
   }
 
@@ -216,32 +270,45 @@ const Auth = () => {
         </div>
       </Modal>
       <div className={styles.imageMainBlock}>
-        <img src={login_main} alt="component photo" className={styles.imageMain}/>
+        <img loading='lazy' src={login_main} alt="login" className={styles.imageMain}/>
       </div>
       <div className={styles.formBlock}>
         <div className={styles.form}>
           <LogoSvg type={logoType.HORIZONTAL}/>
           {attribute ?
-            <p>Your code is on the way. To log in, enter the code we emailed to {attribute}. It may take a minute to arrive.</p>
-            : <p className={styles.subText}>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-              Lorem
-              Ipsum has been the industry's standard dummy text ever since the </p>
+            <p className={styles.subText}>Your code is on the way. To log in, enter the code we emailed to {attribute}. It may take a minute to arrive.</p>
+            : <p className={styles.subText}>Welcome! We deliver delicious meals right to your doorstep!</p>
           }
-          {isResendCode ?
-            <SendCode loading={loading} submit={onSendCode} resend={onResend} /> :
-            <>
-              <SegmentedControl
-                name="example"
-                segments={segments}
-                callback={setTypeAuth}
-                controlRef={controlRef}
-              />
-              {typeAuth === singInText
-                ? <SingIn loading={loading} submit={onSingIn} />
-                : <SingUp loading={loading} submit={onSingUp} />
-              }
-            </>
-          }
+
+          {(typeAuth === TypeAuth.SING_IN || typeAuth === TypeAuth.SING_UP) && (
+            <SegmentedControl
+              name="switch"
+              segments={segments}
+              callback={setTypeAuth}
+              controlRef={controlRef}
+            />
+          )}
+
+          {typeAuth === TypeAuth.SING_IN && (
+            <SingIn typeAuth={setTypeAuth} loading={loading} submit={onSingIn} />
+          )}
+
+          {typeAuth === TypeAuth.SING_UP && (
+            <SingUp loading={loading} submit={onSingUp} />
+          )}
+
+          {typeAuth === TypeAuth.SEND_CODE && (
+            <SendCode loading={loading} submit={onSendCode} resend={onResend} />
+          )}
+
+          {typeAuth === TypeAuth.CONFIRM_EMAIL && (
+            <ConfirmEmail loading={loading} submit={onConfirmEmail} />
+          )}
+
+          {typeAuth === TypeAuth.CONFIRM_PASSWORD && (
+            <ConfirmPassword loading={loading} submit={onSendPassword} />
+          )}
+
         </div>
       </div>
     </div>

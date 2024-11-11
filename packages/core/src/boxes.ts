@@ -1,13 +1,14 @@
 export * as Boxes from "./boxes";
 import {SQL} from "./sql";
 import {sql} from "kysely";
-import {EStatusType} from "web/src/utils/utils";
+import {BoxStatus, EStatusType} from "web/src/utils/utils";
 
 export async function addBox(
   sticker: string,
   type: string,
   week_day: string,
   image: string,
+  small_img: string,
   office: string | null | undefined,
   price: number,
   side_dish: string | null | undefined,
@@ -22,6 +23,7 @@ export async function addBox(
       type,
       week_day,
       image,
+      small_img,
       office,
       price,
       side_dish,
@@ -29,7 +31,7 @@ export async function addBox(
       sauce,
       order_id,
       combo_id,
-      status: 'NEW',
+      status: BoxStatus.NEW,
       date_updated: sql`now()`,
     })
     .returningAll()
@@ -43,6 +45,7 @@ export async function updateBox(
   type: string,
   week_day: string,
   image: string,
+  small_img: string,
   office: string | null | undefined,
   price: number,
   side_dish: string | null | undefined,
@@ -59,6 +62,7 @@ export async function updateBox(
       type,
       week_day,
       image,
+      small_img,
       office,
       price,
       side_dish,
@@ -73,6 +77,25 @@ export async function updateBox(
     .returningAll()
     .execute();
   return result;
+}
+
+export async function updateBoxList(
+  list: number[],
+) {
+  await Promise.all(
+    list.map(async (id) => {
+      const [result] = await SQL.DB.updateTable("boxes")
+        .set({
+          status: BoxStatus.PRINTED,
+          date_updated: sql`now()`,
+        })
+        .where("id", "=", id)
+        .returningAll()
+        .execute();
+      return result;
+    })
+  );
+  return true
 }
 
 export async function deleteBox(id: number) {
@@ -103,6 +126,15 @@ export async function deleteBoxCombo(combo_id: number, order_id: number) {
 export function boxes() {
   return SQL.DB.selectFrom("boxes")
     .selectAll()
+    .orderBy("date_created", "desc")
+    .execute();
+}
+
+export function boxesDay(week_day: string) {
+  return SQL.DB.selectFrom("boxes")
+    .selectAll()
+    .where("week_day", "=", week_day)
+    .where("status", "=", week_day)
     .orderBy("date_created", "desc")
     .execute();
 }

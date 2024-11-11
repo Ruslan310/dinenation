@@ -1,14 +1,29 @@
 import CryptoJS from 'crypto-js';
-import Resizer from 'react-image-file-resizer';
-import {CRYPTO_KEY, EURO} from "../constants";
+import {defaultParams} from "../constants";
 import dayjs from 'dayjs';
-import {EWEEK_DAY, WEEKDAY_ORDER} from "./utils";
+import {dateFormat, EWEEK_DAY, WEEKDAY_ORDER} from "./utils";
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import {botApi} from "../constants";
+import axios from "axios";
+import {Product} from "../pages/OrderHistoryView/OrderHistoryView";
+import {GroupedProducts} from "./type";
 
+const CRYPTO_KEY = import.meta.env?.VITE_CRYPTO_KEY
+const telegramToken = import.meta.env?.VITE_TELEGRAM_TOKEN
 
-const time = dayjs();
-const currentDay = time.format('dddd');
+dayjs.extend(utc);
+dayjs.extend(timezone)
 
-export const currency = (value: number) => `${EURO} ${value.toFixed(2)}`;
+export const time = dayjs().tz('Europe/Nicosia');
+export const currentDay = time.format(dateFormat.DAY);
+
+export const currency = (value: number, hide?: boolean) => {
+  if (hide) {
+    return ''
+  }
+  return `${defaultParams.CURRENCY} ${value.toFixed(2)}`
+};
 
 export const encryptData = (data: string): string => CryptoJS.AES.encrypt(data, CRYPTO_KEY).toString();
 
@@ -20,20 +35,13 @@ export const decryptData = (encryptedData: string): string => {
 export const dayTime = (t: number) => time.hour(t).minute(0).second(0);
 
 export const openDay = (): boolean => {
-  const tenAM = dayTime(10);
-  return time.isAfter(tenAM) || time.isSame(tenAM);
+  const hourAM = dayTime(defaultParams.endDayTime);
+  return time.isAfter(hourAM) || time.isSame(hourAM);
 };
 
 export const openWeek = (): boolean => {
-  const tenAM = dayTime(15);
-  return time.isAfter(tenAM) || time.isSame(tenAM);
-};
-
-
-export const getCurrentWeekDay = () => {
-  const weekDays = Object.values(EWEEK_DAY);
-  const currentDayIndex = weekDays.indexOf(currentDay as EWEEK_DAY);
-  return weekDays[currentDayIndex].toUpperCase();
+  const hourPM = dayTime(defaultParams.newWeekTime);
+  return time.isAfter(hourPM) || time.isSame(hourPM);
 };
 
 export const currentDayIndex = WEEKDAY_ORDER.indexOf(currentDay as EWEEK_DAY);
@@ -45,35 +53,66 @@ export const capitalizeFirstLetter = (day: string): string => {
 
 export const generateUniqueId = (): number => Math.floor(Date.now() % 1000000000 + Math.random() * 1000);
 
+export const sendBotMessage = async (chatId: number, text: string): Promise<void> => {
+  const params = `chat_id=${encodeURIComponent(chatId.toString())}&text=${encodeURIComponent(text)}`;
+  await axios(`${botApi}${telegramToken}/sendMessage?${params}`);
+}
 
-export const resizeImage = (file: File): Promise<File> => {
+export const resizeImage = (file: File, quality = 0.15, coef = 1): Promise<File> => {
   return new Promise((resolve, reject) => {
-    Resizer.imageFileResizer(
-      file,
-      300, // ширина изображения
-      300, // высота изображения
-      'JPEG', // формат
-      70, // качество изображения
-      0, // ротация
-      (uri: string | Blob | ProgressEvent<FileReader>) => {
-        if (typeof uri === 'string') {
-          // Если uri — строка, преобразуем ее в Blob
-          fetch(uri)
-            .then(res => res.blob())
-            .then(blob => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      img.src = event.target?.result as string; // Устанавливаем src для изображения
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const targetWidth = img.width * coef; // Уменьшаем до 30% от исходного размера
+        const targetHeight = img.height * coef;
+
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+
+        // Рисуем уменьшенное изображение на canvas
+        ctx?.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+        // Получаем сжатое изображение с уменьшенным качеством
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
               const resizedFile = new File([blob], file.name, { type: file.type });
               resolve(resizedFile);
-            })
-            .catch(err => reject(err));
-        } else if (uri instanceof Blob) {
-          // Если uri — Blob, используем его напрямую
-          const resizedFile = new File([uri], file.name, { type: file.type });
-          resolve(resizedFile);
-        } else {
-          reject(new Error('Unsupported file type returned from Resizer'));
-        }
-      },
-      'base64'
-    );
+            } else {
+              reject(new Error('Failed to compress image'));
+            }
+          },
+          file.type,
+          quality
+        );
+      };
+
+      img.onerror = (error) => reject(error);
+    };
+
+    reader.onerror = (error) => reject(error);
   });
 };
+
+
+//group product by id
+export const groupByWeekDayAndComboId = (products: Product[]): GroupedProducts => {
+  return products?.reduce((acc, product) => {
+    if (!acc[product.week_day]) {
+      acc[product.week_day] = {};
+    }
+    if (!acc[product.week_day][product.combo_id]) {
+      acc[product.week_day][product.combo_id] = [];
+    }
+    acc[product.week_day][product.combo_id].push(product);
+    return acc;
+  }, {} as GroupedProducts);
+}

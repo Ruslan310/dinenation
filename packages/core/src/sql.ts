@@ -8,6 +8,9 @@ export const DB = new Kysely<Database>({
   dialect: new DataApiDialect({
     mode: "postgres",
     driver: {
+      // secretArn: 'arn:aws:secretsmanager:us-east-1:533267358810:secret:dbClusterSecret229E8577-tQHwCpEBMrEt-478Dll',
+      // resourceArn: 'arn:aws:rds:us-east-1:533267358810:cluster:prod-dinenation-postgresql-db',
+      // database: 'main',
       secretArn: RDS.db.secretArn,
       resourceArn: RDS.db.clusterArn,
       database: RDS.db.defaultDatabaseName,

@@ -5,14 +5,18 @@ interface orderMail {
   comment: string | null | undefined,
   user: string,
   orderNumber: string,
-  price: number,
+  hidePrice: boolean,
+  address: string,
+  coupon: string,
+  email: string,
+  orderId: number,
   boxes: ILineItem[],
 }
 
-export function createOrderEmail({comment, user, orderNumber, price, boxes}: orderMail): string {
+export function orderMailToUser({comment, user, orderNumber, boxes, hidePrice, coupon, address, email, orderId}: orderMail): string {
   const commentSection = comment ? `<p>Комментарий к заказу: <strong>${comment}</strong></p>` : '';
-  // const logoUrl= 'https://bucket-for-user-image.s3.amazonaws.com/Logo.png';
   const logoUrl= 'https://bucket-for-user-image.s3.amazonaws.com/bigLogo.png';
+  const siteUrl= 'https://d3i1i49mr0zzjl.cloudfront.net/';
   let currentPride = 0
   const rows = boxes
     .map(item => {
@@ -46,6 +50,29 @@ export function createOrderEmail({comment, user, orderNumber, price, boxes}: ord
     })
     .join('');
 
+  const userTable = !hidePrice ?
+    `<table>
+                      <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${rows}
+                        <tr>
+                            <td colspan="2">Shipping:</td>
+                            <td>Free shipping</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><strong>Total:</strong></td>
+                            <td>${currency(currentPride)} <small>(includes ${currency(currentPride * 0.05)} VAT (5%))</small></td>
+                        </tr>
+                      </tbody>
+                  </table>`
+    : '';
+
   const emailHtml = `
     <!DOCTYPE html>
       <html lang="ru">
@@ -57,7 +84,7 @@ export function createOrderEmail({comment, user, orderNumber, price, boxes}: ord
                   padding: 0;
                   font-family: Arial, sans-serif;
                   margin: 0 auto;
-                  background-color: #f7f7f7;
+                  /*background-color: #f7f7f7;*/
               }
               .container {
                   width: 100%;
@@ -100,15 +127,36 @@ export function createOrderEmail({comment, user, orderNumber, price, boxes}: ord
               .block {
                   border: 1px solid #e73e14;
                   padding: 20px;
+                  border-radius: 0 0 8px 8px;
               }
               .order_number {
-                  color: #e73e14;
+                  color: #e73e14 !important;
               }
-              .footer {
+              .footerInfo {
                   text-align: center;
                   padding-top: 20px;
                   font-size: 14px;
                   color: #666666;
+              }
+              .billing_title {
+                  color: #e73e14;
+                  margin-top: 20px;
+              }
+              .footer {
+                  margin-top: 10px;
+                  border: 1px solid #dddddd;
+                  padding: 10px;
+                  font-size: 14px;
+              }
+              .upper_text {
+                  text-transform: uppercase;
+              }
+              .cursive_text {
+                  font-style: italic;
+              }
+              .link_title {
+                  font-weight: bold;
+                  margin-top: 30px;
               }
           </style>
       </head>
@@ -122,30 +170,21 @@ export function createOrderEmail({comment, user, orderNumber, price, boxes}: ord
               <div class="block">
                   <p class="user">Hi ${user},</p>
                   <p>Just to let you know — we've received your order <strong>#${orderNumber}</strong>, and it is now being processed:</p>
-                  <h3 class="order_number">[Order #${orderNumber}] (#${new Date().toLocaleDateString('en-GB')})</h3>
-                  <table>
-                      <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        ${rows}
-                        <tr>
-                            <td colspan="2"><strong>Total:</strong></td>
-                            <td>${currency(currentPride)}</td>
-                        </tr>
-                        <tr>
-                            <td colspan="2">Shipping:</td>
-                            <td>Free shipping</td>
-                        </tr>
-                      </tbody>
-                  </table>
+                  <h3 class="order_number">[Order #${orderNumber}] (${new Date().toLocaleDateString('en-GB')})</h3>
+                  ${userTable}
+                  <h3 class="billing_title">Billing address</h3>
+                  <div class="footer">
+                    <p class="upper_text">${user}</p> 
+                    <p class="upper_text">${coupon}</p> 
+                    <p class="cursive_text">${address}</p> 
+                    <a class="cursive_text" href="mailto:${email}">${email}</a>
+                  </div>
+                  <p class="link_title">Want to cancel this order?</p>
+                  <a class="order_number" href="${siteUrl}history/${orderId}">Cancel Order</a>
+                  <p>Thanks for using <a href=  "${siteUrl}">dinenation.com</a>!</p>
               </div>
           </div>
-          <div class="footer">
+          <div class="footerInfo">
               <p>© 2024 DINENATION. Thank you for your order!</p>
           </div>
       </div>

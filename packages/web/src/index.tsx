@@ -14,7 +14,7 @@ import '@aws-amplify/ui-react/styles.css';
 import App from "./App";
 import {Authenticator} from "@aws-amplify/ui-react";
 import {ConfigProvider} from "antd";
-import {colorTheme} from "./utils/theme";
+import {colorTheme, statusColorIcon} from "./utils/theme";
 
 Amplify.configure(awsExports);
 
@@ -23,26 +23,42 @@ const urql = createClient({
   exchanges: [cacheExchange, fetchExchange],
 });
 
+const antTheme = {
+  components: {
+    Modal: {
+      contentBg: colorTheme.navbar
+    },
+    Table: {
+      rowHoverBg: statusColorIcon.processing,
+      headerBg: colorTheme.navbar
+    },
+    Menu: {
+      itemSelectedBg: colorTheme.navbar,
+      itemActiveBg: colorTheme.navbar,
+      itemSelectedColor: colorTheme.darkPrimary,
+      dangerItemHoverColor: colorTheme.primary,
+      dangerItemColor: colorTheme.primary,
+      dangerItemActiveBg: colorTheme.primary,
+      dangerItemSelectedColor: colorTheme.primary,
+      dangerItemSelectedBg: colorTheme.navbar,
+      itemBg: colorTheme.navbar,
+      lineWidth: 0
+    },
+  },
+  token: {
+    colorPrimaryHover: colorTheme.primary,
+    colorPrimary: colorTheme.primary,
+  }}
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <UrqlProvider value={urql}>
       <Authenticator.Provider>
-        <MainProvider>
-          <ConfigProvider
-            theme={{
-              components: {
-                Modal: {
-                  contentBg: colorTheme.navbar
-                },
-              },
-              token: {
-                colorPrimaryHover: colorTheme.primary,
-                colorPrimary: colorTheme.primary,
-              }}}
-          >
+        <ConfigProvider theme={antTheme}>
+          <MainProvider>
             <App />
-          </ConfigProvider>
-        </MainProvider>
+          </MainProvider>
+        </ConfigProvider>
       </Authenticator.Provider>
     </UrqlProvider>
   </React.StrictMode>

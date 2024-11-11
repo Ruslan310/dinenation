@@ -20,94 +20,69 @@
 }
 
 .header {
+    overflow-x: scroll;
     padding: 15px;
     transition: box-shadow 0.3s ease;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-.buttonTop {
-    background-color: var(--color-navbar);
-    color: var(--color-base-black);
-    &:hover {
-        background-color: var(--color-navbar);
-    }
+.header::-webkit-scrollbar {
+    display: none;
 }
 
-.addSwg {
-    width: 20px;
-    height: 20px;
-    margin-right: 10px;
+.content {
+    padding: 20px;
 }
 
-.form {
-    flex-direction: column;
-    width: 100%;
-    max-width: 600px;
-    overflow-y: scroll;
-}
-
-.field {
-    width: 100%;
-    max-width: 600px;
-}
-
-.numberField {
-    display: inline-block;
-    width: 100px;
-}
-
-.button {
-    margin: 30px 0;
+.daysBlockMobile {
+    flex: 0 0 auto;
     display: flex;
-    justify-content: center;
-}
-
-.collapse {
-    background: var(--color-base-white);
-}
-
-.messageContainer {
-    display: flex;
-    flex-direction: column;
     align-items: center;
+    padding: 5px 10px;
+    margin: 0 5px;
+    justify-content: center;
+    height: 40px;
+    width: fit-content;
+    font-weight: var(--font-weight-bolt);
+    cursor: pointer;
+    border-radius: 32px;
+    user-select: none;
+    transition: all 0.6s ease;
+    font-size: 14px;
 
-    & button {
-        margin-top: 20px;
-        width: 200px;
+    @media (max-width: 800px) {
+        font-size: 12px;
+    }
+
+    &:hover {
+        background: var(--color-base-white);
+        box-shadow: 0 0 8px 0 var(--color-shadow);
+    }
+    img {
+        transition: all 0.5s ease;
+        width: 0;
     }
 }
 
-.search {
-    margin-left: 15px;
-    width: 300px;
+.selectDay {
+    background: var(--color-base-active);
+    color: var(--color-base-white);
+    &:hover {
+        background: var(--color-base-active);
+    }
+    img {
+        width: 14px;
+        margin-right: 8px;
+    }
+}
+
+.buttonBox {
+    margin: 10px 0 0 10px;
 }
 
 .table {
-    & td {
-        padding: 0 8px !important;
-
-        @media (max-width: 800px) {
-            padding: 2px 8px !important;
-        }
-    }
-}
-
-.img {
-    display: initial;
-    width: 38px;
-    height: 38px;
-    margin: 5px 0 0 10px;
-    object-fit: cover;
-    border-radius: 8px;
-    z-index: 2;
-    top: 0
-}
-
-
-.actionLink {
-    color: var(--color-base-blue);
-    &:hover {
-        color: var(--color-base-white);
-    }
+    margin-top: 10px;
 }

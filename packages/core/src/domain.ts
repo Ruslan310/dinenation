@@ -4,8 +4,8 @@ import {sql} from "kysely";
 
 export async function addDomain(
   title: string,
-  discount: number,
-  expired_date: string,
+  discount: number | null | undefined,
+  expired_date: string | null | undefined,
 ) {
   const [result] = await SQL.DB.insertInto("domain")
     .values({
@@ -19,11 +19,26 @@ export async function addDomain(
   return result;
 }
 
+export async function addDomainCombo(
+  domain_id: number,
+  combo_id: number,
+) {
+  const [result] = await SQL.DB.insertInto("domain_combo")
+    .values({
+      domain_id,
+      combo_id,
+      date_updated: sql`now()`,
+    })
+    .returningAll()
+    .execute();
+  return result;
+}
+
 export async function updateDomain(
   id: number,
   title: string,
-  discount: number,
-  expired_date: string,
+  discount: number | null | undefined,
+  expired_date: string | null | undefined,
 ) {
   const [result] = await SQL.DB.updateTable("domain")
     .set({
@@ -39,11 +54,19 @@ export async function updateDomain(
 }
 
 export async function deleteDomain(id: number) {
-  // await SQL.DB.deleteFrom("office")
-  //   .where('coupon_id', '=', id)
-  //   .execute();
+  await SQL.DB.deleteFrom("domain_combo")
+    .where('domain_id', '=', id)
+    .execute();
+
   await SQL.DB.deleteFrom("domain")
     .where('id', '=', id)
+    .execute();
+  return true;
+}
+
+export async function deleteDomainCombo(id: number) {
+  await SQL.DB.deleteFrom("domain_combo")
+    .where('domain_id', '=', id)
     .execute();
   return true;
 }
@@ -61,4 +84,14 @@ export async function getDomain(id: number) {
     .where("id", "=", id)
     .execute();
   return result
+}
+
+export async function domainsCombos(id: number) {
+  return await SQL.DB.selectFrom('combo')
+    .innerJoin("domain_combo", "combo.id", "domain_combo.combo_id")
+    .innerJoin("domain", "domain.id", "domain_combo.domain_id")
+    .selectAll("combo")
+    .where("domain.id", "=", id)
+    .orderBy("combo.date_created", "desc")
+    .execute();
 }

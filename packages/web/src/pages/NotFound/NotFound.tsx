@@ -3,6 +3,7 @@ import styles from './NotFound.module.css'
 import Button from "../../components/Button/Button";
 import {useNavigate} from "react-router-dom";
 import LogoSvg, {logoType} from "../../components/svg/LogoSvg";
+import {PageConfig} from "../../utils/utils";
 
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const NotFound: React.FC = () => {
         But don’t worry, we have plenty of delicious options for you
         to try!
       </p>
-      <Button className={styles.button} onClick={() => navigate('/')}>Back to Menu</Button>
+      <Button className={styles.button} onClick={() => navigate(PageConfig.home)}>Back to Menu</Button>
     </div>
   );
 };

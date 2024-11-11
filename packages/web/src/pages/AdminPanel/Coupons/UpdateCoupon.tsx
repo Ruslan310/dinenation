@@ -5,7 +5,7 @@ import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/ur
 import styles from "./Coupons.module.css";
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
 import Loading from "../../../components/Loader/Loading";
-import {ProductStatus} from "../../../utils/utils";
+import {PageConfig, ProductStatus} from "../../../utils/utils";
 import dayjs from 'dayjs';
 import {RangePickerProps} from "antd/es/date-picker";
 import SelectFieldsComponent from "../../../components/Form/SelectFieldsComponent";
@@ -20,6 +20,8 @@ export interface CouponForm {
   address: string;
   expiration_date: string;
   status: string;
+  check_order: boolean;
+  hide_price: boolean;
 }
 
 interface InitialForm {
@@ -30,6 +32,8 @@ interface InitialForm {
   address: string;
   expiration_date: dayjs.Dayjs;
   status: string;
+  check_order: boolean;
+  hide_price: boolean;
   office: OfficeForm[];
 }
 
@@ -65,6 +69,9 @@ const UpdateCoupon = () => {
         id: true,
         title: true,
         status: true,
+        check_order: true,
+        hide_price: true,
+        has_domain: true,
         domain: {
           id: true
         },
@@ -161,6 +168,14 @@ const UpdateCoupon = () => {
               <Switch checkedChildren={<CheckOutlined/>} unCheckedChildren={<CloseOutlined/>}/>
             </Form.Item>
           </div>
+          <div className={styles.dateSwitch}>
+            <Form.Item label={"Check order"} name="check_order" className={styles.field}>
+              <Switch checkedChildren={<CheckOutlined/>} unCheckedChildren={<CloseOutlined/>}/>
+            </Form.Item>
+            <Form.Item label={"Hide price"} name="hide_price" className={styles.field}>
+              <Switch checkedChildren={<CheckOutlined/>} unCheckedChildren={<CloseOutlined/>}/>
+            </Form.Item>
+          </div>
           <Form.Item
             name="domain_id"
             rules={[{required: true, message: 'Select domain!'}]}
@@ -193,6 +208,10 @@ const UpdateCoupon = () => {
                 .map((type) => <Select.Option key={type} value={type}>{type}</Select.Option>)}
             </Select>
           </Form.Item>
+          <Form.Item name="address" rules={[{required: true, message: 'Please enter address!'}]}
+                     className={styles.field}>
+            <Input placeholder='Enter coupon address'/>
+          </Form.Item>
           <Collapse bordered={false} className={styles.collapse} items={items}/>
           <Form.Item className={styles.button}>
             <Button onClick={async () => {
@@ -202,6 +221,7 @@ const UpdateCoupon = () => {
                 const {
                   expiration_date,
                   offices,
+                  office,
                   ...rest
                 } = form.getFieldsValue();
                 const {data} = await updateCoupon({
@@ -219,12 +239,12 @@ const UpdateCoupon = () => {
                   );
                 }
                 message.success({content: 'Sauces successfully saved!', key, duration: 2});
-                data && navigate('/coupons')
+                data && navigate(PageConfig.coupons)
               } catch (e) {
                 console.log('validations errors: ', e);
               }
             }} type="primary" htmlType="submit">
-              Update Coupons
+              Update Coupon
             </Button>
           </Form.Item>
         </Form>

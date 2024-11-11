@@ -2,7 +2,7 @@ import React from 'react';
 import {Form, Input} from "antd";
 import styles from "./Auth.module.css";
 import Button from "../../components/Button/Button";
-import smile from "../../assets/image/smile.svg";
+import SmileSvg from "../../components/svg/SmileSvg";
 
 export type FieldTypeSendCode = {
   confirmationCode: string;
@@ -27,17 +27,18 @@ const SendCode = ({submit, resend, loading}: Props) => (
       <Form.Item<FieldTypeSendCode>
         label="Confirmation Code"
         name="confirmationCode"
+        className={styles.input}
         rules={[
-          {required: true, message: 'Enter your code!'},
-          {min: 6, message: 'Code must be at least 6 characters!'},
+          {required: true, message: 'Please enter your code!'},
+          {len: 6, message: 'Code must be exactly 6 characters long!' }
         ]}
       >
-        <Input className={styles.input} placeholder="Your email" />
+        <Input placeholder="Enter your code" />
       </Form.Item>
     </div>
     <Form.Item >
       <Button loading={!loading} className={styles.submitButton} type="submit">
-        <img src={smile} alt='' className={styles.logoImg}/>
+        <SmileSvg />
         <p>Confirm</p>
       </Button>
       <Button type="button" onClick={resend} className={styles.sendCodeButton}>

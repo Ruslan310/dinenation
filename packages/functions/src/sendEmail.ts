@@ -6,14 +6,15 @@ const ses = new SES({region: region});
 interface SendEmailParams {
   to: string;
   subject: string;
-  body: string;
+  html: string;
 }
 
+// const userEmail = 'flash310xxx@gmail.com'
+const userEmail = 'delivery@dinenation.com'
 export async function sendEmail(params: SendEmailParams): Promise<void> {
-  const { to, subject, body } = params;
-
+  const {to, subject, html} = params;
   const paramsForSendEmail = {
-    Source: 'flash310xxx@gmail.com',
+    Source: `DINE NATION <${userEmail}>`,
     Destination: {
       ToAddresses: [to],
     },
@@ -22,9 +23,9 @@ export async function sendEmail(params: SendEmailParams): Promise<void> {
         Data: subject,
       },
       Body: {
-        Text: {
-          Data: body,
-        },
+        Html: {
+          Data: html,
+        }
       },
     },
   };

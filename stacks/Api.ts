@@ -3,16 +3,16 @@ import {Database} from "./Database";
 import {AuthStack} from "./AuthStack";
 
 export function Api({ stack }: StackContext) {
-  const auth = use(AuthStack); // Убедитесь, что AuthStack используется здесь
+  // const auth = use(AuthStack);
 
   const api = new ApiGateway(stack, "api", {
     defaults: {
       function: {
         bind: [use(Database)],
-        environment: {
-          USER_POOL_ID: auth.userPoolId,
-          USER_POOL_CLIENT_ID: auth.userPoolClientId,
-        },
+        // environment: {
+        //   USER_POOL_ID: auth.userPoolId,
+        //   USER_POOL_CLIENT_ID: auth.userPoolClientId,
+        // },
       },
     },
     routes: {

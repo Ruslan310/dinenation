@@ -1,10 +1,13 @@
-import React from 'react';
+import React, {CSSProperties} from 'react';
+import {colorTheme} from "../../utils/theme";
 
 interface Props {
-    color: string;
+    color?: string;
+    className?: string;
+    style?: CSSProperties;
 }
-const LogOutSvg = ({color = "#68696D"}: Props) => (
-  <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+const LogOutSvg = ({color = colorTheme.secondary, className, style}: Props) => (
+  <svg className={className} style={style} width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M18 14.75L19.2929 13.4571C19.6834 13.0666 19.6834 12.4334 19.2929 12.0429L18 10.75"
       stroke={color}

@@ -4,7 +4,7 @@ import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/ur
 import {useNavigate} from "react-router-dom";
 import {Button, Collapse, CollapseProps, DatePicker, Form, Input, message, Select, Switch} from 'antd';
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
-import {ProductStatus} from "../../../utils/utils";
+import {PageConfig, ProductStatus} from "../../../utils/utils";
 import {RangePickerProps} from "antd/es/date-picker";
 import dayjs from "dayjs";
 import SelectFieldsComponent from "../../../components/Form/SelectFieldsComponent";
@@ -17,6 +17,8 @@ export interface CouponForm {
   address: string;
   expiration_date: string;
   status: string;
+  check_order: boolean;
+  hide_price: boolean;
 }
 
 export interface OfficeForm {
@@ -77,16 +79,24 @@ const AddCoupon = () => {
   return (
     <div className={styles.page}>
       <AdminNavbar />
-      <Form layout="horizontal" form={form} onChange={() => console.log('======office===',form.getFieldsValue())} className={styles.form}>
+      <Form layout="horizontal" form={form} className={styles.form}>
         <Form.Item name="title" rules={[{required: true, message: 'Please enter name!'}]} className={styles.field}>
           <Input placeholder='Enter coupon name'/>
         </Form.Item>
         <div className={styles.dateSwitch}>
           <Form.Item name="expiration_date" className={styles.field}>
-            <DatePicker disabledDate={disabledDate} />
+            <DatePicker disabledDate={disabledDate}/>
           </Form.Item>
           <Form.Item initialValue={false} label={"Has domain"} name="has_domain" className={styles.field}>
-            <Switch checkedChildren={<CheckOutlined />} unCheckedChildren={<CloseOutlined />}/>
+            <Switch checkedChildren={<CheckOutlined/>} unCheckedChildren={<CloseOutlined/>}/>
+          </Form.Item>
+        </div>
+        <div className={styles.dateSwitch}>
+          <Form.Item initialValue={false} label={"Check order"} name="check_order" className={styles.field}>
+            <Switch checkedChildren={<CheckOutlined/>} unCheckedChildren={<CloseOutlined/>}/>
+          </Form.Item>
+          <Form.Item initialValue={false} label={"Hide price"} name="hide_price" className={styles.field}>
+            <Switch checkedChildren={<CheckOutlined/>} unCheckedChildren={<CloseOutlined/>}/>
           </Form.Item>
         </div>
         <Form.Item
@@ -121,15 +131,15 @@ const AddCoupon = () => {
               .map((type) => <Select.Option key={type} value={type}>{type}</Select.Option>)}
           </Select>
         </Form.Item>
-        <Form.Item name="address" rules={[{required: true, message: 'Please enter address!'}]} className={styles.field}>
+        <Form.Item name="address" rules={[{required: true, message: 'Please enter company address!'}]}
+                   className={styles.field}>
           <Input placeholder='Enter company address'/>
         </Form.Item>
-        <Collapse bordered={false} className={styles.collapse} items={items} />
+        <Collapse bordered={false} className={styles.collapse} items={items}/>
         <Form.Item className={styles.button}>
           <Button onClick={async () => {
             try {
               await form.validateFields();
-              console.log('....form.getFieldsValue()', form.getFieldsValue())
               message.loading({content: 'Saving component...', key});
               const {
                 offices,
@@ -141,7 +151,7 @@ const AddCoupon = () => {
                 ...rest
               });
               if (data && offices?.length) {
-                offices?.map(async ({title}: {title: string }) =>
+                offices?.map(async ({title}: { title: string }) =>
                   await addOffice({
                     title,
                     coupon_id: data.addCoupon.id
@@ -149,12 +159,12 @@ const AddCoupon = () => {
                 );
               }
               message.success({content: 'Sauces successfully saved!', key, duration: 2});
-              data && navigate('/coupons')
+              data && navigate(PageConfig.coupons)
             } catch (e) {
               console.log('validations errors: ', e);
             }
           }} type="primary" htmlType="submit">
-            Add Coupons
+            Add Coupon
           </Button>
         </Form.Item>
       </Form>

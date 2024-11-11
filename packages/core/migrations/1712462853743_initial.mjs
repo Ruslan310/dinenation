@@ -13,20 +13,21 @@ export async function up(db) {
     .addColumn("date_updated", "varchar(50)", (col) => col.notNull())
     .addColumn("allergens", "text")
     .addColumn("sauces", "text")
+    .addColumn("is_dish", "boolean", (col) => col.notNull().defaultTo(true))
     .addColumn("categories", "text", (col) => col.notNull())
-    .addColumn("dish_type", "varchar(20)", (col) => col.notNull())
+    .addColumn("dish_type", "varchar(30)", (col) => col.notNull())
     .addColumn("image", "varchar(255)", (col) => col.notNull())
     .addColumn("description", "text")
     .addColumn("week_day", "varchar(20)", (col) => col.notNull())
-    .addColumn("status", "varchar(20)", (col) => col.notNull())
-    .addColumn("calories", "varchar(10)")
+    .addColumn("status", "varchar(30)", (col) => col.notNull())
+    .addColumn("calories", "varchar(40)")
     .execute();
 
   await db.schema
     .createTable("side_dishes")
     .addColumn("id", "serial", (col) => col.primaryKey())
     .addColumn("title", "text", (col) => col.notNull())
-    .addColumn("type", "varchar(20)", (col) => col.notNull())
+    .addColumn("type", "varchar(30)", (col) => col.notNull())
     .addColumn("date_created", "varchar(50)", (col) => col.notNull().defaultTo(sql`now()`))
     .addColumn("date_updated", "varchar(50)", (col) => col.notNull())
     .addColumn("status", "varchar(20)", (col) => col.notNull())
@@ -38,15 +39,15 @@ export async function up(db) {
     .addColumn("title", "text", (col) => col.notNull())
     .addColumn("date_created", "varchar(50)", (col) => col.notNull().defaultTo(sql`now()`))
     .addColumn("date_updated", "varchar(50)", (col) => col.notNull())
-    .addColumn("status", "varchar(20)", (col) => col.notNull())
+    .addColumn("status", "varchar(30)", (col) => col.notNull())
     .execute();
 
   await db.schema
     .createTable("domain")
     .addColumn("id", "serial", (col) => col.primaryKey())
     .addColumn("title", "text", (col) => col.notNull())
-    .addColumn("discount", "real", (col) => col.notNull())
-    .addColumn("expired_date", "varchar(50)", (col) => col.notNull())
+    .addColumn("discount", "real")
+    .addColumn("expired_date", "varchar(50)")
     .addColumn("date_created", "varchar(50)", (col) => col.notNull().defaultTo(sql`now()`))
     .addColumn("date_updated", "varchar(50)", (col) => col.notNull())
     .execute();
@@ -61,7 +62,7 @@ export async function up(db) {
     .addColumn("date_created", "varchar(50)", (col) => col.notNull().defaultTo(sql`now()`))
     .addColumn("date_updated", "varchar(50)", (col) => col.notNull())
     .addColumn("expiration_date", "varchar(50)")
-    .addColumn("status", "varchar(20)", (col) => col.notNull())
+    .addColumn("status", "varchar(30)", (col) => col.notNull())
     .execute();
 
 
@@ -69,15 +70,14 @@ export async function up(db) {
     .createTable("combo")
     .addColumn("id", "serial", (col) => col.primaryKey())
     .addColumn("title", "varchar(100)", (col) => col.notNull())
-    .addColumn("domain_id", "integer", (col) => col.notNull().references("domain.id"))
     .addColumn("price", "real", (col) => col.notNull())
     .addColumn("date_created", "varchar(50)", (col) => col.notNull().defaultTo(sql`now()`))
     .addColumn("date_updated", "varchar(50)", (col) => col.notNull())
     .addColumn("week_day", "varchar(10)", (col) => col.notNull())
-    .addColumn("type", "varchar(20)", (col) => col.notNull())
+    .addColumn("type", "varchar(30)", (col) => col.notNull())
     .addColumn("image", "varchar(255)", (col) => col.notNull())
     .addColumn("description", "text")
-    .addColumn("status", "varchar(20)", (col) => col.notNull())
+    .addColumn("status", "varchar(30)", (col) => col.notNull())
     .execute();
 
   await db.schema
@@ -86,7 +86,16 @@ export async function up(db) {
     .addColumn("product_id", "integer", (col) => col.notNull().references("product.id"))
     .addColumn("combo_id", "integer", (col) => col.notNull().references("combo.id"))
     .addColumn("price", "real", (col) => col.notNull())
-    .addColumn("dish_type", "varchar(20)", (col) => col.notNull())
+    .addColumn("dish_type", "varchar(30)", (col) => col.notNull())
+    .addColumn("date_created", "varchar(50)", (col) => col.notNull().defaultTo(sql`now()`))
+    .addColumn("date_updated", "varchar(50)", (col) => col.notNull())
+    .execute();
+
+  await db.schema
+    .createTable("domain_combo")
+    .addColumn("id", "serial", (col) => col.primaryKey())
+    .addColumn("domain_id", "integer", (col) => col.notNull().references("domain.id"))
+    .addColumn("combo_id", "integer", (col) => col.notNull().references("combo.id"))
     .addColumn("date_created", "varchar(50)", (col) => col.notNull().defaultTo(sql`now()`))
     .addColumn("date_updated", "varchar(50)", (col) => col.notNull())
     .execute();
@@ -128,7 +137,7 @@ export async function up(db) {
     EGGS: 'Eggs',
     MUSTARD: 'Mustard',
     MILK: 'Milk',
-    SULFITES: 'Sulfites',
+    SULPHITES: 'Sulphites',
     PEANUTS: 'Peanuts',
     SOY: 'Soy',
     NUTS: 'Nuts',
@@ -229,24 +238,25 @@ export async function up(db) {
     {title: 'nexters', has_domain: true, domain_id: 1, date_updated: currentDate, expiration_date: '', status: ProductStatus.PUBLISHED, address: '3-5, Georgiou A Avenue'},
     {title: 'sumsub', has_domain: false, domain_id: 2, date_updated: currentDate, expiration_date: '', status: ProductStatus.PUBLISHED, address: '237, Arch. Makarios III Avenue'},
     {title: 'appari', has_domain: true, domain_id: 1, date_updated: currentDate, expiration_date: '', status: ProductStatus.PUBLISHED, address: '29, Amathus Avenue'},
+    {title: 'advantika', has_domain: false, domain_id: 1, date_updated: currentDate, expiration_date: '', status: ProductStatus.PUBLISHED, address: '29332, Amathus2 Avenue3'},
   ]).execute();
 
   const imgCombo = 'https://bucket-for-image-test.s3.amazonaws.com/d0de5a8abae5737aa21dc0740b4d6177'
 
   // Вставка записей в таблицу combo
   await db.insertInto('combo').values([
-    {title: 'Combo Monday', domain_id: 1, price: 14.70, date_updated: currentDate, week_day: WeekDay.MONDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu nexters', status: ProductStatus.PUBLISHED},
-    {title: 'Combo Tuesday', domain_id: 1, price: 14.70, date_updated: currentDate, week_day: WeekDay.TUESDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu nexters', status: ProductStatus.PUBLISHED},
-    {title: 'Combo Wednesday', domain_id: 1, price: 14.70, date_updated: currentDate, week_day: WeekDay.WEDNESDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu nexters', status: ProductStatus.PUBLISHED},
-    {title: 'Combo Thursday', domain_id: 1, price: 14.70, date_updated: currentDate, week_day: WeekDay.THURSDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu nexters', status: ProductStatus.PUBLISHED},
-    {title: 'Combo Friday', domain_id: 1, price: 14.70, date_updated: currentDate, week_day: WeekDay.FRIDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu nexters', status: ProductStatus.PUBLISHED},
+    {title: 'Combo Monday', price: 14.70, date_updated: currentDate, week_day: WeekDay.MONDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu nexters', status: ProductStatus.PUBLISHED},
+    {title: 'Combo Tuesday', price: 14.70, date_updated: currentDate, week_day: WeekDay.TUESDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu nexters', status: ProductStatus.PUBLISHED},
+    {title: 'Combo Wednesday', price: 14.70, date_updated: currentDate, week_day: WeekDay.WEDNESDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu nexters', status: ProductStatus.PUBLISHED},
+    {title: 'Combo Thursday', price: 14.70, date_updated: currentDate, week_day: WeekDay.THURSDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu nexters', status: ProductStatus.PUBLISHED},
+    {title: 'Combo Friday', price: 14.70, date_updated: currentDate, week_day: WeekDay.FRIDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu nexters', status: ProductStatus.PUBLISHED},
 
-    {title: 'Combo Monday', domain_id: 2, price: 15.00, date_updated: currentDate, week_day: WeekDay.MONDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu sumsab', status: ProductStatus.PUBLISHED},
-    {title: 'Combo Tuesday', domain_id: 2, price: 15.00, date_updated: currentDate, week_day: WeekDay.TUESDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu sumsab', status: ProductStatus.PUBLISHED},
-    {title: 'Combo Wednesday', domain_id: 2, price: 15.00, date_updated: currentDate, week_day: WeekDay.WEDNESDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu sumsab', status: ProductStatus.PUBLISHED},
-    {title: 'Combo Thursday', domain_id: 2, price: 15.00, date_updated: currentDate, week_day: WeekDay.THURSDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu sumsab', status: ProductStatus.PUBLISHED},
-    {title: 'Combo Friday', domain_id: 2, price: 15.00, date_updated: currentDate, week_day: WeekDay.FRIDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu sumsab', status: ProductStatus.PUBLISHED},
-    {title: 'Combo Saturday', domain_id: 2, price: 15.00, date_updated: currentDate, week_day: WeekDay.SATURDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu sumsab', status: ProductStatus.PUBLISHED},
+    {title: 'Combo Monday', price: 15.00, date_updated: currentDate, week_day: WeekDay.MONDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu sumsab', status: ProductStatus.PUBLISHED},
+    {title: 'Combo Tuesday', price: 15.00, date_updated: currentDate, week_day: WeekDay.TUESDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu sumsab', status: ProductStatus.PUBLISHED},
+    {title: 'Combo Wednesday', price: 15.00, date_updated: currentDate, week_day: WeekDay.WEDNESDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu sumsab', status: ProductStatus.PUBLISHED},
+    {title: 'Combo Thursday', price: 15.00, date_updated: currentDate, week_day: WeekDay.THURSDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu sumsab', status: ProductStatus.PUBLISHED},
+    {title: 'Combo Friday', price: 15.00, date_updated: currentDate, week_day: WeekDay.FRIDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu sumsab', status: ProductStatus.PUBLISHED},
+    {title: 'Combo Saturday', price: 15.00, date_updated: currentDate, week_day: WeekDay.SATURDAY, type: COMBO_TYPE.COMBO, image: imgCombo, description: 'Combo menu sumsab', status: ProductStatus.PUBLISHED},
   ]).execute();
 
   // Вставка записей в таблицу combo_product
@@ -310,8 +320,6 @@ export async function up(db) {
     {product_id: 7, combo_id: 5, price: 1.05, date_updated: currentDate, dish_type: DishType.DESSERT},
     {product_id: 5, combo_id: 5, price: 1.05, date_updated: currentDate, dish_type: DishType.DESSERT},
     {product_id: 11, combo_id: 5, price: 1.05, date_updated: currentDate, dish_type: DishType.DESSERT},
-
-
 
     {product_id: 4, combo_id: 6, price: 15.00, date_updated: currentDate, dish_type: DishType.MAIN},
     {product_id: 3, combo_id: 6, price: 15.00, date_updated: currentDate, dish_type: DishType.MAIN},
@@ -404,6 +412,7 @@ export async function up(db) {
 export async function down(db) {
   await db.schema.dropTable("office").execute();
   await db.schema.dropTable("combo_product").execute();
+  await db.schema.dropTable("domain_combo").execute();
   await db.schema.dropTable("combo").execute();
   await db.schema.dropTable("coupons").execute();
   await db.schema.dropTable("domain").execute();

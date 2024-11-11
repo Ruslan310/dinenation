@@ -1,13 +1,15 @@
 import React, {CSSProperties} from 'react';
+import {colorTheme} from "../../utils/theme";
 
 interface Props {
   color?: string;
   size?: number;
   style?: CSSProperties;
+  className?: string;
 }
 
-const ReviewsSvg = ({color = "#68696D", size = 25, style}: Props) => (
-  <svg style={style} width={size} height={size} viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+const ReviewsSvg = ({color = colorTheme.secondary, size = 25, style, className}: Props) => (
+  <svg className={className} style={style} width={size} height={size} viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       fillRule="evenodd"
       clipRule="evenodd"

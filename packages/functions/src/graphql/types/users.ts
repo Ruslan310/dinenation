@@ -4,7 +4,7 @@ import {builder} from "../builder";
 import {CouponsType} from "./coupons";
 import {Coupons} from "@dinenation-postgresql/core/coupons";
 
-const UsersType = builder.objectRef<SQL.Row["users"]>("Users").implement({
+export const UsersType = builder.objectRef<SQL.Row["users"]>("Users").implement({
   fields: (t) => ({
     id: t.exposeInt("id"),
     first_name: t.exposeString("first_name"),
@@ -14,6 +14,8 @@ const UsersType = builder.objectRef<SQL.Row["users"]>("Users").implement({
     image: t.exposeString("image", { nullable: true }),
     phone: t.exposeString("phone"),
     role: t.exposeString("role"),
+    is_update: t.exposeBoolean("is_update"),
+    date_created: t.exposeString("date_created"),
     coupon: t.field({
       type: CouponsType,
       resolve: (user) => Coupons.getCoupon(user.coupon_id),
@@ -29,6 +31,14 @@ builder.queryFields((t)=> ({
       email: t.arg.string({required: true}),
     },
     resolve: (_, args) => Users.getUser(args.email)
+  }),
+  userId: t.field({
+    type: UsersType,
+    nullable: true,
+    args: {
+      id: t.arg.int({required: true}),
+    },
+    resolve: (_, args) => Users.getUserId(args.id)
   }),
   users: t.field({
     type: [UsersType],
@@ -56,6 +66,21 @@ builder.mutationFields((t) => ({
       args.coupon_id,
     ),
   }),
+  updateUserProfile: t.field({
+    type: UsersType,
+    args: {
+      id: t.arg.int({required: true}),
+      first_name: t.arg.string({required: true}),
+      last_name: t.arg.string({required: true}),
+      phone: t.arg.string({required: true}),
+    },
+    resolve: (_, args) => Users.updateUserProfile(
+      args.id,
+      args.first_name,
+      args.last_name,
+      args.phone,
+    ),
+  }),
   updateUser: t.field({
     type: UsersType,
     args: {
@@ -64,10 +89,10 @@ builder.mutationFields((t) => ({
       last_name: t.arg.string({required: true}),
       email: t.arg.string({required: true}),
       address: t.arg.string({required: false}),
-      image: t.arg.string({required: false}),
       phone: t.arg.string({required: true}),
       coupon_id: t.arg.int({required: true}),
       role: t.arg.string({required: true}),
+      is_update: t.arg.boolean({required: true}),
     },
     resolve: (_, args) => Users.updateUser(
       args.id,
@@ -75,10 +100,21 @@ builder.mutationFields((t) => ({
       args.last_name,
       args.email,
       args.address,
-      args.image,
       args.phone,
       args.coupon_id,
       args.role,
+      args.is_update,
+    ),
+  }),
+  permissionUser: t.field({
+    type: UsersType,
+    args: {
+      id: t.arg.int({required: true}),
+      is_update: t.arg.boolean({required: true}),
+    },
+    resolve: (_, args) => Users.permissionUser(
+      args.id,
+      args.is_update,
     ),
   }),
   updateUserImage: t.field({

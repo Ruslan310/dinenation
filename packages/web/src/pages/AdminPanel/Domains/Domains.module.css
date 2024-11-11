@@ -2,6 +2,9 @@
     padding: 20px;
     display: flex;
     height: 100vh;
+    @media (max-width: 700px) {
+        padding: 10px;
+    }
 }
 
 .container {
@@ -34,6 +37,12 @@
     padding: 15px;
     transition: box-shadow 0.3s ease;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+}
+
+.search {
+    margin-left: 15px;
+    width: 300px;
 }
 
 .productItemBlock {
@@ -70,7 +79,7 @@
     flex-direction: column;
     width: 100%;
     max-width: 600px;
-    margin: 30px,
+    margin: 30px;
 }
 
 .field {
@@ -107,7 +116,7 @@
 
     &:hover {
         background-color: var(--color-navbar);
-        box-shadow: 0 0 8px 0 #A8B6C78F;
+        box-shadow: 0 0 8px 0 var(--color-shadow);
     }
 }
 
@@ -136,15 +145,8 @@
     }
 }
 
-
 .addSwg {
     width: 20px;
     height: 20px;
     margin-right: 10px;
-}
-
-.priceItem {
-    display: flex;
-    width: 210px;
-    justify-content: space-between;
 }

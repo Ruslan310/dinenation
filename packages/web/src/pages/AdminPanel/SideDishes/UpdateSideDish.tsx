@@ -5,7 +5,7 @@ import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/ur
 import styles from "./SideDishes.module.css";
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
 import Loading from "../../../components/Loader/Loading";
-import {EColorSideDishList, ProductStatus} from "../../../utils/utils";
+import {EColorSideDishList, PageConfig, ProductStatus} from "../../../utils/utils";
 import {NotFound} from "../../index";
 
 interface SideDishForm {
@@ -105,12 +105,12 @@ const UpdateSideDish = () => {
                   ...form.getFieldsValue(),
                 });
                 message.success({content: 'Sauces successfully saved!', key, duration: 2});
-                data && navigate('/sideDishes')
+                data && navigate(PageConfig.side_dishes)
               } catch (e) {
                 console.log('validations errors: ', e);
               }
             }} type="primary" htmlType="submit">
-              Update Dishes
+              Update Side Dish
             </Button>
           </Form.Item>
         </Form>

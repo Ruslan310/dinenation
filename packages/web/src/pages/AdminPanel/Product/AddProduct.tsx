@@ -2,10 +2,12 @@ import React, {useState} from 'react';
 import styles from "./Product.module.css";
 import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import {useNavigate} from "react-router-dom";
-import {Button, InputNumber, Form, Input, message, Select, Upload} from 'antd';
-import {CATEGORIES_TYPE, ComponentType, EAllergensList, ProductStatus, WeekDay} from "../../../utils/utils";
+import {Button, InputNumber, Form, Input, message, Select, Switch} from 'antd';
+import {CATEGORIES_TYPE, ComponentType, EAllergensList, PageConfig, ProductStatus, WeekDay} from "../../../utils/utils";
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
-import UploadPicture from "../../../components/Form/UploadPicture";
+import UploadPictureProduct, {ImgType} from "../../../components/Form/UploadPictureProduct";
+import {CheckOutlined, CloseOutlined} from "@ant-design/icons";
+
 const {TextArea} = Input;
 
 interface ProductForm {
@@ -13,20 +15,24 @@ interface ProductForm {
   price: number;
   allergens: string;
   sauces: string;
+  is_dish: boolean;
   categories: string;
   dish_type: string;
   image: string;
+  small_img: string;
   description: string;
   week_day: string;
   status: string;
   calories: string;
 }
 
+
+
 const key = 'updatable';
 
 export default function AddProduct() {
   const [form] = Form.useForm();
-  const [picture, setPicture] = useState('');
+  const [picture, setPicture] = useState<ImgType>();
   const [isLoadingImage, setLoadingImage] = useState(false);
   const navigate = useNavigate();
   const [_, addProduct] = useTypedMutation((opts: ProductForm) => ({
@@ -44,7 +50,6 @@ export default function AddProduct() {
       },
     },
   });
-  console.log('-----picture', picture)
 
   return (
     <div className={styles.page}>
@@ -53,9 +58,14 @@ export default function AddProduct() {
         <Form.Item name="title" rules={[{required: true, message: 'Please enter name!'}]} className={styles.field}>
           <Input placeholder='Enter product name'/>
         </Form.Item>
-        <Form.Item className={styles.field} name="price" rules={[{required: true, message: 'Please enter price!'}]}>
-          <InputNumber placeholder='Price' min={0} className={styles.numberField}/>
-        </Form.Item>
+        <div className={styles.switch}>
+          <Form.Item className={styles.field} name="price" rules={[{required: true, message: 'Please enter price!'}]}>
+            <InputNumber placeholder='Price' min={0} className={styles.numberField}/>
+          </Form.Item>
+          <Form.Item initialValue={true} label={"Has side"} name="is_dish" className={styles.field}>
+            <Switch checkedChildren={<CheckOutlined/>} unCheckedChildren={<CloseOutlined/>}/>
+          </Form.Item>
+        </div>
         <Form.Item name="allergens" className={styles.field}>
           <Select<string, { value: string; children: string }>
             placeholder="Select allergens"
@@ -113,8 +123,8 @@ export default function AddProduct() {
               .map((type) => <Select.Option key={type} value={type}>{type}</Select.Option>)}
           </Select>
         </Form.Item>
-        <UploadPicture
-          picture={picture}
+        <UploadPictureProduct
+          picture={picture?.img || ''}
           setPicture={setPicture}
           load={isLoadingImage}
           setLoad={setLoadingImage}
@@ -154,30 +164,44 @@ export default function AddProduct() {
               .map((type) => <Select.Option key={type} value={type}>{type}</Select.Option>)}
           </Select>
         </Form.Item>
-        <Form.Item name="calories" rules={[{required: true, message: 'Please enter calories!'}]} className={styles.field}>
-          <InputNumber placeholder='Calories'/>
+        <Form.Item name="calories" className={styles.field}>
+          <Input maxLength={30} placeholder='Calories'/>
         </Form.Item>
         <Form.Item className={styles.button}>
           <Button onClick={async () => {
             try {
               await form.validateFields();
               message.loading({content: 'Saving component...', key});
-              const {title, price, allergens, categories, description, week_day, status, calories, sauces, dish_type} = form.getFieldsValue();
+              const {
+                title,
+                price,
+                allergens,
+                categories,
+                description,
+                week_day,
+                status,
+                calories,
+                sauces,
+                is_dish,
+                dish_type
+              } = form.getFieldsValue();
               const {data} = await addProduct({
                 title,
                 price,
                 allergens: allergens?.join(','),
                 sauces: sauces?.join(','),
+                is_dish,
                 categories,
                 dish_type,
-                image: picture,
+                image: picture?.img || '',
+                small_img: picture?.imgSmall || '',
                 description,
                 week_day,
                 status,
-                calories: calories.toString(),
+                calories,
               });
               message.success({content: 'Product successfully saved!', key, duration: 2});
-              data && navigate('/product')
+              data && navigate(PageConfig.product)
             } catch (e) {
               console.log('validations errors: ', e);
             }
