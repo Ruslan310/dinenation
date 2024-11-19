@@ -45,6 +45,7 @@ export { default as UpdateOrder } from '../pages/AdminPanel/Orders/UpdateOrder';
 export { default as ProductReviews } from '../pages/AdminPanel/ProductReviews/ProductReviews';
 export { default as Invoice } from '../pages/AdminPanel/Invoice/Invoice';
 export { default as Boxes } from '../pages/AdminPanel/Boxes/Boxes';
+export { default as Kitchen } from '../pages/AdminPanel/Kitchen/Kitchen';
 
 export { default as NotFound } from '../pages/NotFound/NotFound';
 

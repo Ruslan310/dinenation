@@ -20,6 +20,7 @@ import ReviewsSvg from "../svg/ReviewsSvg";
 import InvoiceSvg from "../svg/InvoiceSvg";
 import {PageConfig} from "../../utils/utils";
 import DomainSvg from "../svg/DomainSvg";
+import KitchenSvg from "../svg/KitchenSvg";
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
@@ -46,11 +47,12 @@ const AdminNavbar = () => {
     {key: 'product-reviews', icon: <ReviewsSvg color={path === 'product-reviews' ? colorTheme.darkPrimary : colorTheme.secondary}/>, label: !isScreenLg && 'Reviews'},
     {key: 'invoice', icon: <InvoiceSvg color={path === 'invoice' ? colorTheme.darkPrimary : colorTheme.secondary}/>, label: !isScreenLg && 'Invoice'},
     {key: 'boxes', icon: <BoxesSvg color={path === 'boxes' ? colorTheme.darkPrimary : colorTheme.secondary}/>, label: !isScreenLg && 'Boxes'},
+    {key: 'kitchen', icon: <KitchenSvg color={path === 'kitchen' ? colorTheme.darkPrimary : colorTheme.secondary}/>, label: !isScreenLg && 'Kitchen'},
   ];
 
   return (
     <div className={styles.navbarContainer}>
-      <LogoSvg size={!isScreenLg ? 100 : 40} type={logoType.VERTICAL} click={() => navigate(PageConfig.home)} style={{cursor: 'pointer'}}/>
+      <LogoSvg size={!isScreenLg ? 70 : 40} type={logoType.VERTICAL} click={() => navigate(PageConfig.home)} style={{cursor: 'pointer'}}/>
       <Menu
         className={styles.menuContainer}
         defaultSelectedKeys={[path]}

@@ -88,7 +88,7 @@ const Avatar = ({
     if (file) {
       setUploading(true);
       try {
-        const link = import.meta.env.VITE_GRAPHQL_URL.slice().slice(0, -8)
+        const link = import.meta.env.VITE_GRAPHQL_URL.slice(0, -8)
         const resizedFile = await resizeImage(file, 0.05);
         const {data} = await axios.post(`${link}/userImage`);
         const {url} = await fetch(data, {

@@ -29,6 +29,7 @@
     "graphql": "16.5.0"
   },
   "dependencies": {
+    "@aws-sdk/client-cloudwatch-logs": "^3.687.0",
     "@serverless-stack/resources": "^1.18.4"
   }
 }

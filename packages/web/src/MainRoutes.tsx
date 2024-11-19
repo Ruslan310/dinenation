@@ -38,6 +38,7 @@ import {
   Users,
   WeeklyMenu,
   Boxes,
+  Kitchen
 } from './pages'
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import {PageConfig, ROLE} from "./utils/utils";
@@ -97,6 +98,7 @@ const MainRoutes = () => (
       <Route path={PageConfig.product_reviews} element={<ProtectedRoute component={ProductReviews} />} />
       <Route path={PageConfig.invoice} element={<ProtectedRoute component={Invoice} />} />
       <Route path={PageConfig.boxes} element={<ProtectedRoute component={Boxes} />} />
+      <Route path={PageConfig.kitchen} element={<ProtectedRoute component={Kitchen} />} />
 
     </Routes>
   </BrowserRouter>

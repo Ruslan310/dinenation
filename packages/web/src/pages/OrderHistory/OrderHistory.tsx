@@ -130,6 +130,7 @@ const OrderHistory = () => {
         title: 'Total',
         dataIndex: 'price',
         key: 'price',
+        width: 100,
         render: (value) => currency(value, userData?.coupon.hide_price),
         responsive: ['md'],
       },

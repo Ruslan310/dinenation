@@ -430,6 +430,9 @@ export default {
             "addSideDish": [
                 22,
                 {
+                    "description": [
+                        2
+                    ],
                     "status": [
                         2,
                         "String!"
@@ -1187,6 +1190,9 @@ export default {
             "updateSideDish": [
                 22,
                 {
+                    "description": [
+                        2
+                    ],
                     "id": [
                         1,
                         "Int!"
@@ -1721,6 +1727,9 @@ export default {
             ]
         },
         "SideDish": {
+            "description": [
+                2
+            ],
             "id": [
                 1
             ],

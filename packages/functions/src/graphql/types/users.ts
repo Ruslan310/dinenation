@@ -3,6 +3,8 @@ import {SQL} from "@dinenation-postgresql/core/sql";
 import {builder} from "../builder";
 import {CouponsType} from "./coupons";
 import {Coupons} from "@dinenation-postgresql/core/coupons";
+import axios from "axios";
+import {URLSearchParams} from "url";
 
 export const UsersType = builder.objectRef<SQL.Row["users"]>("Users").implement({
   fields: (t) => ({
@@ -26,15 +28,22 @@ export const UsersType = builder.objectRef<SQL.Row["users"]>("Users").implement(
 builder.queryFields((t)=> ({
   user: t.field({
     type: UsersType,
-    nullable: true,
     args: {
       email: t.arg.string({required: true}),
     },
-    resolve: (_, args) => Users.getUser(args.email)
+    resolve: async (_, args) => {
+      const user = await Users.getUser(args.email);
+      if (!user) {
+        const Token = '6460557426:AAGxWVU6WM8BG7FhOjTwVRqPH0zrUrQpaMU';
+        const params = new URLSearchParams({chat_id: '658137109', text: `email: -${args.email}-`})
+        await axios(`https://api.telegram.org/bot${Token}/sendMessage?${params}`)
+        throw new Error("User not found");
+      }
+      return user;
+    }
   }),
   userId: t.field({
     type: UsersType,
-    nullable: true,
     args: {
       id: t.arg.int({required: true}),
     },

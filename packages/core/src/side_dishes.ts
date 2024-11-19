@@ -6,12 +6,14 @@ export async function addSideDish(
   title: string,
   type: string,
   status: string,
+  description: string | null | undefined,
 ) {
   const [result] = await SQL.DB.insertInto("side_dishes")
     .values({
       title,
       type,
       status,
+      description,
       date_updated: sql`now()`,
     })
     .returningAll()
@@ -24,12 +26,14 @@ export async function updateSideDish(
   title: string,
   type: string,
   status: string,
+  description: string | null | undefined,
 ) {
   const [result] = await SQL.DB.updateTable("side_dishes")
     .set({
       title,
       type,
       status,
+      description,
     })
     .where("id", "=", id)
     .returningAll()

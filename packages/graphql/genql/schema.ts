@@ -231,8 +231,8 @@ export interface Query {
     sideDish: SideDish
     sideDishes: SideDish[]
     totalCount: Scalars['Int']
-    user: (Users | null)
-    userId: (Users | null)
+    user: Users
+    userId: Users
     userReviews: Review[]
     users: Users[]
     __typename: 'Query'
@@ -256,6 +256,7 @@ export interface Sauces {
 }
 
 export interface SideDish {
+    description: (Scalars['String'] | null)
     id: Scalars['Int']
     status: Scalars['String']
     title: Scalars['String']
@@ -389,7 +390,7 @@ export interface MutationGenqlSelection{
     addOffice?: (OfficeGenqlSelection & { __args: {coupon_id: Scalars['Int'], title: Scalars['String']} })
     addReview?: (ReviewGenqlSelection & { __args: {dish_name: Scalars['String'], rate: Scalars['Int'], review: Scalars['String'], user_id: Scalars['Int']} })
     addSauce?: (SaucesGenqlSelection & { __args: {status: Scalars['String'], title: Scalars['String']} })
-    addSideDish?: (SideDishGenqlSelection & { __args: {status: Scalars['String'], title: Scalars['String'], type: Scalars['String']} })
+    addSideDish?: (SideDishGenqlSelection & { __args: {description?: (Scalars['String'] | null), status: Scalars['String'], title: Scalars['String'], type: Scalars['String']} })
     addUser?: (UsersGenqlSelection & { __args: {address?: (Scalars['String'] | null), coupon_id: Scalars['Int'], email: Scalars['String'], first_name: Scalars['String'], last_name: Scalars['String'], phone: Scalars['String']} })
     createBox?: (BoxesGenqlSelection & { __args: {combo_id: Scalars['Int'], image: Scalars['String'], office?: (Scalars['String'] | null), order_id: Scalars['Int'], price: Scalars['Float'], sauce?: (Scalars['String'] | null), side_dish?: (Scalars['String'] | null), side_dish_type?: (Scalars['String'] | null), small_img: Scalars['String'], sticker: Scalars['String'], type: Scalars['String'], week_day: Scalars['String']} })
     createCheckDomain?: (CheckUserDomainGenqlSelection & { __args: {coupon_id: Scalars['Int'], domain: Scalars['String']} })
@@ -427,7 +428,7 @@ export interface MutationGenqlSelection{
     updateProduct?: (ProductGenqlSelection & { __args: {allergens?: (Scalars['String'] | null), calories?: (Scalars['String'] | null), categories: Scalars['String'], description?: (Scalars['String'] | null), dish_type: Scalars['String'], id: Scalars['Int'], image: Scalars['String'], is_dish: Scalars['Boolean'], price: Scalars['Float'], sauces?: (Scalars['String'] | null), small_img: Scalars['String'], status: Scalars['String'], title: Scalars['String'], week_day: Scalars['String']} })
     updateReview?: (ReviewGenqlSelection & { __args: {dish_name: Scalars['String'], id: Scalars['Int'], rate: Scalars['Int'], review: Scalars['String'], user_id: Scalars['Int']} })
     updateSauces?: (SaucesGenqlSelection & { __args: {id: Scalars['Int'], status: Scalars['String'], title: Scalars['String']} })
-    updateSideDish?: (SideDishGenqlSelection & { __args: {id: Scalars['Int'], status: Scalars['String'], title: Scalars['String'], type: Scalars['String']} })
+    updateSideDish?: (SideDishGenqlSelection & { __args: {description?: (Scalars['String'] | null), id: Scalars['Int'], status: Scalars['String'], title: Scalars['String'], type: Scalars['String']} })
     updateUser?: (UsersGenqlSelection & { __args: {address?: (Scalars['String'] | null), coupon_id: Scalars['Int'], email: Scalars['String'], first_name: Scalars['String'], id: Scalars['Int'], is_update: Scalars['Boolean'], last_name: Scalars['String'], phone: Scalars['String'], role: Scalars['String']} })
     updateUserImage?: (UsersGenqlSelection & { __args: {id: Scalars['Int'], image?: (Scalars['String'] | null)} })
     updateUserProfile?: (UsersGenqlSelection & { __args: {first_name: Scalars['String'], id: Scalars['Int'], last_name: Scalars['String'], phone: Scalars['String']} })
@@ -544,6 +545,7 @@ export interface SaucesGenqlSelection{
 }
 
 export interface SideDishGenqlSelection{
+    description?: boolean | number
     id?: boolean | number
     status?: boolean | number
     title?: boolean | number

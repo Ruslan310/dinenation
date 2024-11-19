@@ -269,9 +269,7 @@ const Auth = () => {
           <p>{authMessage}</p>
         </div>
       </Modal>
-      <div className={styles.imageMainBlock}>
-        <img loading='lazy' src={login_main} alt="login" className={styles.imageMain}/>
-      </div>
+      <img loading='lazy' src={login_main} alt="login" className={styles.imageMain}/>
       <div className={styles.formBlock}>
         <div className={styles.form}>
           <LogoSvg type={logoType.HORIZONTAL}/>

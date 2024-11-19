@@ -44,6 +44,9 @@ const antTheme = {
       itemBg: colorTheme.navbar,
       lineWidth: 0
     },
+    Form: {
+      labelColor: colorTheme.secondary,
+    },
   },
   token: {
     colorPrimaryHover: colorTheme.primary,

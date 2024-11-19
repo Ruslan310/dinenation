@@ -728,6 +728,15 @@
     width: 64px;
 }
 
+.sideDishDescription {
+   width: 200px;
+
+    & p {
+        text-align: justify;
+        word-break: break-word;
+    }
+}
+
 
 
 

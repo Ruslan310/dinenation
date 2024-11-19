@@ -18,6 +18,11 @@ interface IColumnsType {
   date_created: string;
   status: string;
   address: string | null | undefined;
+  customer: {
+    first_name: string,
+    last_name: string,
+    email: string,
+  }
 }
 
 
@@ -38,6 +43,11 @@ const CompanyOrders = () => {
         price: true,
         address: true,
         date_created: true,
+        customer: {
+          first_name: true,
+          last_name: true,
+          email: true,
+        }
       },
     },
     requestPolicy: 'cache-and-network',
@@ -67,7 +77,8 @@ const CompanyOrders = () => {
       title: 'Date',
       dataIndex: 'date_created',
       key: 'date_created',
-      responsive: ['md'],
+      width: 250,
+      responsive: ['lg'],
       sorter: (a, b) => {
         if (a.date_created && b.date_created) {
           if (a.date_created < b.date_created) {
@@ -103,11 +114,20 @@ const CompanyOrders = () => {
       }
     },
     {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
+      title: 'Customer',
+      dataIndex: 'customer',
+      key: 'customer',
       width: 250,
-      responsive: ['lg']
+      responsive: ['md'],
+      render: (value) => `${value.first_name} ${value.last_name}`,
+    },
+    {
+      title: 'Email',
+      dataIndex: 'customer',
+      key: 'customer',
+      width: 250,
+      responsive: ['lg'],
+      render: (value) => value.email,
     },
   ];
 

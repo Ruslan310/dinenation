@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {ConfigProvider, Modal, Radio} from 'antd';
+import {ConfigProvider, Modal, Popover, Radio} from 'antd';
 import styles from './WeeklyMenu.module.css';
 import {DishType, EAllergensList, EColorSideDishList, EWEEK_DAY} from '../../utils/utils';
 import {SideDishType, ProductForm} from '../../utils/type';
@@ -141,26 +141,28 @@ const DishPopup: React.FC<PopoverContentProps> = ({
               {/* radio */}
               <ConfigProvider theme={{ token: { colorPrimary: colorSideDish, fontSize: 12 } }}>
                 <Radio.Group value={selectSideDish?.title}>
-                  {sideDishes.map(({ type, title }) => (
+                  {sideDishes.map(({ type, title, description }) => (
                     <Radio
-                      style={{
-                        backgroundColor: selectSideDish?.title === title ? colorSideDish : colorTheme.navbar,
-                      }}
+                      style={{backgroundColor: selectSideDish?.title === title ? colorSideDish : colorTheme.navbar}}
                       className={styles.sideDishRadioItem}
                       onClick={() => {
                         setColorSideDish(colorSideDishList[type as EColorSideDishList]);
-                        setSideDish({
-                          title: title,
-                          type: type,
-                        });
+                        setSideDish({title, type, description});
                       }}
                       value={title}
-                      key={type}
+                      key={`${type}+${title}`}
                     >
-                      <div className={styles.sideDishRadioContent}>
-                        <SideDishListSvg type={type} active={selectSideDish?.title === title} />
-                        <p className={styles.radioText}>{title}</p>
-                      </div>
+                      <Popover placement="topLeft" content={
+                        description ?
+                          <div className={styles.sideDishDescription}>
+                            <p>{description}</p>
+                          </div>
+                          : null}>
+                        <div className={styles.sideDishRadioContent}>
+                          <SideDishListSvg type={type} active={selectSideDish?.title === title}/>
+                          <p className={styles.radioText}>{title}</p>
+                        </div>
+                      </Popover>
                     </Radio>
                   ))}
                 </Radio.Group>

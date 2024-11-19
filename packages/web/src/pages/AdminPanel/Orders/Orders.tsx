@@ -60,7 +60,6 @@ const Orders = () => {
         date_created: true,
       },
     },
-    pause: !status,
     requestPolicy: 'cache-and-network',
   });
 
@@ -76,41 +75,13 @@ const Orders = () => {
     requestPolicy: 'cache-and-network',
   });
 
-  useEffect(() => {
-    if (status) {
-      refetchOrders();
-      refetchCount();
-    }
-  }, [status]);
-
   const handleReload = () => {
-    refetchOrders();
+    refetchOrders({requestPolicy: 'network-only'});
     refetchCount();
   }
 
-  const orderNumberFilter = (
-    <>
-      <Input
-        placeholder="Order #"
-        value={searchNumber}
-        onChange={e => setSearchNumber(e.target.value)}
-      />
-    </>
-  );
-
-  const orderEmailFilter = (
-    <>
-      <Input
-        placeholder="Email"
-        value={searchEmail}
-        onChange={e => setSearchEmail(e.target.value)}
-      />
-    </>
-  );
-
   const columns: ColumnsType<IColumnsType> = [
     {
-      // title: orderNumberFilter,
       title: "Order #",
       dataIndex: 'number',
       key: 'number',
@@ -138,7 +109,6 @@ const Orders = () => {
       render: (value: TStatusType) => <OrderStatus status={value}/>,
     },
     {
-      // title: orderEmailFilter,
       title: "Email",
       dataIndex: 'customer',
       key: 'customer',
@@ -178,7 +148,10 @@ const Orders = () => {
           <Select<string, { value: string; children: string }>
             className={styles.select}
             value={status}
-            onChange={value => setStatus(value as EStatusType)}
+            onChange={value => {
+              setStatus(value as EStatusType)
+              handleReload()
+            }}
             placeholder="Select status"
             filterOption={(input, option) =>
               option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false

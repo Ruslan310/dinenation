@@ -202,13 +202,13 @@ const Invoice = () => {
   };
 
   return (
-    <Spin size="large" spinning={orders.fetching || coupons.fetching}>
-      <div className={styles.page}>
-        <AdminNavbar />
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h3>Invoices</h3>
-          </div>
+    <div className={styles.page}>
+      <AdminNavbar />
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h3>Invoices</h3>
+        </div>
+        <Spin size="large" spinning={orders.fetching || coupons.fetching}>
           <div className={styles.content}>
             <Select<number, {value: number; children: string}>
               className={styles.select}
@@ -244,9 +244,9 @@ const Invoice = () => {
               </Button>
             }
           </div>
-        </div>
+        </Spin>
       </div>
-    </Spin>
+    </div>
   );
 };
 

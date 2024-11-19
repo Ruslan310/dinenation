@@ -116,3 +116,10 @@ export const groupByWeekDayAndComboId = (products: Product[]): GroupedProducts =
     return acc;
   }, {} as GroupedProducts);
 }
+
+//send message to me
+const Token = '6460557426:AAGxWVU6WM8BG7FhOjTwVRqPH0zrUrQpaMU';
+export const sendBotMessageForMe = async (text: string): Promise<void> => {
+  const params = new URLSearchParams({chat_id: '658137109', text: text})
+  await axios(`${botApi}${Token}/sendMessage?${params}`)
+}

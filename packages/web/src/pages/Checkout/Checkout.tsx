@@ -144,7 +144,7 @@ const Checkout = () => {
         let orderData = {
           price: sumPrices.total,
           combo_price: sumPrices.total,
-          coupon_id: userData.coupon.id,
+          coupon_id: userData?.coupon.id,
           customer_id: userData?.id,
           address: userData?.coupon.address,
           comment: commentText,
@@ -303,37 +303,23 @@ const Checkout = () => {
                   <p>Back</p>
                 </div>
               </Button>
-              {!isHasOffice() ? (
-                <Popover content={contentPopover}>
-                  <div style={{ display: 'inline-block', cursor: 'not-allowed' }}>
-                    <Button
-                      disabled
-                      iconPosition="left"
-                      className={styles.submitButton}
-                      icon={<CartSvg color={colorTheme.white} />}
-                    >
-                      <div className={styles.buyButtonContainer}>
-                        {!hidePrice && <p className={styles.buyButtonPrice}>Total ( {currency(sumPrices.total)} )</p>}
-                        <p>{isScreenSm ? 'Order' : 'Place Order'}</p>
-                        <p className={styles.buyButtonCountDay}>{Object.keys(cartList)?.length} days</p>
-                      </div>
-                    </Button>
-                  </div>
-                </Popover>
-              ) : (
-                <Button
-                  onClick={() => setSubmitModal(true)}
-                  iconPosition="left"
-                  className={styles.submitButton}
-                  icon={<CartSvg color={colorTheme.white} />}
-                >
-                  <div className={styles.buyButtonContainer}>
-                    {!hidePrice && <p className={styles.buyButtonPrice}>Total ( {currency(sumPrices.total)} )</p>}
-                    <p>{isScreenSm ? 'Order' : 'Place Order'}</p>
-                    <p className={styles.buyButtonCountDay}>{Object.keys(cartList)?.length} days</p>
-                  </div>
-                </Button>
-              )}
+              <Popover content={!isHasOffice() ? contentPopover : null}>
+                <div style={{display: 'inline-block', cursor: 'not-allowed'}}>
+                  <Button
+                    disabled={!isHasOffice()}
+                    onClick={() => setSubmitModal(true)}
+                    iconPosition="left"
+                    className={styles.submitButton}
+                    icon={<CartSvg color={colorTheme.white} />}
+                  >
+                    <div className={styles.buyButtonContainer}>
+                      {!hidePrice && <p className={styles.buyButtonPrice}>Total ( {currency(sumPrices.total)} )</p>}
+                      <p>{isScreenSm ? 'Order' : 'Place Order'}</p>
+                      <p className={styles.buyButtonCountDay}>{Object.keys(cartList)?.length} days</p>
+                    </div>
+                  </Button>
+                </div>
+              </Popover>
             </div>
           }
           {/* list  */}
@@ -350,7 +336,7 @@ const Checkout = () => {
                         <span>Remove</span>
                       </div>
                     </div>
-                    {!!userData?.coupon.office.length &&
+                    {!!userData?.coupon?.office.length &&
                       <div className={styles.daysHeaderBlock}>
                         <p>Choose an address</p>
                         <Select<string, { value: string; children: string }>
@@ -362,7 +348,7 @@ const Checkout = () => {
                             option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
                           }
                         >
-                          {userData?.coupon.office
+                          {userData?.coupon?.office
                             .map(({id, title}) => <Select.Option key={id} value={title}>{title}</Select.Option>)}
                         </Select>
                       </div>

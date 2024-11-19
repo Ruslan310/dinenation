@@ -58,6 +58,7 @@ export interface CheckMail {
 export interface SideDishType {
   title: string;
   type: string;
+  description: string | null | undefined;
 }
 
 

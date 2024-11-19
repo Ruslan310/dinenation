@@ -66,7 +66,6 @@ const Boxes = () => {
         },
       },
     },
-    pause: !selectedDay,
     requestPolicy: 'network-only',
   });
 
@@ -126,6 +125,7 @@ const Boxes = () => {
     const boxesOrder = orders.data?.ordersByBox.flatMap(order =>
       order.products.map(box => ({
         ...box,
+        sticker: box.side_dish ? `${box.sticker}+${box.side_dish}` : box.sticker,
         number: order.number,
         comment: order.comment,
         coupon: order.coupon.title,
@@ -210,31 +210,31 @@ const Boxes = () => {
   }
 
   return (
-    <Spin size="large" spinning={orders.fetching || generatingStickers || updateBox.fetching}>
-      <div className={styles.page}>
-        <Modal
-          closeIcon={false}
-          open={open}
-          onCancel={() => setOpen(false)}
-          width={400}
-          centered
-          onOk={changeNewToPrinted}
-        >
-          <>
-            <h3>
-              <ExclamationCircleOutlined style={{color: colorTheme.primary, marginRight: 10}}/>
-              Do you want to update these items?
-            </h3>
-            <p style={{paddingLeft: 27}}>
-              Are you sure you printed all new stickers?
-            </p>
-            <p style={{paddingLeft: 27}}>
-              You cannot undo this!!!
-            </p>
-          </>
-        </Modal>
-        <AdminNavbar/>
-        <div className={styles.container}>
+    <div className={styles.page}>
+      <Modal
+        closeIcon={false}
+        open={open}
+        onCancel={() => setOpen(false)}
+        width={400}
+        centered
+        onOk={changeNewToPrinted}
+      >
+        <>
+          <h3>
+            <ExclamationCircleOutlined style={{color: colorTheme.primary, marginRight: 10}}/>
+            Do you want to update these items?
+          </h3>
+          <p style={{paddingLeft: 27}}>
+            Are you sure you printed all new stickers?
+          </p>
+          <p style={{paddingLeft: 27}}>
+            You cannot undo this!!!
+          </p>
+        </>
+      </Modal>
+      <AdminNavbar/>
+      <div className={styles.container}>
+        <Spin size="large" spinning={orders.fetching || generatingStickers || updateBox.fetching}>
           <div className={styles.header}>{weekDaysListMobile}</div>
           <HandleBox ref={ref} boxes={boxes} selectedDay={selectedDay} setOpen={setOpen} setGeneratingStickers={setGeneratingStickers}/>
           <Table
@@ -250,9 +250,9 @@ const Boxes = () => {
             }
             scroll={{ x: true, y: `calc(100vh - ${180 + (ref.current?.offsetHeight || 0)}px)` }}
           />
-        </div>
+        </Spin>
       </div>
-    </Spin>
+    </div>
   );
 };
 

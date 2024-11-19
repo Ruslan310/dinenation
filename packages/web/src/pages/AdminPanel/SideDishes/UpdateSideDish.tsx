@@ -8,14 +8,15 @@ import Loading from "../../../components/Loader/Loading";
 import {EColorSideDishList, PageConfig, ProductStatus} from "../../../utils/utils";
 import {NotFound} from "../../index";
 
+const {TextArea} = Input;
+
 interface SideDishForm {
   id: number;
   title: string;
   type: string;
   status: string;
+  description: string | undefined | null;
 }
-
-const key = 'updatable';
 
 
 const UpdateSideDish = () => {
@@ -95,16 +96,19 @@ const UpdateSideDish = () => {
                 .map((type) => <Select.Option key={type} value={type}>{type}</Select.Option>)}
             </Select>
           </Form.Item>
+          <Form.Item name="description" className={styles.field}>
+            <TextArea placeholder='Enter description'/>
+          </Form.Item>
           <Form.Item className={styles.button}>
             <Button onClick={async () => {
               try {
                 await form.validateFields();
-                message.loading({content: 'Saving component...', key});
+                message.loading({content: 'Saving component...'});
                 const {data} = await updateSideDish({
                   id: currentDishId,
                   ...form.getFieldsValue(),
                 });
-                message.success({content: 'Sauces successfully saved!', key, duration: 2});
+                message.success({content: 'Sauces successfully saved!'});
                 data && navigate(PageConfig.side_dishes)
               } catch (e) {
                 console.log('validations errors: ', e);

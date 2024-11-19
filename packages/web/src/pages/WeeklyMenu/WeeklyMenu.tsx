@@ -90,6 +90,7 @@ const WeeklyMenu = () => {
       sideDishes: {
         title: true,
         type: true,
+        description: true,
       },
     },
     requestPolicy: 'cache-and-network',
@@ -117,7 +118,7 @@ const WeeklyMenu = () => {
     query: {
       domain: {
         __args: {
-          id: userData?.coupon.domain.id ?? 0
+          id: userData?.coupon?.domain?.id ?? 0
         },
         id: true,
         title: true,
@@ -144,7 +145,7 @@ const WeeklyMenu = () => {
         },
       },
     },
-    pause: !userData?.coupon.domain.id,
+    pause: !userData?.coupon?.domain?.id,
     // requestPolicy: 'cache-and-network',
     requestPolicy: 'network-only',
   });
@@ -152,7 +153,7 @@ const WeeklyMenu = () => {
   useEffect(() => {
     const currentCombo = combos.data?.domain.combos;
     // let exceptionDays: string[] = []
-    if (orders.data && orders.data.ordersCheckById && userData?.coupon.check_order) {
+    if (orders.data && orders.data.ordersCheckById && userData?.coupon?.check_order) {
       const days = orders?.data?.ordersCheckById
         .flatMap(order =>
           order.products.map(product => product.week_day))

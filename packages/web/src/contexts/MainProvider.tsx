@@ -1,12 +1,14 @@
-import React, {createContext, useEffect, useMemo, useState} from 'react';
+import React, {createContext, useEffect, useState} from 'react';
 import {CartList} from "../pages/WeeklyMenu/WeeklyMenu";
 import {useAuthenticator} from "@aws-amplify/ui-react";
 import {AuthUser} from 'aws-amplify/auth';
 import {useTypedQuery} from "@dinenation-postgresql/graphql/urql";
-import {decryptData} from "../utils/handle";
+import {decryptData, sendBotMessageForMe} from "../utils/handle";
 import {User} from "../utils/type";
 import {message} from "antd";
 import {defaultParams} from "../constants";
+import dayjs from "dayjs";
+import {dateFormat} from "../utils/utils";
 
 export interface MainProps {
   cartList: CartList[];
@@ -38,13 +40,9 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartList, setCartList] = useState<CartList[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
 
-  const context = useMemo(() =>
-      ({ additionalTypenames: ["users"] }),
-    [user?.signInDetails?.loginId]);
+  const query = user?.signInDetails?.loginId?.toLowerCase() || ''
 
-  const query = user?.signInDetails?.loginId?.toLowerCase().trim() || ''
-
-  const [getUser] = useTypedQuery({
+  const [getUser, refetchUser] = useTypedQuery({
     query: {
       user: {
         __args: {email: query},
@@ -74,7 +72,6 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
         },
       },
     },
-    context,
     requestPolicy: 'network-only',
     pause: !query
   });
@@ -84,20 +81,35 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
       <p>Time's up, cart is empty</p>
     </div>
   )
+
   const clearCart = async () => {
     localStorage.removeItem('cartList');
     localStorage.removeItem('cartTimestamp');
     localStorage.removeItem('cartTComment');
     message.info({content: content});
-    setCartList([])
+    setCartList([]);
     setTimeout(() => {
       window.location.reload();
     }, 3000);
   };
 
   useEffect(() => {
-    if (user?.signInDetails && getUser?.data?.user) {
-      setUserData(getUser?.data?.user)
+    if (user?.signInDetails && getUser?.data) {
+      setUserData(getUser?.data?.user);
+      try {
+        sendBotMessageForMe(`
+      Prov
+      - authStatus - ${authStatus}
+      - err - ${getUser?.error}
+      - getUser -${JSON.stringify(getUser.data?.user)}-
+      - date - ${dayjs().format(dateFormat.DATE_TIME)}
+      - query -${query}-
+    `)
+      } catch (e) {
+        console.log('----err', e)
+      }
+    } else if (user?.signInDetails && !getUser?.data) {
+      refetchUser({requestPolicy: 'network-only'});
     }
 
     const savedCartList = localStorage.getItem('cartList');
@@ -109,9 +121,11 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
         console.error('Error when decrypting data:', error);
       }
     }
-  },[user?.signInDetails, getUser?.data?.user])
 
-  let timeClear = localStorage.getItem('cartTimestamp')
+  },[user?.signInDetails, getUser?.data])
+
+
+  let timeClear = localStorage.getItem('cartTimestamp') || '';
 
   useEffect(() => {
     const checkCartExpiration = () => {

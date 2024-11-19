@@ -1,3 +1,5 @@
+import Kitchen from "../pages/AdminPanel/Kitchen/Kitchen";
+
 export enum PageConfig {
   home = "/",
   wrong = "*",
@@ -19,6 +21,7 @@ export enum PageConfig {
   product_reviews = "/product-reviews",
   invoice = "/invoice",
   boxes = "/boxes",
+  kitchen = "/kitchen",
 }
 
 export enum WeekDay {

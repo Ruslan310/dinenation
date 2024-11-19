@@ -63,6 +63,10 @@ const UpdateUser = () => {
         coupon: {
           id: true,
           title: true,
+          domain: {
+            id: true,
+            title: true
+          }
         },
       },
     },
@@ -174,13 +178,13 @@ const UpdateUser = () => {
                 </Button>
               </div>
               <div className={styles.content}>
-                <Form.Item name="first_name" rules={[{required: true, message: 'Please enter first_name!'}]} className={styles.field}>
+                <Form.Item label='First name' name="first_name" rules={[{required: true, message: 'Please enter first_name!'}]} className={styles.field}>
                   <Input placeholder='Enter first name'/>
                 </Form.Item>
-                <Form.Item name="last_name" rules={[{required: true, message: 'Please enter last_name!'}]} className={styles.field}>
+                <Form.Item label='Last name' name="last_name" rules={[{required: true, message: 'Please enter last_name!'}]} className={styles.field}>
                   <Input placeholder='Enter last name'/>
                 </Form.Item>
-                <Form.Item name="role" className={styles.field}>
+                <Form.Item label='Role' name="role" className={styles.field}>
                   <Select<string, { value: string; children: string }>
                     placeholder="Select role"
                     filterOption={(input, option) =>
@@ -192,7 +196,7 @@ const UpdateUser = () => {
                         <Select.Option key={role} value={role}>{role}</Select.Option>)}
                   </Select>
                 </Form.Item>
-                <Form.Item name="coupon" className={styles.field}>
+                <Form.Item label='Coupon' name="coupon" className={styles.field}>
                   <Select<string, { value: string; children: string }>
                     placeholder="Select coupon"
                     filterOption={(input, option) =>
@@ -204,10 +208,13 @@ const UpdateUser = () => {
                         <Select.Option key={id} value={id}>{title}</Select.Option>)}
                   </Select>
                 </Form.Item>
+                <Form.Item label='Domain' className={styles.field}>
+                  <Input disabled value={user.data?.userId.coupon.domain.title}/>
+                </Form.Item>
                 <Form.Item name="phone" rules={[{required: true, message: 'Please enter phone!'}]} className={styles.field}>
                   <Input placeholder='Enter phone'/>
                 </Form.Item>
-                <Form.Item label={"Is update"} name="is_update" className={styles.field}>
+                <Form.Item label="Is update" name="is_update" className={styles.field}>
                   <Switch checkedChildren={<CheckOutlined/>} unCheckedChildren={<CloseOutlined/>}/>
                 </Form.Item>
                 <Form.Item className={styles.button}>

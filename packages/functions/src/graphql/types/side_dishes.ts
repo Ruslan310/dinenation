@@ -8,6 +8,7 @@ const SideDishType = builder.objectRef<SQL.Row["side_dishes"]>("SideDish").imple
     title: t.exposeString("title"),
     type: t.exposeString("type"),
     status: t.exposeString("status"),
+    description: t.exposeString("description", {nullable: true}),
   }),
 });
 
@@ -40,11 +41,13 @@ builder.mutationFields((t) => ({
       args.title,
       args.type,
       args.status,
+      args.description,
     ),
     args: {
       title: t.arg.string({required: true}),
       type: t.arg.string({required: true}),
       status: t.arg.string({required: true}),
+      description: t.arg.string({required: false}),
     },
   }),
   updateSideDish: t.field({
@@ -54,12 +57,14 @@ builder.mutationFields((t) => ({
       title: t.arg.string({required: true}),
       type: t.arg.string({required: true}),
       status: t.arg.string({required: true}),
+      description: t.arg.string({required: false}),
     },
     resolve: (_, args)=> SideDish.updateSideDish(
       args.id,
       args.title,
       args.type,
       args.status,
+      args.description,
     ),
   }),
   deleteSideDish: t.field({

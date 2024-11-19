@@ -43,8 +43,6 @@ const Users = () => {
     requestPolicy: 'cache-and-network',
   });
 
-  console.log('------users', users?.data?.users)
-
   const userNameFilter = (
     <Input
       placeholder="Full Name"

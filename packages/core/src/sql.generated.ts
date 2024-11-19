@@ -159,6 +159,7 @@ export interface SideDishes {
   date_created: Generated<string>;
   date_updated: string;
   status: string;
+  description: string | null;
 }
 
 export interface Users {

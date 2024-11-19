@@ -40,7 +40,7 @@ const UploadPicture = ({
         customRequest={async ({file}) => {
           setLoad(true)
           try {
-            const link = import.meta.env.VITE_GRAPHQL_URL.slice().slice(0, -8)
+            const link = import.meta.env.VITE_GRAPHQL_URL.slice(0, -8)
             const resizedFile = await resizeImage(file as File);
             const {data} = await axios.post(`${link}/dishImage`);
             const {url} = await fetch(data, {
