@@ -11,6 +11,7 @@ import {GroupedProducts} from "./type";
 
 const CRYPTO_KEY = import.meta.env?.VITE_CRYPTO_KEY
 const telegramToken = import.meta.env?.VITE_TELEGRAM_TOKEN
+const myTelegramToken = import.meta.env?.VITE_MY_TELEGRAM_TOKEN
 
 dayjs.extend(utc);
 dayjs.extend(timezone)
@@ -48,7 +49,7 @@ export const currentDayIndex = WEEKDAY_ORDER.indexOf(currentDay as EWEEK_DAY);
 // export const currentDayIndex = WEEKDAY_ORDER.indexOf('Friday' as EWEEK_DAY); //test day
 
 export const capitalizeFirstLetter = (day: string): string => {
-  return day.charAt(0).toUpperCase() + day.slice(1).toLowerCase();
+  return day.charAt(0)?.toUpperCase() + day.slice(1).toLowerCase();
 };
 
 export const generateUniqueId = (): number => Math.floor(Date.now() % 1000000000 + Math.random() * 1000);
@@ -118,8 +119,7 @@ export const groupByWeekDayAndComboId = (products: Product[]): GroupedProducts =
 }
 
 //send message to me
-const Token = '6460557426:AAGxWVU6WM8BG7FhOjTwVRqPH0zrUrQpaMU';
 export const sendBotMessageForMe = async (text: string): Promise<void> => {
   const params = new URLSearchParams({chat_id: '658137109', text: text})
-  await axios(`${botApi}${Token}/sendMessage?${params}`)
+  await axios(`${botApi}${myTelegramToken}/sendMessage?${params}`)
 }

@@ -3,9 +3,6 @@ import MainRoutes from "./MainRoutes";
 import {MainContext} from "./contexts/MainProvider";
 import Auth from "./pages/Auth/Auth";
 import LogoLoader from "./components/LogoLoader/LogoLoader";
-import {sendBotMessageForMe} from "./utils/handle";
-import dayjs from "dayjs";
-import {dateFormat} from "./utils/utils";
 
 const App = () => {
   const {authStatus, userData} = useContext(MainContext);
@@ -25,13 +22,6 @@ const App = () => {
   if (authStatus === authenticated) {
     return <MainRoutes />;
   }
-
-  sendBotMessageForMe(`
-      App null
-      - authStatus - ${authStatus} 
-      - userData -${userData?.id}-
-      - date - ${dayjs().format(dateFormat.DATE_TIME)} 
-    `)
 
   return null;
 };

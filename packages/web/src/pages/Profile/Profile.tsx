@@ -45,10 +45,11 @@ const Profile = () => {
   Email: ${userData.email}
   Name: ${userData.first_name} ${userData.last_name}
   Coupon: ${userData.coupon.title}
+  Phone: ${userData.phone}
 -----chage to---------
-  new email: ${values.email}
   new name: ${values.first_name} ${values.last_name}
   new coupon: ${values.coupon}
+  new phone: ${values.phone}
 `;
         await sendBotMessage(CHANGE_PROFILE, mes)
 

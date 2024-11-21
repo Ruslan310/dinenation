@@ -16,6 +16,7 @@ import ArrowsSwg from "../../components/svg/ArrowsSWG";
 import LogoSvg, {logoType} from "../../components/svg/LogoSvg";
 import {BoxCreate} from "../../utils/type";
 import {useResize} from "../../hooks/useResize";
+import { CheckOutlined } from '@ant-design/icons';
 
 const {TextArea} = Input
 
@@ -135,7 +136,8 @@ const Checkout = () => {
               price: product.price,
               side_dish: isMain ? cartItem[DishType.SIDE]?.title : '',
               side_dish_type: isMain ? cartItem[DishType.SIDE]?.type : '',
-              sauce: isMain ? cartItem.Sauce : '',
+              // sauce: isMain ? cartItem.Sauce : '',
+              sauce: isMain ? cartItem.breakfast : '',
               combo_id: cartItem.id,
             };
           });
@@ -385,11 +387,19 @@ const Checkout = () => {
                                         </div>
                                       </div>
                                     }
-                                    {cartItem.Sauce &&
+                                    {/*{cartItem.Sauce &&*/}
+                                    {/*  <div className={styles.sideBlock}>*/}
+                                    {/*    <p>{DishType.SAUCE}</p>*/}
+                                    {/*    <div className={styles.subTitleSauce}>*/}
+                                    {/*      <span>{cartItem.Sauce}</span>*/}
+                                    {/*    </div>*/}
+                                    {/*  </div>*/}
+                                    {/*}*/}
+                                    {cartItem.breakfast &&
                                       <div className={styles.sideBlock}>
-                                        <p>{DishType.SAUCE}</p>
+                                        <p>Breakfast</p>
                                         <div className={styles.subTitleSauce}>
-                                          <span>{cartItem.Sauce}</span>
+                                          <CheckOutlined style={{ color: 'green'}} />
                                         </div>
                                       </div>
                                     }
@@ -418,10 +428,18 @@ const Checkout = () => {
                                         <span>{cartItem[DishType.SIDE]?.title}</span>
                                       </div>
                                     }
-                                    {cartItem.Sauce &&
-                                      <div className={styles.sideBlockMobile}>
-                                        <p>{DishType.SAUCE}</p>
-                                        <span>{cartItem.Sauce}</span>
+                                    {/*{cartItem.Sauce &&*/}
+                                    {/*  <div className={styles.sideBlockMobile}>*/}
+                                    {/*    <p>{DishType.SAUCE}</p>*/}
+                                    {/*    <span>{cartItem.Sauce}</span>*/}
+                                    {/*  </div>*/}
+                                    {/*}*/}
+                                    {cartItem.breakfast &&
+                                      <div className={styles.sideBlock}>
+                                        <p>Breakfast</p>
+                                        <div className={styles.subTitleSauce}>
+                                          <CheckOutlined style={{ color: 'green'}} />
+                                        </div>
                                       </div>
                                     }
                                   </div>

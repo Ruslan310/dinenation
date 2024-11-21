@@ -130,15 +130,6 @@ export function boxes() {
     .execute();
 }
 
-export function boxesDay(week_day: string) {
-  return SQL.DB.selectFrom("boxes")
-    .selectAll()
-    .where("week_day", "=", week_day)
-    .where("status", "=", week_day)
-    .orderBy("date_created", "desc")
-    .execute();
-}
-
 export async function getBox(id: number) {
   const [result] = await SQL.DB.selectFrom("boxes")
     .selectAll()

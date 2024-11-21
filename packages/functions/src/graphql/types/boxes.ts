@@ -35,13 +35,6 @@ builder.queryFields((t)=> ({
     type: [BoxType],
     resolve: () => Boxes.boxes(),
   }),
-  boxesDay: t.field({
-    type: [BoxType],
-    args: {
-      week_day: t.arg.string({required: true}),
-    },
-    resolve: (_, args) => Boxes.boxesDay(args.week_day),
-  }),
 }));
 
 builder.mutationFields((t) => ({

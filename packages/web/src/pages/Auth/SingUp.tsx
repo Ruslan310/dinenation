@@ -32,7 +32,10 @@ const SingUp = ({submit, loading}: Props) => (
         label="Your coupon"
         name="coupon"
         className={styles.input}
-        rules={[{ required: true, message: 'Please input your coupon!' }]}
+        rules={[
+          { required: true, message: 'Please input your coupon!' },
+          { pattern: /^\S+$/, message: 'Spaces are not allowed in the coupon!' },
+        ]}
       >
         <Input placeholder="Enter your coupon" />
       </Form.Item>
@@ -40,7 +43,10 @@ const SingUp = ({submit, loading}: Props) => (
         label="First Name"
         name="first_name"
         className={styles.input}
-        rules={[{ required: true, message: 'Please input your first name!' }]}
+        rules={[
+          { required: true, message: 'Please input your first name!' },
+          { pattern: /^\S+$/, message: 'Spaces are not allowed!' },
+        ]}
       >
         <Input placeholder="Enter your first name" />
       </Form.Item>
@@ -48,7 +54,10 @@ const SingUp = ({submit, loading}: Props) => (
         label="Last Name"
         name="last_name"
         className={styles.input}
-        rules={[{ required: true, message: 'Please input your last name!' }]}
+        rules={[
+          { required: true, message: 'Please input your last name!' },
+          { pattern: /^\S+$/, message: 'Spaces are not allowed!' },
+        ]}
       >
         <Input placeholder="Enter your last name" />
       </Form.Item>

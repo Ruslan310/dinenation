@@ -11,7 +11,8 @@ import {adminKey, adminUrl} from "@dinenation-postgresql/functions/src/constants
 
 export const lineCart = '_tmcartepo_data';
 export const isOffice = "Office";
-export const isSauce = "Sauce";
+// export const isSauce = "Sauce";
+export const isSauce = "Breakfast";
 export const combo = 'Corporate Lunch Combo';
 const officeMail = 'delivery@dinenation.com'
 
@@ -138,7 +139,7 @@ export async function createOrderWithBoxes(
       }),
     }),
 
-    //email to office
+    // email to office
     sendEmail({
       to: officeMail,
       subject: `Order #${newNumber}`,

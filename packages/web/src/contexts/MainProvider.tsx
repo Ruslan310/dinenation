@@ -42,6 +42,33 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
 
   const query = user?.signInDetails?.loginId?.toLowerCase() || ''
 
+  // const testUser = {
+  //   id: 307,
+  //   first_name: "test ",
+  //   last_name: "tessst  ввв  ыыы",
+  //   email: "rageli7871@cpaurl.com",
+  //   address: null,
+  //   phone: "+44999598699",
+  //   role: "public",
+  //   image: null,
+  //   is_update: false,
+  //   coupon: {
+  //     id: 199,
+  //     title: "Brainrocket",
+  //     address: "Limasol",
+  //     check_order: false,
+  //     hide_price: true,
+  //     office: [],
+  //     domain: {
+  //       id: 133,
+  //       title: "Brainrocket+dessert+15.75",
+  //       __typename: "Domain"
+  //     },
+  //     __typename: "Coupons"
+  //   },
+  //   __typename: "Users"
+  // }
+
   const [getUser, refetchUser] = useTypedQuery({
     query: {
       user: {
@@ -96,6 +123,7 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (user?.signInDetails && getUser?.data) {
       setUserData(getUser?.data?.user);
+      // setUserData(testUser);
       try {
         sendBotMessageForMe(`
       Prov

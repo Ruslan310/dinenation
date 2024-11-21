@@ -50,6 +50,7 @@ const CompanyOrders = () => {
         }
       },
     },
+    pause: !userData,
     requestPolicy: 'cache-and-network',
   });
 

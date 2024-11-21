@@ -193,7 +193,6 @@ input ProductInput {
 type Query {
   box(id: Int!): Boxes!
   boxes: [Boxes!]!
-  boxesDay(week_day: String!): [Boxes!]!
   checkDomain(id: Int!): CheckUserDomain!
   checkDomains: [CheckUserDomain!]!
   checkEmail(id: Int!): CheckUserEmail!

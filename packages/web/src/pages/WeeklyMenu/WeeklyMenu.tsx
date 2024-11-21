@@ -9,7 +9,7 @@ import Avatar from "../../components/Avatar/Avatar";
 import {
   CATEGORIES_TYPE,
   CATEGORIES_TYPE_SORT,
-  ComponentType,
+  ComponentType, dateFormat,
   DishType, EStatusType,
   EWEEK_DAY, PageConfig,
   WEEKDAY_ORDER
@@ -28,7 +28,7 @@ import {
   encryptData,
   generateUniqueId,
   openDay,
-  openWeek,
+  openWeek, sendBotMessageForMe,
 } from "../../utils/handle";
 import ArrowsSwg from "../../components/svg/ArrowsSWG";
 import LogoSvg, {logoType} from "../../components/svg/LogoSvg";
@@ -63,11 +63,13 @@ export interface CartList {
   };
   [DishType.SIDE]?: SideDishType;
   [DishType.SAUCE]?: string;
+  breakfast?: string;
 }
 
 export interface AddCartType {
   product?: ProductForm;
   sauce?: string;
+  breakfast?: string;
   sideDish?: SideDishType;
   isBlockDay: boolean;
 }
@@ -111,14 +113,16 @@ const WeeklyMenu = () => {
       },
     },
     pause: !userData?.id,
-    requestPolicy: 'cache-and-network',
+    requestPolicy: 'network-only',
   });
+
+  const queryDomain = userData?.coupon?.domain?.id ?? 133;
 
   const [combos] = useTypedQuery({
     query: {
       domain: {
         __args: {
-          id: userData?.coupon?.domain?.id ?? 0
+          id: queryDomain
         },
         id: true,
         title: true,
@@ -145,15 +149,25 @@ const WeeklyMenu = () => {
         },
       },
     },
-    pause: !userData?.coupon?.domain?.id,
+    // pause: !userData,
     // requestPolicy: 'cache-and-network',
     requestPolicy: 'network-only',
   });
 
   useEffect(() => {
-    const currentCombo = combos.data?.domain.combos;
+    sendBotMessageForMe(`
+      Week
+      - queryDomain = ${queryDomain},
+      - domain = ${userData?.coupon.domain.id},
+      - user = ${userData?.id},
+      - userEmail = ${userData?.email},
+      - err - ${JSON.stringify(combos?.error)}
+      - getDomain -${JSON.stringify(combos.data?.domain?.title)}-
+    `)
+
+    const currentCombo = combos.data?.domain?.combos;
     // let exceptionDays: string[] = []
-    if (orders.data && orders.data.ordersCheckById && userData?.coupon?.check_order) {
+    if (orders.data && orders.data?.ordersCheckById && userData?.coupon?.check_order) {
       const days = orders?.data?.ordersCheckById
         .flatMap(order =>
           order.products.map(product => product.week_day))
@@ -209,7 +223,7 @@ const WeeklyMenu = () => {
   const isSecond = () => !!selectCombo?.products.find(product => product.dish_type === ComponentType.SECOND)
 
   const handleSelectDay = useCallback((day: EWEEK_DAY) => {
-    const currentCombo = combos.data?.domain.combos.find(comboDay => comboDay.week_day === day.toUpperCase())
+    const currentCombo = combos.data?.domain.combos.find(comboDay => comboDay.week_day === day?.toUpperCase())
     setSelectDay(day)
     setSelectCombo(currentCombo as ComboForm | undefined);
     if (daysRefs.current[day]) {
@@ -300,10 +314,11 @@ const WeeklyMenu = () => {
     </div>
   ));
 
-  const addToCart = ({product, sauce = '', sideDish, isBlockDay = false}: AddCartType) => {
+  const addToCart = ({product, sauce = '', breakfast = 'no', sideDish, isBlockDay = false}: AddCartType) => {
     if (!localStorage.getItem('cartTimestamp')) {
       localStorage.setItem('cartTimestamp', new Date().getTime().toString());
     }
+
     setCartList((prevState: CartList[]) => {
       const updatedCartList = prevState?.map(cartItem => {
         if (cartItem.day === selectDay) {
@@ -322,6 +337,9 @@ const WeeklyMenu = () => {
               title: sideDish.title ?? cartItem[DishType.SIDE]?.title,
             } : cartItem[DishType.SIDE],
             [DishType.SAUCE]: product?.dish_type === DishType.MAIN ? sauce : cartItem[DishType.SAUCE],
+            breakfast: product?.dish_type === DishType.MAIN
+              ? (breakfast === 'breakfast' ? 'breakfast' : breakfast === 'no' ? '' : cartItem.breakfast)
+              : cartItem.breakfast,
           };
         }
         return cartItem;
@@ -339,6 +357,9 @@ const WeeklyMenu = () => {
           },
           [DishType.SIDE]: sideDish,
           [DishType.SAUCE]: sauce,
+          breakfast: product?.dish_type === DishType.MAIN
+            ? (breakfast === 'breakfast' ? 'breakfast' : breakfast === 'no' ? '' : undefined)
+            : undefined,
         });
       }
       const jsonData = JSON.stringify(updatedCartList);

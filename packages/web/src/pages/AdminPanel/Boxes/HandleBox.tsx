@@ -1,4 +1,4 @@
-import React, {forwardRef, useCallback} from 'react';
+import React, {forwardRef, useCallback, useMemo} from 'react';
 import {Button, Typography} from "antd";
 import styles from "./Boxes.module.css";
 import {BoxStatus, dateFormat, EWEEK_DAY} from "../../../utils/utils";
@@ -36,6 +36,10 @@ const qrCode = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJQAAACUCAYAAAB1PA
 const HandleBox = forwardRef<HTMLDivElement, Props>(({
                                                        boxes, selectedDay, setOpen, setGeneratingStickers
                                                      }, ref) => {
+  const breakfastCount = useMemo(() => boxes.filter(box => box.sauce === "breakfast" && box.week_day === selectedDay), [selectedDay])
+  console.log('-----boxes -- breakfast', breakfastCount)
+
+
   const dateWeek = useCallback(() => {
     const currentMoment = dayjs();
     const targetDayIndex = Object.values(EWEEK_DAY).indexOf(selectedDay);
@@ -280,6 +284,12 @@ const HandleBox = forwardRef<HTMLDivElement, Props>(({
         <>
           <Text keyboard>Print Paper boxes (Advantika, WellTech)</Text>
           <Text keyboard strong>{selectedDay}</Text>
+        </>
+      </Button>
+      <Button disabled className={styles.buttonBox} size={"large"}>
+        <>
+          <Text keyboard>Breakfast count</Text>
+          <Text keyboard>{breakfastCount?.length || 0}</Text>
         </>
       </Button>
     </div>

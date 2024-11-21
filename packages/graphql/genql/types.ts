@@ -1414,15 +1414,6 @@ export default {
             "boxes": [
                 4
             ],
-            "boxesDay": [
-                4,
-                {
-                    "week_day": [
-                        2,
-                        "String!"
-                    ]
-                }
-            ],
             "checkDomain": [
                 6,
                 {

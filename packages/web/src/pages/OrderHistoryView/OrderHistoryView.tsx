@@ -21,6 +21,7 @@ import FeedbackModal from "../../components/ReviewModal/FeedbackModal";
 import {NotFound} from "../index";
 import dayjs from "dayjs";
 import {BoxCreate, GroupedProducts} from "../../utils/type";
+import {CheckOutlined} from "@ant-design/icons";
 
 interface OrdersBoxFields {
   id: number;
@@ -245,10 +246,16 @@ const OrderHistoryView = () => {
                                             </div>
                                           )}
                                           {product.sauce &&
+                                            // <div className={styles.sideBlock}>
+                                            //   <p>{DishType.SAUCE}</p>
+                                            //   <div className={styles.subTitleSauce}>
+                                            //     <span>{product.sauce}</span>
+                                            //   </div>
+                                            // </div>
                                             <div className={styles.sideBlock}>
-                                              <p>{DishType.SAUCE}</p>
+                                              <p>Breakfast</p>
                                               <div className={styles.subTitleSauce}>
-                                                <span>{product.sauce}</span>
+                                                <CheckOutlined style={{color: 'green'}}/>
                                               </div>
                                             </div>
                                           }
@@ -260,7 +267,7 @@ const OrderHistoryView = () => {
 
                                 {/* mobile  */}
                                 <div className={styles.orderItemContentMobile}>
-                                  <div className={styles.orderHeaderBlock}>
+                                <div className={styles.orderHeaderBlock}>
                                     <p>{index + 1}</p>
                                     <h3>{product?.type}</h3>
                                   </div>
@@ -276,9 +283,15 @@ const OrderHistoryView = () => {
                                             </div>
                                           }
                                           {product.sauce &&
-                                            <div className={styles.sideBlockMobile}>
-                                              <p>{DishType.SAUCE}</p>
-                                              <span>{product.sauce}</span>
+                                            // <div className={styles.sideBlockMobile}>
+                                            //   <p>{DishType.SAUCE}</p>
+                                            //   <span>{product.sauce}</span>
+                                            // </div>
+                                            <div className={styles.sideBlock}>
+                                              <p>Breakfast</p>
+                                              <div className={styles.subTitleSauce}>
+                                                <CheckOutlined style={{color: 'green'}}/>
+                                              </div>
                                             </div>
                                           }
                                         </div>

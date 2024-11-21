@@ -198,7 +198,6 @@ export interface Product {
 export interface Query {
     box: Boxes
     boxes: Boxes[]
-    boxesDay: Boxes[]
     checkDomain: CheckUserDomain
     checkDomains: CheckUserDomain[]
     checkEmail: CheckUserEmail
@@ -484,7 +483,6 @@ export interface ProductInput {dish_type: Scalars['String'],price: Scalars['Floa
 export interface QueryGenqlSelection{
     box?: (BoxesGenqlSelection & { __args: {id: Scalars['Int']} })
     boxes?: BoxesGenqlSelection
-    boxesDay?: (BoxesGenqlSelection & { __args: {week_day: Scalars['String']} })
     checkDomain?: (CheckUserDomainGenqlSelection & { __args: {id: Scalars['Int']} })
     checkDomains?: CheckUserDomainGenqlSelection
     checkEmail?: (CheckUserEmailGenqlSelection & { __args: {id: Scalars['Int']} })
