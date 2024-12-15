@@ -48,6 +48,12 @@ const BoxInputRef = builder.inputType('BoxInput', {
   }),
 });
 
+const OrderNumberRef = builder.inputType('OrderNumber', {
+  fields: (t) => ({
+    number: t.string({ required: true }),
+  }),
+});
+
 builder.queryFields((t) => ({
   order: t.field({
     type: OrderType,
@@ -175,6 +181,16 @@ builder.mutationFields((t) => ({
       args.comment,
       args.address,
     ),
+  }),
+  updateOrders: t.field({
+    type: [OrderType],
+    args: {
+      orders: t.arg({
+        type: [OrderNumberRef],
+        required: true,
+      }),
+    },
+    resolve: (_, args) => Orders.updateOrders(args.orders),
   }),
   updateOrderWithBoxes: t.field({
     type: OrderType,

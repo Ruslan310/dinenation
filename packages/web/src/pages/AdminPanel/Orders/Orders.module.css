@@ -24,12 +24,10 @@
     transition: box-shadow 0.3s ease;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
+    flex-wrap: wrap;
     font-size: 14px;
     align-items: center;
-
-    h2 {
-        margin-left: 30px;
-    }
+    gap: 15px;
 }
 
 .actionLink {
@@ -51,11 +49,11 @@
     display: flex;
     height: calc(100vh - 100px);
     flex-direction: column;
-    flex-grow: 1; /* Занимает оставшееся пространство */
+    flex-grow: 1;
 }
 
 .table {
-    flex-grow: 1; /* Занимает оставшееся пространство, оставляя место для пагинации */
+    flex-grow: 1;
 }
 
 .pagination {
@@ -66,5 +64,5 @@
 .reload {
     font-size: 20px;
     height: 30px;
-    margin-left: 20px;
+    border-radius: 8px;
 }

@@ -17,7 +17,7 @@
 }
 
 .primary {
-  border-radius: 32px;
+  border-radius: 19px;
   composes: base;
   color: white;
   background-color: var(--color-base-active);
@@ -31,13 +31,13 @@
 
 .primary:disabled {
   background-color: var(--color-sub-text);
-  animation: none; /* Отключить анимацию */
-  cursor: not-allowed; /* Поменять курсор */
-  pointer-events: none; /* Отключить hover */
+  animation: none;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .primary:disabled:active {
-  animation: none; /* Отключить анимацию */
+  animation: none;
 }
 
 .primary:active {

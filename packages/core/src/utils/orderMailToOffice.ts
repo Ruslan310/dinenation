@@ -90,6 +90,7 @@ export function orderMailToOffice({
               }
               .content img {
                   width: 600px;
+                  margin-bottom: 20px;
               }
               table {
                   width: 100%;

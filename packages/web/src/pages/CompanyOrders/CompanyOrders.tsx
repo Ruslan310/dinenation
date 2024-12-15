@@ -1,7 +1,7 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import styles from "./CompanyOrder.module.css";
 import Navbar from "../../components/Navbar/Navbar";
-import {Table} from "antd";
+import {Input, Select, Table} from "antd";
 import {ColumnsType} from "antd/es/table";
 import {useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import {MainContext} from "../../contexts/MainProvider";
@@ -18,6 +18,10 @@ interface IColumnsType {
   date_created: string;
   status: string;
   address: string | null | undefined;
+  coupon: {
+    id: number,
+    title: string
+  }
   customer: {
     first_name: string,
     last_name: string,
@@ -26,16 +30,41 @@ interface IColumnsType {
 }
 
 
+
+const appariRemonovoCoupons = ['appari', 'remonovo'];
+
+
 const CompanyOrders = () => {
   const navigate = useNavigate();
   const {userData} = useContext(MainContext);
+  const [selectCoupon, setSelectCoupon] = useState(userData?.coupon.id || 0)
+  const hidePrice = useMemo(() => userData?.coupon.hide_price, [userData])
+  const isAppariRemonovo = useMemo(() => {
+    return appariRemonovoCoupons.includes(userData?.coupon.title?.toLowerCase() || '');
+  }, [userData]);
 
-  const hidePrice = userData?.coupon.hide_price
-  const [orders] = useTypedQuery({
+  const [coupons] = useTypedQuery({
+    query: {
+      coupons: {
+        id: true,
+        title: true,
+        status: true,
+        check_order: true,
+        hide_price: true,
+        address: true,
+        domain: {
+          title: true
+        }
+      },
+    },
+    requestPolicy: 'cache-and-network',
+  });
+
+  const [orders, refetchOrders] = useTypedQuery({
     query: {
       ordersByCoupon: {
         __args: {
-          coupon_id: userData?.coupon.id || 0
+          coupon_id: selectCoupon
         },
         id: true,
         number: true,
@@ -43,16 +72,39 @@ const CompanyOrders = () => {
         price: true,
         address: true,
         date_created: true,
+        coupon: {
+          id: true,
+          title: true,
+        },
         customer: {
           first_name: true,
           last_name: true,
           email: true,
+
         }
       },
     },
-    pause: !userData,
+    pause: !userData || !selectCoupon,
     requestPolicy: 'cache-and-network',
   });
+
+  const couponSelect = (
+    <Select<number, { value: number; children: string }>
+      value={selectCoupon}
+      onChange={value => {
+        setSelectCoupon(value)
+        refetchOrders()
+      }}
+      placeholder="Select domain"
+      filterOption={(input, option) =>
+        option ? option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 : false
+      }
+    >
+      {coupons.data?.coupons
+        .filter(coupon => appariRemonovoCoupons.includes(coupon.title.toLowerCase()))
+        .map(({id, title}) => <Select.Option key={id} value={id}>{title}</Select.Option>)}
+    </Select>
+  );
 
   const columns: ColumnsType<IColumnsType> = [
     {
@@ -60,59 +112,21 @@ const CompanyOrders = () => {
       dataIndex: 'number',
       key: 'number',
       width: 110,
-      sorter: (a, b) => {
-        if (a.number && b.number) {
-          if (a.number < b.number) {
-            return -1;
-          }
-          if (a.number > b.number) {
-            return 1;
-          }
-          return 0;
-        } else {
-          return 0;
-        }
-      }
     },
     {
       title: 'Date',
       dataIndex: 'date_created',
       key: 'date_created',
-      width: 250,
+      width: 150,
       responsive: ['lg'],
-      sorter: (a, b) => {
-        if (a.date_created && b.date_created) {
-          if (a.date_created < b.date_created) {
-            return -1;
-          }
-          if (a.date_created > b.date_created) {
-            return 1;
-          }
-          return 0;
-        } else {
-          return 0;
-        }
-      },
       render: (value) => dayjs(value).format(dateFormat.DATE_TIME),
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (value: TStatusType) => <OrderStatus status={value}/>,
-      sorter: (a, b) => {
-        if (a.status && b.status) {
-          if (a.status < b.status) {
-            return -1;
-          }
-          if (a.status > b.status) {
-            return 1;
-          }
-          return 0;
-        } else {
-          return 0;
-        }
-      }
+      title: isAppariRemonovo ? couponSelect : 'Coupon',
+      dataIndex: 'coupon',
+      key: 'coupon',
+      width: 120,
+      render: (value) => value.title,
     },
     {
       title: 'Customer',

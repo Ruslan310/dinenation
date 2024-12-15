@@ -102,19 +102,20 @@ const Checkout = () => {
   };
 
   const sumPrices = useMemo(() => {
-    const totalSum = Object.values(cartList).reduce((total, dayObject) => {
-      if (!dayObject.products) return total;
+    const totalPrice = Object.values(cartList).reduce((totalSum, dayObject) => {
+      if (!dayObject.products) return totalSum;
 
       const dayTotal = Object.values(dayObject.products).reduce((sum, product) => {
-        return sum + (product.price || 0);
+        return sum + (product?.price || 0);
       }, 0);
 
-      return total + dayTotal;
+      return totalSum + dayTotal;
     }, 0);
 
-    const tax = totalSum * 0.05; // Налог 5%
+    const total = Math.round(totalPrice * 100) / 100;
+    const tax = Math.round(total * 0.05 * 100) / 100;
 
-    return { total: totalSum, tax };
+    return {total, tax};
   }, [cartList]);
 
 
@@ -292,6 +293,7 @@ const Checkout = () => {
                 content={commentComponent}
                 trigger="click"
                 open={openComment}
+                className={styles.commentButtonWrapped}
                 onOpenChange={handleOpenChange}
               >
                 <div className={styles.commentButton}>Comment</div>

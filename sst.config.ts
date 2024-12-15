@@ -1,7 +1,8 @@
-import { SSTConfig } from "sst";
+import {SSTConfig} from "sst";
 import {Api} from "./stacks/Api";
 import {Web} from "./stacks/Web";
 import {Database} from "./stacks/Database";
+import {CronStack} from "./stacks/CronStack";
 // import {AuthStack} from "./stacks/AuthStack";
 
 export default {
@@ -16,6 +17,7 @@ export default {
       .stack(Database)
       // .stack(AuthStack)
       .stack(Api)
+      .stack(CronStack)
       .stack(Web);
   }
 } satisfies SSTConfig;

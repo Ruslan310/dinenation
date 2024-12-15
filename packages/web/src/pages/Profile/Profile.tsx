@@ -60,7 +60,7 @@ const Profile = () => {
       }
       message.success({content: 'Request to change data sent successfully!', duration: 2});
     } catch (err) {
-      console.log('-----', err)
+      // console.log('-----', err)
       message.error({content: 'Failed to sending!', duration: 2});
     }
     setLoadingButton(false);

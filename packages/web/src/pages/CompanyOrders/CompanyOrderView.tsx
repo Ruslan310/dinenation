@@ -107,6 +107,9 @@ const CompanyOrderView = () => {
   }, [order.data]);
 
   const shouldHideField = (day: string) => {
+    if (order.data?.order.status !== EStatusType.PROCESSING) {
+      return true
+    }
     const dayIndex = WEEKDAY_ORDER.indexOf(day as EWEEK_DAY);
     return dayIndex < currentDayIndex || (dayIndex === currentDayIndex && openDay());
   };

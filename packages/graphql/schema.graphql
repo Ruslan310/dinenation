@@ -138,6 +138,7 @@ type Mutation {
   updateOffice(coupon_id: Int!, id: Int!, title: String!): Office!
   updateOrder(address: String, combo_price: Float!, comment: String, coupon_id: Int!, customer_id: Int!, id: Int!, number: String!, price: Float!, status: String!): Orders!
   updateOrderWithBoxes(boxes: [BoxInput!]!, combo_id: Int!, customer_id: Int!, id: Int!, price: Float!, status: String!): Orders!
+  updateOrders(orders: [OrderNumber!]!): [Orders!]!
   updateProduct(allergens: String, calories: String, categories: String!, description: String, dish_type: String!, id: Int!, image: String!, is_dish: Boolean!, price: Float!, sauces: String, small_img: String!, status: String!, title: String!, week_day: String!): Product!
   updateReview(dish_name: String!, id: Int!, rate: Int!, review: String!, user_id: Int!): Review!
   updateSauces(id: Int!, status: String!, title: String!): Sauces!
@@ -151,6 +152,10 @@ type Office {
   coupon_id: Int!
   id: Int!
   title: String!
+}
+
+input OrderNumber {
+  number: String!
 }
 
 type Orders {

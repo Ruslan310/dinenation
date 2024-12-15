@@ -3,12 +3,10 @@ import {CartList} from "../pages/WeeklyMenu/WeeklyMenu";
 import {useAuthenticator} from "@aws-amplify/ui-react";
 import {AuthUser} from 'aws-amplify/auth';
 import {useTypedQuery} from "@dinenation-postgresql/graphql/urql";
-import {decryptData, sendBotMessageForMe} from "../utils/handle";
+import {decryptData} from "../utils/handle";
 import {User} from "../utils/type";
 import {message} from "antd";
 import {defaultParams} from "../constants";
-import dayjs from "dayjs";
-import {dateFormat} from "../utils/utils";
 
 export interface MainProps {
   cartList: CartList[];
@@ -123,19 +121,6 @@ export const MainProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (user?.signInDetails && getUser?.data) {
       setUserData(getUser?.data?.user);
-      // setUserData(testUser);
-      try {
-        sendBotMessageForMe(`
-      Prov
-      - authStatus - ${authStatus}
-      - err - ${getUser?.error}
-      - getUser -${JSON.stringify(getUser.data?.user)}-
-      - date - ${dayjs().format(dateFormat.DATE_TIME)}
-      - query -${query}-
-    `)
-      } catch (e) {
-        console.log('----err', e)
-      }
     } else if (user?.signInDetails && !getUser?.data) {
       refetchUser({requestPolicy: 'network-only'});
     }

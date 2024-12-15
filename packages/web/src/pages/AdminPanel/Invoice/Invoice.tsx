@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
 import styles from "./Invoice.module.css";
 import {useTypedQuery} from "@dinenation-postgresql/graphql/urql";
-import {DatePicker, GetProps, Progress, Select, Spin} from "antd";
+import {Checkbox, DatePicker, GetProps, Progress, Select, Spin} from "antd";
 import dayjs, {Dayjs} from "dayjs";
 import Button from "../../../components/Button/Button";
 import {defaultParams} from "../../../constants";
@@ -31,10 +31,11 @@ const Invoice = () => {
   const [dateRange, setDateRange] = useState<string[]>([]);
   const [selectCoupon, setSelectCoupon] = useState<number | undefined>();
   const [start, setStart] = useState(true);
+  const [isTax, setIsTax] = useState(false);
   const [showGetButton, setShowGetButton] = useState(false);
   const [showXlsxButton, setShowXlsxButton] = useState(false);
   const [csvData, setCsvData] = useState<OrderSummary[] | undefined>();
-
+  const taxCount = useMemo(() => isTax ? 5 : 0, [isTax]);
   const [coupons] = useTypedQuery({
     query: {
       coupons: {
@@ -122,13 +123,15 @@ const Invoice = () => {
         const existing = acc.find(item => item.combo_id === product.combo_id && item.number === order.number);
 
         if (existing) {
-          existing.total_price += product.price;
+          // existing.total_price += product.price;
+          existing.total_price += product.price / (1 + taxCount / 100);
         } else {
           acc.push({
             date: dayjs(order.date_created).format(dateFormat.DATE_TIME),
             number: order.number,
             qty: 1,
-            total_price: product.price,
+            // total_price: product.price,
+            total_price: product.price / (1 + taxCount / 100),
             itemNumber: uniqueCombos[product.combo_id],
             currency: defaultParams.CURRENCY_TITLE,
             customer: `${order.customer.first_name} ${order.customer.last_name}`,
@@ -201,6 +204,8 @@ const Invoice = () => {
     return current && current > dayjs().endOf('day');
   };
 
+  // Number((Math.ceil((order.finalPrice) * 100) / (100 + coef) + found.total)
+
   return (
     <div className={styles.page}>
       <AdminNavbar />
@@ -227,6 +232,15 @@ const Invoice = () => {
                 <Select.Option key={id} value={id}>{title}</Select.Option>
               ))}
             </Select>
+            <Checkbox
+              className={styles.select}
+              checked={isTax}
+              onChange={({target}) => {
+                changeParams();
+                setIsTax(target.checked);
+              }}>
+              Without 5% tax
+            </Checkbox>
             <RangePicker className={styles.select} onChange={handleDate} disabledDate={disabledDate} />
             <Button className={styles.getButton} onClick={() => {
               setStart(false)

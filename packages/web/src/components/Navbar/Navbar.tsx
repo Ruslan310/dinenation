@@ -63,6 +63,7 @@ const Navbar = () => {
     <div className={styles.navbarContainer}>
       <Modal
         open={open}
+        centered
         onCancel={() => setOpen(false)}
         footer={false}
         width={460}>

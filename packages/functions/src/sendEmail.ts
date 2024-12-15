@@ -9,12 +9,11 @@ interface SendEmailParams {
   html: string;
 }
 
-// const userEmail = 'flash310xxx@gmail.com'
 const userEmail = 'delivery@dinenation.com'
 export async function sendEmail(params: SendEmailParams): Promise<void> {
   const {to, subject, html} = params;
   const paramsForSendEmail = {
-    Source: `DINE NATION <${userEmail}>`,
+    Source: `DINENATION <${userEmail}>`,
     Destination: {
       ToAddresses: [to],
     },
@@ -32,7 +31,7 @@ export async function sendEmail(params: SendEmailParams): Promise<void> {
 
   try {
     await ses.sendEmail(paramsForSendEmail).promise();
-    console.log('Email sent successfully');
+    console.log('Email sent successfully', userEmail);
   } catch (error) {
     console.error('Error sending email:', error);
   }

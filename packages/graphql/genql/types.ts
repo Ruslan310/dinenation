@@ -153,7 +153,7 @@ export default {
                 3
             ],
             "products": [
-                17
+                18
             ],
             "status": [
                 2
@@ -274,7 +274,7 @@ export default {
                         "Float!"
                     ],
                     "products": [
-                        18,
+                        19,
                         "[ProductInput!]!"
                     ],
                     "status": [
@@ -394,7 +394,7 @@ export default {
                 }
             ],
             "addReview": [
-                20,
+                21,
                 {
                     "dish_name": [
                         2,
@@ -415,7 +415,7 @@ export default {
                 }
             ],
             "addSauce": [
-                21,
+                22,
                 {
                     "status": [
                         2,
@@ -428,7 +428,7 @@ export default {
                 }
             ],
             "addSideDish": [
-                22,
+                23,
                 {
                     "description": [
                         2
@@ -448,7 +448,7 @@ export default {
                 }
             ],
             "addUser": [
-                23,
+                24,
                 {
                     "address": [
                         2
@@ -551,7 +551,7 @@ export default {
                 }
             ],
             "createOrderWithBoxes": [
-                16,
+                17,
                 {
                     "address": [
                         2
@@ -582,7 +582,7 @@ export default {
                 }
             ],
             "createProduct": [
-                17,
+                18,
                 {
                     "allergens": [
                         2
@@ -738,7 +738,7 @@ export default {
                 }
             ],
             "deleteProduct": [
-                17,
+                18,
                 {
                     "id": [
                         1,
@@ -792,7 +792,7 @@ export default {
                 }
             ],
             "permissionUser": [
-                23,
+                24,
                 {
                     "id": [
                         1,
@@ -923,7 +923,7 @@ export default {
                         "Float!"
                     ],
                     "products": [
-                        18,
+                        19,
                         "[ProductInput!]!"
                     ],
                     "status": [
@@ -1021,7 +1021,7 @@ export default {
                 }
             ],
             "updateOrder": [
-                16,
+                17,
                 {
                     "address": [
                         2
@@ -1060,7 +1060,7 @@ export default {
                 }
             ],
             "updateOrderWithBoxes": [
-                16,
+                17,
                 {
                     "boxes": [
                         0,
@@ -1088,8 +1088,17 @@ export default {
                     ]
                 }
             ],
-            "updateProduct": [
+            "updateOrders": [
                 17,
+                {
+                    "orders": [
+                        16,
+                        "[OrderNumber!]!"
+                    ]
+                }
+            ],
+            "updateProduct": [
+                18,
                 {
                     "allergens": [
                         2
@@ -1146,7 +1155,7 @@ export default {
                 }
             ],
             "updateReview": [
-                20,
+                21,
                 {
                     "dish_name": [
                         2,
@@ -1171,7 +1180,7 @@ export default {
                 }
             ],
             "updateSauces": [
-                21,
+                22,
                 {
                     "id": [
                         1,
@@ -1188,7 +1197,7 @@ export default {
                 }
             ],
             "updateSideDish": [
-                22,
+                23,
                 {
                     "description": [
                         2
@@ -1212,7 +1221,7 @@ export default {
                 }
             ],
             "updateUser": [
-                23,
+                24,
                 {
                     "address": [
                         2
@@ -1252,7 +1261,7 @@ export default {
                 }
             ],
             "updateUserImage": [
-                23,
+                24,
                 {
                     "id": [
                         1,
@@ -1264,7 +1273,7 @@ export default {
                 }
             ],
             "updateUserProfile": [
-                23,
+                24,
                 {
                     "first_name": [
                         2,
@@ -1302,6 +1311,14 @@ export default {
                 2
             ]
         },
+        "OrderNumber": {
+            "number": [
+                2
+            ],
+            "__typename": [
+                2
+            ]
+        },
         "Orders": {
             "address": [
                 2
@@ -1316,7 +1333,7 @@ export default {
                 10
             ],
             "customer": [
-                23
+                24
             ],
             "date_created": [
                 2
@@ -1499,7 +1516,7 @@ export default {
                 }
             ],
             "order": [
-                16,
+                17,
                 {
                     "id": [
                         1,
@@ -1508,7 +1525,7 @@ export default {
                 }
             ],
             "orderCustomerId": [
-                16,
+                17,
                 {
                     "customer_id": [
                         1,
@@ -1521,13 +1538,13 @@ export default {
                 }
             ],
             "orders": [
-                16
+                17
             ],
             "ordersByBox": [
-                16
+                17
             ],
             "ordersByCoupon": [
-                16,
+                17,
                 {
                     "coupon_id": [
                         1,
@@ -1536,7 +1553,7 @@ export default {
                 }
             ],
             "ordersByCouponDate": [
-                16,
+                17,
                 {
                     "coupon_id": [
                         1,
@@ -1553,7 +1570,7 @@ export default {
                 }
             ],
             "ordersByCustomerId": [
-                16,
+                17,
                 {
                     "customer_id": [
                         1,
@@ -1562,7 +1579,7 @@ export default {
                 }
             ],
             "ordersByStatus": [
-                16,
+                17,
                 {
                     "limit": [
                         1
@@ -1577,7 +1594,7 @@ export default {
                 }
             ],
             "ordersCheckById": [
-                16,
+                17,
                 {
                     "customer_id": [
                         1,
@@ -1590,7 +1607,7 @@ export default {
                 }
             ],
             "product": [
-                17,
+                18,
                 {
                     "id": [
                         1,
@@ -1599,21 +1616,9 @@ export default {
                 }
             ],
             "products": [
-                17
+                18
             ],
             "review": [
-                20,
-                {
-                    "id": [
-                        1,
-                        "Int!"
-                    ]
-                }
-            ],
-            "reviews": [
-                20
-            ],
-            "sauce": [
                 21,
                 {
                     "id": [
@@ -1622,10 +1627,10 @@ export default {
                     ]
                 }
             ],
-            "sauces": [
+            "reviews": [
                 21
             ],
-            "sideDish": [
+            "sauce": [
                 22,
                 {
                     "id": [
@@ -1634,8 +1639,20 @@ export default {
                     ]
                 }
             ],
-            "sideDishes": [
+            "sauces": [
                 22
+            ],
+            "sideDish": [
+                23,
+                {
+                    "id": [
+                        1,
+                        "Int!"
+                    ]
+                }
+            ],
+            "sideDishes": [
+                23
             ],
             "totalCount": [
                 1,
@@ -1647,7 +1664,7 @@ export default {
                 }
             ],
             "user": [
-                23,
+                24,
                 {
                     "email": [
                         2,
@@ -1656,7 +1673,7 @@ export default {
                 }
             ],
             "userId": [
-                23,
+                24,
                 {
                     "id": [
                         1,
@@ -1665,7 +1682,7 @@ export default {
                 }
             ],
             "userReviews": [
-                20,
+                21,
                 {
                     "user_id": [
                         1,
@@ -1674,7 +1691,7 @@ export default {
                 }
             ],
             "users": [
-                23
+                24
             ],
             "__typename": [
                 2
@@ -1697,7 +1714,7 @@ export default {
                 2
             ],
             "user": [
-                23
+                24
             ],
             "__typename": [
                 2

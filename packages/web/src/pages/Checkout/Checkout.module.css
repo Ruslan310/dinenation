@@ -402,6 +402,10 @@
     }
 }
 
+.commentButtonWrapped {
+    border: 2px solid var(--color-navbar);
+}
+
 .commentButton {
     user-select: none;
     display: flex;
@@ -414,6 +418,7 @@
     background-color: var(--color-base-white);
     border-radius: 32px;
     cursor: pointer;
+    font-size: 14px;
 
     &:hover {
         box-shadow: 0 0 8px 0 var(--color-shadow);

@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import styles from "./Orders.module.css";
-import {Input, Select, Table, Pagination} from "antd";
+import {Select, Table, Pagination, Checkbox} from "antd";
 import AdminNavbar from "../../../components/AdminNavbar/AdminNavbar";
-import {useTypedQuery} from "@dinenation-postgresql/graphql/urql";
+import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import {dateFormat, EStatusType, PageConfig, TStatusType} from "../../../utils/utils";
 import {currency} from "../../../utils/handle";
 import {ColumnsType} from "antd/es/table";
@@ -34,7 +34,8 @@ const Orders = () => {
   const [searchEmail, setSearchEmail] = useState('')
   const [status, setStatus] = useState(EStatusType.PROCESSING)
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10); // Количество заказов на странице
+  const [pageSize, setPageSize] = useState(10);
+  const [selectOrder, setSelectOrder] = useState<IColumnsType[]>([]);
 
   const [orders, refetchOrders] = useTypedQuery({
     query: {
@@ -75,12 +76,52 @@ const Orders = () => {
     requestPolicy: 'cache-and-network',
   });
 
+  const [_, updateOrders] = useTypedMutation((opts: {
+    orders: { number: string }[]
+  }) => ({
+    updateOrders: {
+      __args: opts,
+      id: true
+    },
+  }));
+
   const handleReload = () => {
     refetchOrders({requestPolicy: 'network-only'});
     refetchCount();
   }
 
+  const handleStatus = () => {
+    try {
+      updateOrders({
+        orders: selectOrder.map(order => ({number: order.number}))
+      });
+    } catch (err) {
+      console.log('----err', err)
+    }
+    setSelectOrder([])
+    handleReload()
+  }
+
   const columns: ColumnsType<IColumnsType> = [
+    {
+      title: "",
+      dataIndex: 'number',
+      key: 'number',
+      width: 20,
+      render: (value, record) =>
+        <Checkbox
+          checked={selectOrder.includes(record)}
+          onChange={({target }) => {
+            const checkSet = new Set(selectOrder);
+            if (target.checked) {
+              checkSet.add(record); // Добавляем ID
+            } else {
+              checkSet.delete(record); // Удаляем ID
+            }
+            setSelectOrder(Array.from(checkSet));
+          }}
+        />
+    },
     {
       title: "Order #",
       dataIndex: 'number',
@@ -92,13 +133,14 @@ const Orders = () => {
       dataIndex: 'date_created',
       key: 'date_created',
       responsive: ['xl'],
+      width: 160,
       render: (value: TStatusType) => dayjs(value).format(dateFormat.DATE_TIME),
     },
     {
       title: 'Coupon',
       dataIndex: 'coupon',
       key: 'coupon',
-      width: 100,
+      width: 130,
       responsive: ['md'],
       render: (value) => value.title,
     },
@@ -133,9 +175,6 @@ const Orders = () => {
           <a className={styles.actionLink} style={{marginRight: 20}} onClick={() => navigate(`${PageConfig.orders}/${value.id}`)}>
             View
           </a>
-          {/*<a className={styles.actionLink} onClick={() => navigate(`${PageConfig.orders}/add`)}>*/}
-          {/*  Edit*/}
-          {/*</a>*/}
         </>
     },
   ];
@@ -150,6 +189,7 @@ const Orders = () => {
             value={status}
             onChange={value => {
               setStatus(value as EStatusType)
+              setCurrentPage(1)
               handleReload()
             }}
             placeholder="Select status"
@@ -164,6 +204,10 @@ const Orders = () => {
           <h2>( {countPage.data?.totalCount || 0} )</h2>
           <Button onClick={handleReload} className={styles.reload}>
             <RedoOutlined />
+          </Button>
+
+          <Button disabled={!selectOrder.length} onClick={handleStatus} className={styles.reload}>
+            To {EStatusType.COMPLETED}
           </Button>
 
         </div>

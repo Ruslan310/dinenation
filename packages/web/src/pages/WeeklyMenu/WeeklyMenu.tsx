@@ -3,15 +3,16 @@ import classNames from 'classnames';
 import {useTypedQuery} from "@dinenation-postgresql/graphql/urql";
 import LogoLoader from "../../components/LogoLoader/LogoLoader";
 import {useNavigate} from "react-router-dom";
-import {Modal} from "antd";
+import {Modal, Badge} from "antd";
 import checked from '../../assets/image/checked.svg'
 import Avatar from "../../components/Avatar/Avatar";
 import {
   CATEGORIES_TYPE,
   CATEGORIES_TYPE_SORT,
-  ComponentType, dateFormat,
+  ComponentType,
   DishType, EStatusType,
   EWEEK_DAY, PageConfig,
+  ROLE,
   WEEKDAY_ORDER
 } from "../../utils/utils";
 import CartSvg from "../../components/svg/CartSvg";
@@ -28,15 +29,14 @@ import {
   encryptData,
   generateUniqueId,
   openDay,
-  openWeek, sendBotMessageForMe,
+  openWeek,
 } from "../../utils/handle";
 import ArrowsSwg from "../../components/svg/ArrowsSWG";
 import LogoSvg, {logoType} from "../../components/svg/LogoSvg";
 import WaitDish from "./WaitDish";
 import {ProductForm, SideDishType} from "../../utils/type";
 import MenuSvg from "../../components/svg/MenuSvg";
-import dayjs from "dayjs";
-
+const toOldSite = import.meta.env?.VITE_LINK_URL
 
 export interface ComboForm {
   id: number;
@@ -76,7 +76,7 @@ export interface AddCartType {
 
 const WeeklyMenu = () => {
   const navigate = useNavigate();
-  const [daysList, setDaysList] = useState<EWEEK_DAY[]>([]);
+  const [daysList, setDaysList] = useState<EWEEK_DAY[] | undefined>([]);
   const [exceptionWeekDays, setExceptionWeekDays] = useState<EWEEK_DAY[]>([]);
   const [showResizeModal, setShowResizeModal] = useState<string>('')
   const [showProductInfo, setShowProductInfo] = useState<number>()
@@ -86,6 +86,9 @@ const WeeklyMenu = () => {
   const pageRef = useRef<HTMLDivElement>(null);
   const daysRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [imageWidth, setImageWidth] = useState<number | undefined>(undefined);
+  const multiOrder = useMemo(() => userData?.role === ROLE.HR, [userData?.role]);
+  // const multiOrder = userData?.role !== ROLE.HR;
+
 
   const [sideDishes] = useTypedQuery({
     query: {
@@ -149,22 +152,14 @@ const WeeklyMenu = () => {
         },
       },
     },
-    // pause: !userData,
+    pause: !userData,
     // requestPolicy: 'cache-and-network',
     requestPolicy: 'network-only',
   });
 
-  useEffect(() => {
-    sendBotMessageForMe(`
-      Week
-      - queryDomain = ${queryDomain},
-      - domain = ${userData?.coupon.domain.id},
-      - user = ${userData?.id},
-      - userEmail = ${userData?.email},
-      - err - ${JSON.stringify(combos?.error)}
-      - getDomain -${JSON.stringify(combos.data?.domain?.title)}-
-    `)
+  console.log('----combos', combos)
 
+  useEffect(() => {
     const currentCombo = combos.data?.domain?.combos;
     // let exceptionDays: string[] = []
     if (orders.data && orders.data?.ordersCheckById && userData?.coupon?.check_order) {
@@ -191,7 +186,8 @@ const WeeklyMenu = () => {
       let days: EWEEK_DAY[];
 
       if (isFridayBetweenTenAndThree) {
-        days = [];
+        setDaysList(undefined);
+        return
       } else if (isAfterFridayThreePM || isWeekend || isBeforeMondayTenAM) {
         days = comboDays.slice();
       } else {
@@ -210,15 +206,9 @@ const WeeklyMenu = () => {
   }, [combos.data, orders.data]);
 
 
-
-  useEffect(() => {
-    if (pageRef.current) {
-      pageRef.current.scrollIntoView({behavior: 'smooth'});
-    }
-  }, [selectDay]);
-
-  const currentList = useMemo(() => cartList.find(list => list.day === selectDay), [selectDay, cartList])
-
+  const currentList = useMemo(() => {
+    return cartList.find(list => list.day === selectDay && (multiOrder ? !list.isBlockDay : true));
+  }, [selectDay, cartList]);
   const isTypeDish = (type: ComponentType)=> currentList ? currentList.products[type] : false
   const isSecond = () => !!selectCombo?.products.find(product => product.dish_type === ComponentType.SECOND)
 
@@ -233,6 +223,10 @@ const WeeklyMenu = () => {
         inline: 'center',
       });
     }
+    setTimeout(() => {
+      if (pageRef.current) {
+        pageRef?.current.scrollIntoView({behavior: 'smooth'});
+      }}, 0);
   }, [combos.data, daysRefs])
 
   const isBlockDay = (day: EWEEK_DAY): boolean => cartList.find(list => list.day === day)?.isBlockDay ?? false;
@@ -245,6 +239,7 @@ const WeeklyMenu = () => {
   }
 
   const isNextDay = () => {
+    if (!daysList) return
     let isNext = true
     const currentIndex = daysList?.indexOf(selectDay);
     for (let i = 1; i < daysList?.length; i++) {
@@ -256,7 +251,6 @@ const WeeklyMenu = () => {
     }
     return isNext
   };
-
 
   const currentComboPrice = useMemo(() => {
     let total = 0;
@@ -273,6 +267,14 @@ const WeeklyMenu = () => {
 
   const handleNextDay = () => {
     addToCart({isBlockDay: true})
+    if (multiOrder) {
+      setTimeout(() => {
+        if (pageRef.current) {
+          pageRef?.current.scrollIntoView({behavior: 'smooth'});
+        }}, 0);
+      return;
+    }
+    if (!daysList) return;
     const currentIndex = daysList?.indexOf(selectDay);
     for (let i = 1; i < daysList?.length; i++) {
       const nextDay = daysList && daysList[(currentIndex + i) % daysList?.length];
@@ -283,59 +285,73 @@ const WeeklyMenu = () => {
     }
   }
 
-  const weekDaysList= daysList?.map(day => (
-    <div
-      key={day}
-      onClick={() => handleSelectDay(day)}
-      className={classNames(styles.daysBlock,
-        {
-          [styles.selectDay]: selectDay === day,
-          [styles.closeDay]: selectDay !== day && isBlockDay(day),
-          [styles.blockDay]: exceptionWeekDays.includes(day)
-        })}>
-      <img src={checked} alt="checked"/>
-      <span>{day}</span>
-    </div>
-  ));
+  const orderCount = useCallback((day: EWEEK_DAY) =>
+      cartList.reduce((acc, order) =>
+        order.isBlockDay && order.day === day ? acc + 1 : acc, 0),
+    [cartList]
+  );
+
+  const weekDaysList= daysList?.map(day => {
+    const orderCountLength = orderCount(day)
+    return (
+      <div
+        key={day}
+        onClick={() => handleSelectDay(day)}
+        className={classNames(styles.daysBlock,
+          {
+            [styles.selectDay]: selectDay === day,
+            [styles.closeDay]: selectDay !== day && isBlockDay(day) && !multiOrder,
+            [styles.blockDay]: exceptionWeekDays.includes(day)
+          })}>
+        {multiOrder && <Badge count={orderCountLength} className={styles.orderCount}/>}
+        <img src={checked} alt="checked"/>
+        <span>{day}</span>
+      </div>
+    )
+  });
 
 
-  const weekDaysListMobile= daysList?.map(day => (
-    <div
-      key={day}
-      onClick={() => handleSelectDay(day)}
-      ref={(el) => (daysRefs.current[day] = el)} // Устанавливаем ref для каждого дня
-      className={classNames(styles.daysBlockMobile,
-        {
-          [styles.selectDay]: selectDay === day,
-          [styles.closeDay]: selectDay !== day && isBlockDay(day)
-        })}>
-      <img src={checked} alt="checked"/>
-      <span>{day}</span>
-    </div>
-  ));
+  const weekDaysListMobile= daysList?.map(day => {
+    const orderCountLength = orderCount(day)
+    return (
+      <div
+        key={day}
+        onClick={() => handleSelectDay(day)}
+        ref={(el) => (daysRefs.current[day] = el)}
+        className={classNames(styles.daysBlockMobile,
+          {
+            [styles.selectDay]: selectDay === day,
+            [styles.closeDay]: selectDay !== day && isBlockDay(day) && !multiOrder,
+          })}>
+        {multiOrder && <Badge count={orderCountLength} className={styles.orderCount}/>}
+        <img src={checked} alt="checked"/>
+        <span>{day}</span>
+      </div>
+    )
+  });
 
-  const addToCart = ({product, sauce = '', breakfast = 'no', sideDish, isBlockDay = false}: AddCartType) => {
+  const addToCart = ({ product, sauce = '', breakfast = 'no', sideDish, isBlockDay = false }: AddCartType) => {
     if (!localStorage.getItem('cartTimestamp')) {
       localStorage.setItem('cartTimestamp', new Date().getTime().toString());
     }
 
     setCartList((prevState: CartList[]) => {
-      const updatedCartList = prevState?.map(cartItem => {
-        if (cartItem.day === selectDay) {
-          // update current day in cart
+      let dayExists = false;
+
+      const updatedCartList = prevState.map(cartItem => {
+        if (cartItem.day === selectDay && (!multiOrder || !cartItem.isBlockDay)) {
+          dayExists = true;
           return {
             ...cartItem,
             isBlockDay: cartItem.isBlockDay || isBlockDay,
             price: selectCombo?.price,
             products: {
               ...cartItem.products,
-              ...(product ? {[String(product.dish_type)]: product} : {}), // Добавляем продукт, только если он существует
+              ...(product ? { [String(product.dish_type)]: product } : {}),
             },
-            [DishType.SIDE]: sideDish ? {
-              ...cartItem[DishType.SIDE],
-              ...sideDish,
-              title: sideDish.title ?? cartItem[DishType.SIDE]?.title,
-            } : cartItem[DishType.SIDE],
+            [DishType.SIDE]: sideDish
+              ? { ...cartItem[DishType.SIDE], ...sideDish, title: sideDish.title ?? cartItem[DishType.SIDE]?.title }
+              : cartItem[DishType.SIDE],
             [DishType.SAUCE]: product?.dish_type === DishType.MAIN ? sauce : cartItem[DishType.SAUCE],
             breakfast: product?.dish_type === DishType.MAIN
               ? (breakfast === 'breakfast' ? 'breakfast' : breakfast === 'no' ? '' : cartItem.breakfast)
@@ -345,16 +361,13 @@ const WeeklyMenu = () => {
         return cartItem;
       });
 
-      // if day don`t fide in arr, add new object
-      if (!updatedCartList.some(cartItem => cartItem?.day === selectDay)) {
+      if ((!dayExists || (multiOrder && isBlockDay)) && product) {
         updatedCartList.push({
           id: generateUniqueId(),
           day: selectDay,
-          isBlockDay: isBlockDay,
+          isBlockDay,
           price: selectCombo?.price,
-          products: {
-            [String(product?.dish_type)]: product,
-          },
+          products: { [String(product.dish_type)]: product },
           [DishType.SIDE]: sideDish,
           [DishType.SAUCE]: sauce,
           breakfast: product?.dish_type === DishType.MAIN
@@ -362,14 +375,16 @@ const WeeklyMenu = () => {
             : undefined,
         });
       }
-      const jsonData = JSON.stringify(updatedCartList);
-      const encryptedData = encryptData(jsonData);
+
+      const encryptedData = encryptData(JSON.stringify(updatedCartList));
       localStorage.setItem('cartList', encryptedData);
 
       return updatedCartList;
     });
+
     setShowProductInfo(undefined);
   };
+
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const imgElement = e.currentTarget;
@@ -408,7 +423,11 @@ const WeeklyMenu = () => {
         />
       </Modal>
       <div className={styles.navbar}>
-        <LogoSvg type={logoType.VERTICAL} />
+        <LogoSvg
+          style={{cursor: "pointer"}}
+          click={() => window.location.href = toOldSite}
+          type={logoType.VERTICAL}
+        />
         <div className={styles.weekList}>
           {weekDaysList}
         </div>
@@ -429,7 +448,7 @@ const WeeklyMenu = () => {
           />
         </div>
       </div>
-      {combos.fetching && !selectCombo ?
+      {combos.fetching || (!selectCombo && combos.data && Array.isArray(daysList)) ?
         <LogoLoader /> :
         selectCombo ?
           <div className={styles.page}>
@@ -440,25 +459,20 @@ const WeeklyMenu = () => {
                 onClick={() => {
                   if (!isDisableNext) {
                     handleNextDay()
-                    if (isNextDay()) {
+                    if (isNextDay() && !multiOrder) {
                       navigate(PageConfig.checkout)
                     }
                   }
                 }}
                 className={styles.nextButton}>
                 <div className={styles.buttonContainer}>
-                  <p>Next</p>
+                  <p>{multiOrder ? 'Add to Cart' : 'Next'}</p>
                   <ArrowsSwg type='right' color={colorTheme.white}/>
                 </div>
               </Button>
               <Button
                 disabled={!cartList.find(item => item.isBlockDay)}
-                onClick={() => {
-                  // if (isTypeDish(ComponentType.SECOND)) {
-                  //   handleNextDay()
-                  // }
-                  navigate(PageConfig.checkout)
-                }}
+                onClick={() => navigate(PageConfig.checkout)}
                 iconPosition='right'
                 className={styles.checkoutButton}>
                 <div className={styles.buttonContainer}>
@@ -476,8 +490,10 @@ const WeeklyMenu = () => {
                 <span> Select Your Corporate Lunch Combo</span>
                 <span className={styles.priceDish}>{currency(currentComboPrice, userData?.coupon.hide_price)}</span>
               </div>
-              <div className={styles.headerMobile}>
-                {weekDaysListMobile}
+              <div className={styles.headerMobileWrapper}>
+                <div className={styles.headerMobile}>
+                  {weekDaysListMobile}
+                </div>
               </div>
               <div className={styles.pageTitleBlock}>
                 <div className={styles.titleDish}>
@@ -605,7 +621,6 @@ const WeeklyMenu = () => {
               </div>
               <Avatar
                 size={36}
-                // classNamesContainer={styles.avatarMobile}
                 isActive
                 click={() => navigate(PageConfig.history)}
                 showFullName

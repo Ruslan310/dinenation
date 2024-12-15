@@ -109,6 +109,9 @@ const OrderHistoryView = () => {
   }, [order.data]);
 
   const shouldHideField = (day: string) => {
+    if (order.data?.orderCustomerId.status !== EStatusType.PROCESSING) {
+      return true
+    }
     const dayIndex = WEEKDAY_ORDER.indexOf(day as EWEEK_DAY);
     return dayIndex < currentDayIndex || (dayIndex === currentDayIndex && openDay());
   };
@@ -148,7 +151,7 @@ const OrderHistoryView = () => {
       }
       message.success({content: 'Order successfully update!', duration: 2});
     } catch (err) {
-      console.log('----err', err)
+      // console.log('----err', err)
       message.error({content: "Something's wrong..", duration: 2});
     }
   };

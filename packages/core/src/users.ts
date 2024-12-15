@@ -1,5 +1,3 @@
-import {b} from "vitest/dist/reporters-P7C2ytIv";
-
 export * as Users from "./users";
 import {SQL} from "./sql";
 import {sql} from "kysely";

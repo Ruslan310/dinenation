@@ -92,7 +92,7 @@ const Users = () => {
     {
       title: 'Action',
       key: 'action',
-      width: 100,
+      width: 110,
       render: (_, record) => (
         <>
           <a className={styles.actionLink} onClick={() => navigate(`${PageConfig.users}/${record.id}`)}>

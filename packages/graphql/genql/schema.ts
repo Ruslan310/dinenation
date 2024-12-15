@@ -145,6 +145,7 @@ export interface Mutation {
     updateOffice: Office
     updateOrder: Orders
     updateOrderWithBoxes: Orders
+    updateOrders: Orders[]
     updateProduct: Product
     updateReview: Review
     updateSauces: Sauces
@@ -424,6 +425,7 @@ export interface MutationGenqlSelection{
     updateOffice?: (OfficeGenqlSelection & { __args: {coupon_id: Scalars['Int'], id: Scalars['Int'], title: Scalars['String']} })
     updateOrder?: (OrdersGenqlSelection & { __args: {address?: (Scalars['String'] | null), combo_price: Scalars['Float'], comment?: (Scalars['String'] | null), coupon_id: Scalars['Int'], customer_id: Scalars['Int'], id: Scalars['Int'], number: Scalars['String'], price: Scalars['Float'], status: Scalars['String']} })
     updateOrderWithBoxes?: (OrdersGenqlSelection & { __args: {boxes: BoxInput[], combo_id: Scalars['Int'], customer_id: Scalars['Int'], id: Scalars['Int'], price: Scalars['Float'], status: Scalars['String']} })
+    updateOrders?: (OrdersGenqlSelection & { __args: {orders: OrderNumber[]} })
     updateProduct?: (ProductGenqlSelection & { __args: {allergens?: (Scalars['String'] | null), calories?: (Scalars['String'] | null), categories: Scalars['String'], description?: (Scalars['String'] | null), dish_type: Scalars['String'], id: Scalars['Int'], image: Scalars['String'], is_dish: Scalars['Boolean'], price: Scalars['Float'], sauces?: (Scalars['String'] | null), small_img: Scalars['String'], status: Scalars['String'], title: Scalars['String'], week_day: Scalars['String']} })
     updateReview?: (ReviewGenqlSelection & { __args: {dish_name: Scalars['String'], id: Scalars['Int'], rate: Scalars['Int'], review: Scalars['String'], user_id: Scalars['Int']} })
     updateSauces?: (SaucesGenqlSelection & { __args: {id: Scalars['Int'], status: Scalars['String'], title: Scalars['String']} })
@@ -442,6 +444,8 @@ export interface OfficeGenqlSelection{
     __typename?: boolean | number
     __scalar?: boolean | number
 }
+
+export interface OrderNumber {number: Scalars['String']}
 
 export interface OrdersGenqlSelection{
     address?: boolean | number

@@ -61,8 +61,8 @@ const DishPopup: React.FC<PopoverContentProps> = ({
         isBlockDay: false,
       })
     }, 100);
-    // console.log('Product added ...');
   }
+
   const addHandle = () => {
     if ((isMain && data.sauces?.length > 0 && !selectSauce) || (isMain && data.is_dish && !selectSideDish)) {
       setOpen(true)

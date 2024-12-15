@@ -39,7 +39,7 @@ export async function createOrderWithBoxes(
   address: string | null | undefined,
   boxes: TBoxes[]
 ) {
-  const startNumber = 'DN-70000';
+  const startNumber = 'DN-75000';
 
   const [[lastOrder], [user, coupon]] = await Promise.all([
     SQL.DB.selectFrom('orders').select('number').orderBy('number', 'desc').limit(1).execute(),
@@ -191,6 +191,32 @@ export async function updateOrder(
   return result;
 }
 
+export async function updateOrders(
+  orders: { number: string }[],
+) {
+  const numbers = orders.map(order => order.number); // Извлекаем массив номеров
+
+  let result = await SQL.DB.updateTable("orders")
+    .set({
+      status: EStatusType.COMPLETED,
+      date_updated: sql`now()`,
+    })
+    .where("number", "in", numbers) // Используем оператор IN для массива
+    .returningAll()
+    .execute();
+
+  await axios({
+    url: `${adminUrl}ordersToCompleted`,
+    method: 'post',
+    headers: {
+      'x-api-key': adminKey,
+    },
+    data: numbers,
+  })
+
+  return result;
+}
+
 export async function updateOrderWithBoxes(
   id: number,
   status: string,
@@ -304,7 +330,7 @@ export function ordersByCouponDate(coupon_id: number, date_start: string, date_e
   return SQL.DB.selectFrom("orders")
     .selectAll()
     .where("coupon_id", "=", coupon_id)
-    .where("status", "=", EStatusType.COMPLETED)
+    .where("status", "in", [EStatusType.COMPLETED, EStatusType.PROCESSING])
     .where("date_created", ">=", date_start)
     .where("date_created", "<=", date_end)
     .orderBy("date_created", "desc")
@@ -371,6 +397,21 @@ export async function getOrderCustomerId(id: number, customer_id: number) {
     .where("customer_id", "=", customer_id)
     .execute();
   return result
+}
+
+export async function getUsersWithoutProcessingOrders() {
+  const emails = await SQL.DB
+    .selectFrom("users")
+    .select(['email', "first_name"])
+    .whereNotExists(
+      SQL.DB
+        .selectFrom("orders")
+        .whereRef("orders.customer_id" as any, "=", "users.id" as any)
+        .where("orders.status", "=", "processing")
+    )
+    .execute();
+
+  return emails;
 }
 
 
