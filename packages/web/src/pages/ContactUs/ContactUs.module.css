@@ -78,6 +78,9 @@
 .menuItemText {
     font-weight: var(--font-weight-wbolt);
     max-width: 290px;
+    @media (max-width: 600px) {
+        max-width: 230px;
+    }
     & h3 {
         font-size: 18px;
         font-family: var(--font-code);
@@ -87,6 +90,7 @@
             line-height: 20px;
             font-size: 15px;
             margin-bottom: 0;
+            max-width: 240px;
         }
     }
     & a {

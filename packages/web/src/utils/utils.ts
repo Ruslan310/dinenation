@@ -55,7 +55,8 @@ export enum CATEGORIES_TYPE {
 export enum dateFormat {
   DATE_TIME = 'YYYY-MM-DD HH:mm',
   DATE = 'YYYY-MM-DD',
-  DAY = 'dddd'
+  DAY = 'dddd',
+  SHORT_DATE = 'D.MM'
 }
 
 export const CATEGORIES_TYPE_SORT: CATEGORIES_TYPE[] = [

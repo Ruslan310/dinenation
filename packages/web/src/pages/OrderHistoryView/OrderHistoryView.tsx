@@ -249,16 +249,10 @@ const OrderHistoryView = () => {
                                             </div>
                                           )}
                                           {product.sauce &&
-                                            // <div className={styles.sideBlock}>
-                                            //   <p>{DishType.SAUCE}</p>
-                                            //   <div className={styles.subTitleSauce}>
-                                            //     <span>{product.sauce}</span>
-                                            //   </div>
-                                            // </div>
                                             <div className={styles.sideBlock}>
-                                              <p>Breakfast</p>
+                                              <p>{DishType.SAUCE}</p>
                                               <div className={styles.subTitleSauce}>
-                                                <CheckOutlined style={{color: 'green'}}/>
+                                                <span>{product.sauce}</span>
                                               </div>
                                             </div>
                                           }
@@ -286,15 +280,9 @@ const OrderHistoryView = () => {
                                             </div>
                                           }
                                           {product.sauce &&
-                                            // <div className={styles.sideBlockMobile}>
-                                            //   <p>{DishType.SAUCE}</p>
-                                            //   <span>{product.sauce}</span>
-                                            // </div>
-                                            <div className={styles.sideBlock}>
-                                              <p>Breakfast</p>
-                                              <div className={styles.subTitleSauce}>
-                                                <CheckOutlined style={{color: 'green'}}/>
-                                              </div>
+                                            <div className={styles.sideBlockMobile}>
+                                              <p>{DishType.SAUCE}</p>
+                                              <span>{product.sauce}</span>
                                             </div>
                                           }
                                         </div>

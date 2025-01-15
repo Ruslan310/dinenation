@@ -18,3 +18,14 @@
     background-repeat: no-repeat;
     box-shadow: 0 0 16px 0 #00000040;
 }
+
+.actionLink {
+    color: var(--color-base-blue);
+    &:hover {
+        color: var(--color-base-white);
+    }
+}
+
+.imgClose {
+    overflow: hidden;
+}

@@ -96,11 +96,9 @@ const Sauces = () => {
                 <div
                   onClick={() => navigate(`${PageConfig.sauces}/${sauces.id}`)}
                   key={sauces.id}
-                  className={styles.productItemBlock}
+                  className={styles.sauceItemBlock}
                 >
-                  <div className={styles.productItem}>
-                    <p>{sauces.title}</p>
-                  </div>
+                  <h3>{sauces.title}</h3>
                   <div className={styles.priceItem}>
                     <ProductStatus status={sauces.status as TStatusType} />
                     <DeleteOutlined style={{fontSize: 20}} onClick={e => {

@@ -89,7 +89,7 @@ const SideDishes = () => {
                 >
                   <div className={styles.productItem}>
                     <SideDishListSvg type={sideDish.type} className={styles.img} />
-                    <p>{sideDish.title}</p>
+                    <h3>{sideDish.title}</h3>
                   </div>
                   <div className={styles.priceItem}>
                     <ProductStatus status={sideDish.status as TStatusType} />

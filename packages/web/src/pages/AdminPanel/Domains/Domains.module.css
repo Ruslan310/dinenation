@@ -45,27 +45,6 @@
     width: 300px;
 }
 
-.productItemBlock {
-    display: flex;
-    align-items: center;
-    margin-top: 20px;
-    height: 50px;
-    max-width: 600px;
-    background-color: var(--color-navbar);
-    border-radius: 8px;
-    justify-content: space-between;
-    font-size: 18px;
-    font-weight: var(--font-weight-light);
-    cursor: pointer;
-    padding-right: 10px;
-    padding-left: 10px;
-
-    &:hover {
-        background-color: var(--color-base-active);
-        color: var(--color-base-white);
-    }
-}
-
 .img {
     width: 48px;
     height: 48px;
@@ -90,34 +69,6 @@
 .numberField {
     display: inline-block;
     width: 100px;
-}
-
-.sauceItemBlock {
-    display: flex;
-    max-width: 600px;
-    align-items: center;
-    margin-top: 20px;
-}
-
-.sauceItem {
-    margin-right: 20px;
-    cursor: pointer;
-    padding: 7px 20px;
-    border-radius: 30px;
-    border: 1px solid gray;
-    display: flex;
-    width: fit-content;
-    font-size: 18px;
-    font-weight: bold;
-
-    & p {
-        margin-right: 10px;
-    }
-
-    &:hover {
-        background-color: var(--color-navbar);
-        box-shadow: 0 0 8px 0 var(--color-shadow);
-    }
 }
 
 .button {

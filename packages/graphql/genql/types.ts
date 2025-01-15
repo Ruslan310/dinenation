@@ -400,6 +400,10 @@ export default {
                         2,
                         "String!"
                     ],
+                    "img": [
+                        2,
+                        "String!"
+                    ],
                     "rate": [
                         1,
                         "Int!"
@@ -1165,6 +1169,10 @@ export default {
                         1,
                         "Int!"
                     ],
+                    "img": [
+                        2,
+                        "String!"
+                    ],
                     "rate": [
                         1,
                         "Int!"
@@ -1706,6 +1714,9 @@ export default {
             ],
             "id": [
                 1
+            ],
+            "img": [
+                2
             ],
             "rate": [
                 1

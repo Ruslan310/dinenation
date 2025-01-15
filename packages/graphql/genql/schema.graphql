@@ -101,7 +101,7 @@ type Mutation {
   addDomain(discount: Float, expired_date: String, title: String!): Domain!
   addDomainCombo(combo_id: Int!, domain_id: Int!): DomainCombo!
   addOffice(coupon_id: Int!, title: String!): Office!
-  addReview(dish_name: String!, rate: Int!, review: String!, user_id: Int!): Review!
+  addReview(dish_name: String!, img: String!, rate: Int!, review: String!, user_id: Int!): Review!
   addSauce(status: String!, title: String!): Sauces!
   addSideDish(description: String, status: String!, title: String!, type: String!): SideDish!
   addUser(address: String, coupon_id: Int!, email: String!, first_name: String!, last_name: String!, phone: String!): Users!
@@ -140,7 +140,7 @@ type Mutation {
   updateOrderWithBoxes(boxes: [BoxInput!]!, combo_id: Int!, customer_id: Int!, id: Int!, price: Float!, status: String!): Orders!
   updateOrders(orders: [OrderNumber!]!): [Orders!]!
   updateProduct(allergens: String, calories: String, categories: String!, description: String, dish_type: String!, id: Int!, image: String!, is_dish: Boolean!, price: Float!, sauces: String, small_img: String!, status: String!, title: String!, week_day: String!): Product!
-  updateReview(dish_name: String!, id: Int!, rate: Int!, review: String!, user_id: Int!): Review!
+  updateReview(dish_name: String!, id: Int!, img: String!, rate: Int!, review: String!, user_id: Int!): Review!
   updateSauces(id: Int!, status: String!, title: String!): Sauces!
   updateSideDish(description: String, id: Int!, status: String!, title: String!, type: String!): SideDish!
   updateUser(address: String, coupon_id: Int!, email: String!, first_name: String!, id: Int!, is_update: Boolean!, last_name: String!, phone: String!, role: String!): Users!
@@ -240,6 +240,7 @@ type Review {
   date_created: String!
   dish_name: String!
   id: Int!
+  img: String!
   rate: Int!
   review: String!
   user: Users!

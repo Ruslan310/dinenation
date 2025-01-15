@@ -6,6 +6,7 @@ export async function addReview(
   user_id: number,
   review: string,
   rate: number,
+  img: string,
   dish_name: string,
 ) {
   const [result] = await SQL.DB.insertInto("review")
@@ -13,6 +14,7 @@ export async function addReview(
       user_id,
       review,
       rate,
+      img,
       dish_name,
       date_updated: sql`now()`,
     })
@@ -26,6 +28,7 @@ export async function updateReview(
   user_id: number,
   review: string,
   rate: number,
+  img: string,
   dish_name: string,
 ) {
   const [result] = await SQL.DB.updateTable("review")
@@ -34,6 +37,7 @@ export async function updateReview(
       user_id,
       review,
       rate,
+      img,
       dish_name,
       date_updated: sql`now()`,
     })

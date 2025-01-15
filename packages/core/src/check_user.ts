@@ -6,7 +6,7 @@ export async function addCheckEmail(
   coupon_id: number,
   email: string,
 ) {
-  const [result] = await SQL.DB.insertInto("check_email")
+  const [result] = await SQL.DB.insertInto('check_email')
     .values({
       coupon_id,
       email,

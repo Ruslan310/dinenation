@@ -25,13 +25,10 @@ interface PopoverContentProps {
   addToCart: (params: {
     product?: ProductForm;
     sauce?: string;
-    breakfast?: string;
     sideDish?: SideDishType;
     isBlockDay: boolean;
   }) => void;
 }
-
-const breakfastCoupon = 'Brainrocket'
 
 const DishPopup: React.FC<PopoverContentProps> = ({
                                                     data,
@@ -47,8 +44,6 @@ const DishPopup: React.FC<PopoverContentProps> = ({
   const [selectSauce, setSelectSauce] = useState<string>('');
   const [selectSideDish, setSideDish] = useState<SideDishType>();
   const [colorSideDish, setColorSideDish] = useState<string>('');
-  const [breakfast, setBreakfast] = useState<boolean>(false);
-  const {userData} = useContext(MainContext);
 
   const addProduct = () => {
     setOpen(false);
@@ -56,7 +51,6 @@ const DishPopup: React.FC<PopoverContentProps> = ({
       addToCart({
         product: data,
         sauce: selectSauce,
-        breakfast: breakfast ? 'breakfast' : 'no',
         sideDish: selectSideDish,
         isBlockDay: false,
       })
@@ -136,19 +130,6 @@ const DishPopup: React.FC<PopoverContentProps> = ({
                 <Radio value={noSauce}>{noSauce}</Radio>
               </Radio.Group>
             </ConfigProvider>
-          </div>
-        )}
-
-        {/* only for Brainrocket */}
-        {userData?.coupon.title === breakfastCoupon && isMain && (
-          <div className={styles.popoverBreakfast}>
-            <p className={styles.titlePopover}>Choose a Breakfast</p>
-            <Checkbox
-              title='Add Breakfast'
-              checked={breakfast}
-              onChange={({target}) => setBreakfast(target.checked)}>
-              Breakfast
-            </Checkbox>
           </div>
         )}
       </div>

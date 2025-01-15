@@ -41,25 +41,23 @@ const ContactUs = () => {
   const [isSend, setIsSend] = useState(true);
   const [loader, setLoader] = useState(false);
   const {userData} = useContext(MainContext);
-  const {isScreenLg} = useResize();
 
   const submit: FormProps<FieldTypeContactUs>['onFinish'] = async (values) => {
     setLoader(true)
-
     try {
       if (userData) {
-        const mes = `User_id: ${userData.id}
-Email: ${values.email}
-Full Name: ${values.fullName}
-Phone: ${values.phone}
-Message: ${values.message}`;
+        const mes = `-----ContactUs-----
+${values.email}
+👤 ${values.fullName}
+📞 ${values.phone}
+💬 ${values.message}`;
         await sendBotMessage(FEEDBACK, mes)
         setIsSend(false)
         setLoader(false)
         message.success({content: 'Message sent successfully', duration: 2});
       }
     } catch (err) {
-      console.log(err)
+      // console.log(err)
       message.error({content: 'Message could not be sent', duration: 2});
       setLoader(false)
     }

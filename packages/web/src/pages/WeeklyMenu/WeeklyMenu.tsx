@@ -63,13 +63,11 @@ export interface CartList {
   };
   [DishType.SIDE]?: SideDishType;
   [DishType.SAUCE]?: string;
-  breakfast?: string;
 }
 
 export interface AddCartType {
   product?: ProductForm;
   sauce?: string;
-  breakfast?: string;
   sideDish?: SideDishType;
   isBlockDay: boolean;
 }
@@ -156,8 +154,6 @@ const WeeklyMenu = () => {
     // requestPolicy: 'cache-and-network',
     requestPolicy: 'network-only',
   });
-
-  console.log('----combos', combos)
 
   useEffect(() => {
     const currentCombo = combos.data?.domain?.combos;
@@ -296,7 +292,11 @@ const WeeklyMenu = () => {
     return (
       <div
         key={day}
-        onClick={() => handleSelectDay(day)}
+        onClick={() => {
+          if (!exceptionWeekDays.includes(day)) {
+            handleSelectDay(day)
+          }
+        }}
         className={classNames(styles.daysBlock,
           {
             [styles.selectDay]: selectDay === day,
@@ -330,7 +330,7 @@ const WeeklyMenu = () => {
     )
   });
 
-  const addToCart = ({ product, sauce = '', breakfast = 'no', sideDish, isBlockDay = false }: AddCartType) => {
+  const addToCart = ({ product, sauce = '', sideDish, isBlockDay = false }: AddCartType) => {
     if (!localStorage.getItem('cartTimestamp')) {
       localStorage.setItem('cartTimestamp', new Date().getTime().toString());
     }
@@ -353,9 +353,6 @@ const WeeklyMenu = () => {
               ? { ...cartItem[DishType.SIDE], ...sideDish, title: sideDish.title ?? cartItem[DishType.SIDE]?.title }
               : cartItem[DishType.SIDE],
             [DishType.SAUCE]: product?.dish_type === DishType.MAIN ? sauce : cartItem[DishType.SAUCE],
-            breakfast: product?.dish_type === DishType.MAIN
-              ? (breakfast === 'breakfast' ? 'breakfast' : breakfast === 'no' ? '' : cartItem.breakfast)
-              : cartItem.breakfast,
           };
         }
         return cartItem;
@@ -370,9 +367,6 @@ const WeeklyMenu = () => {
           products: { [String(product.dish_type)]: product },
           [DishType.SIDE]: sideDish,
           [DishType.SAUCE]: sauce,
-          breakfast: product?.dish_type === DishType.MAIN
-            ? (breakfast === 'breakfast' ? 'breakfast' : breakfast === 'no' ? '' : undefined)
-            : undefined,
         });
       }
 

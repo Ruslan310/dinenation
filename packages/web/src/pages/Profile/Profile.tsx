@@ -40,12 +40,12 @@ const Profile = () => {
     setLoadingButton(true);
     try {
       if (userData) {
-        const mes = `!!Request data change!!
-  User Id: ${userData.id}
-  Email: ${userData.email}
-  Name: ${userData.first_name} ${userData.last_name}
-  Coupon: ${userData.coupon.title}
-  Phone: ${userData.phone}
+        const mes = `---!!Request data change!!---
+Id: ${userData.id}
+${userData.email}
+👤 ${userData.first_name} ${userData.last_name}
+🎟️ ${userData.coupon.title}
+📞 ${userData.phone}
 -----chage to---------
   new name: ${values.first_name} ${values.last_name}
   new coupon: ${values.coupon}

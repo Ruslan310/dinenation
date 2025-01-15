@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import {currentDay} from "../../../utils/handle";
 import CyrillicToTranslit from "cyrillic-to-translit-js";
 import PDF from "jspdf";
+import Roboto from './Roboto-Regular.ttf';
 
 const {Text, Title} = Typography;
 const cyrillicToTranslit = new (CyrillicToTranslit as any)();
@@ -30,15 +31,19 @@ interface Sticker {
   date: string;
 }
 
+interface InstType {
+  qrCode: string;
+  message: string;
+  subMessage: string;
+}
+
 const qrCode = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJQAAACUCAYAAAB1PADUAAAAAklEQVR4AewaftIAAATASURBVO3BQY4bSRAEwfAC//9l3znmqYBGJ2clIczwR6qWnFQtOqladFK16KRq0UnVopOqRSdVi06qFp1ULTqpWnRSteikatFJ1aKTqkUnVYs+eQnIb1LzBJAn1NwA2aTmBshvUvPGSdWik6pFJ1WLPlmmZhOQN9TcAHlCzQ2QSc0NkEnNjZpNQDadVC06qVp0UrXoky8D8oSaJ4DcqJmATGpugExqJiCTmt8E5Ak133RSteikatFJ1aJP/nFA3lBzo2YCMqmZgExq/iUnVYtOqhadVC365B+nZgJyA+QJNTdAboBMav5mJ1WLTqoWnVQt+uTL1PxJ1GwCMql5Asgbav4kJ1WLTqoWnVQt+mQZkP+TmgnIpGYCMqmZgExqJiA3QCY1bwD5k51ULTqpWnRSteiTl9T8ydQ8AWRS84aaCcgTav4mJ1WLTqoWnVQt+uQlIJOaCcgmNZOaTWomIJOaSc0EZFJzo+YGyCY133RSteikatFJ1SL8kReA3KiZgNyouQEyqbkB8oSaTUB+k5ongExq3jipWnRSteikatEnv0zNBGQCcqNmk5ongNyomdTcAJnUTEC+Sc2mk6pFJ1WLTqoW4Y98EZBJzQ2QSc0E5JvUTEBu1DwBZFIzAdmkZgIyqdl0UrXopGrRSdUi/JEXgNyomYBMam6AfJOaN4DcqPlNQG7UfNNJ1aKTqkUnVYvwR14AsknNDZAbNROQSc0E5Ak1E5A/iZongExq3jipWnRSteikahH+yCIgk5oJyI2aCciNmgnIE2omIE+omYBMap4AMql5AsiNmm86qVp0UrXopGoR/sgXAZnU3ACZ1NwAmdRMQN5QMwG5UTMBeULNDZBJzRNAJjWbTqoWnVQtOqla9MlLQCY1N0AmNTdAJjU3QCY1E5AbNROQSc0NkEnNBGRS84SaGyA3ar7ppGrRSdWik6pFn/wyNTdqnlAzAXlCzY2aGyCTmk1AnlAzAbkBMql546Rq0UnVopOqRZ/8z4A8oeZGzQRkUvMGkDfUPKFmArJJzaaTqkUnVYtOqhZ98suA3Ki5ATKpmYBMaiYgk5obIJOaN4A8oWZS84SaCcikZtNJ1aKTqkUnVYs++Z+puQGySc0EZFIzqXkCyCYgT6iZgNwAmdS8cVK16KRq0UnVIvyRvxiQSc0TQJ5QMwF5Qs0EZFLzBJBNat44qVp0UrXopGrRJy8B+U1qJjVPAJnUTEBugDyhZgLyBJBJzRtqvumkatFJ1aKTqkWfLFOzCcgNkDeA3KiZgNyo2aTmCTVPAJnUvHFSteikatFJ1aJPvgzIE2reUHMD5EbNBORGzQRkUjOpmYBMQDYBuVGz6aRq0UnVopOqRZ/8Y4BsUnMDZFJzA+RGzRtAngAyqXnjpGrRSdWik6pFn/zj1ExAJjU3QJ4AMql5AshvUrPppGrRSdWik6pFn3yZmm9ScwNkUjMBmdRMaiYgN2pu1ExAnlAzAblRMwH5ppOqRSdVi06qFn2yDMhvAnKjZgJyA2RSc6NmAjKpmYBMap4AcqNmAjKp+aaTqkUnVYtOqhbhj1QtOaladFK16KRq0UnVopOqRSdVi06qFp1ULTqpWnRSteikatFJ1aKTqkUnVYtOqhb9B3+SQQo/K7IuAAAAAElFTkSuQmCC';
+const qrCodeInst = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZoAAAGaAQAAAAAefbjOAAADAklEQVR4nO2cS46jMBRFz2uQMjRSLaCXAjvrNfUOYCm1gJbwMJLR7YExOKlBq7pKpIo8BuRjjmLLT+9zbcfEu6/px/sZcMghhxxyyCGHzgnZerUwmRnEFqYO8jtieWB4SPccOh7qJUkz0CthAwCxxYaQsIFGkqRb6LjuOXQc1K6vsYP+NzANICJYr8WYrEn5IzTp8O459HDIfs3A9PNqTF0jCJvL+ORfcuhrQu3br5pkBIBo0I9LK+In/JJD3wMqFhEERNDUNYh4EcSXZJM1OXuolawvPiaHPgGazMysW6OGDaw3+vxxyaXGo7rn0NE+YncAmn4mIKScXgquplsP8eXH5NDHIbOOGynCWpi6xdYSdHvkMd1z6ECIrDP0M1mUoJ8bSUpoDImsURBSjh9ZlRi/+Jgc+ghUJjnP/lpu0itRJKlGGoNyg1vE+aEyyRTPoJlyU6K4DEna3rlFnBmiTDdozN/sUUOre9giSVa73SLODJU8QmuFQT83yhkFrFZSuwy3iLNDdbqwBowtfujOPXge8TyQxpCwIUhZphpoigIRrsZkLRrjRTY8pHsOPQCKLRpjm4tMiGbApkdke7nammp8kzE59D9QpUfsJegaSUJRL1VaPY84P7TlEVsCOTc3SaWKUJH1K7eIs0Ps/qCUm5sJzKXCgEaVMuEWcWbovtao40fRpe50TLeIU0M3UUMJjTSbYn2TQriK/RxQJTvs4lRZ35LybdOv3CLOD9VCVHYFe84wU1Y8Z3KDW8T5oSqzrGa/8hYlpnge8SRQSSCr2W+Uhah+DyelwavP80N5V13ZQNkkCH+Mfu4Q8SVp6jCIL7lBR3fPoUdBVT7JVlywWPYRWb2MFz/T9URQXA91lk0SQN6DC2UDZkj30HHdc+gw6M0Jnv71IiPMsv61xQhXgzBjxNZP+T0jNHWLSfOS1zk1xos0slh9RPi7jcmh91yrHrEr1tSydbVjxvWI54AqFZtNnNoXuXb1slrrcIs4M2T69zP3l/8zmUMOOeSQQw45BPAXUQ29GhwuS0sAAAAASUVORK5CYII=\n';
 
 
 const HandleBox = forwardRef<HTMLDivElement, Props>(({
                                                        boxes, selectedDay, setOpen, setGeneratingStickers
                                                      }, ref) => {
-  const breakfastCount = useMemo(() => boxes.filter(box => box.sauce === "breakfast" && box.week_day === selectedDay), [selectedDay])
-  console.log('-----boxes -- breakfast', breakfastCount)
-
 
   const dateWeek = useCallback(() => {
     const currentMoment = dayjs();
@@ -258,6 +263,36 @@ const HandleBox = forwardRef<HTMLDivElement, Props>(({
     }
   }
 
+  const generatePdfInst = () => {
+      const printBoxes = {
+            qrCode: qrCodeInst,
+            message: 'Scan and follow us on Instagram!',
+            subMessage: 'Отсканируй и подпишись на нас в Instagram!',
+          }
+
+        const doc = new PDF({
+          orientation: 'l',
+          unit: 'mm',
+          format: [60, 45],
+        });
+          const {
+            qrCode,
+            message,
+            subMessage,
+          } = printBoxes
+          doc.addImage(qrCode, 18, 1, 25, 25)
+          doc.setFontSize(10);
+          doc.text(message, 4, 28.5)
+          doc.addFont(Roboto, 'Roboto', 'normal');
+          doc.setFont('Roboto', 'normal');
+          // doc.text(subMessage, 1, 28)
+          doc.text('Отсканируй и подпишись', 9, 35)
+          doc.text('на нас в Instagram!', 14.3, 39)
+          doc.setFont("times", "bold");
+
+        doc.save('InstagramQR'+ ".pdf")
+  }
+
   return (
     <div ref={ref}>
       <Button className={styles.buttonBox} size={"large"} onClick={() => generatePdfForPrint()} type="default" htmlType="submit">
@@ -286,10 +321,9 @@ const HandleBox = forwardRef<HTMLDivElement, Props>(({
           <Text keyboard strong>{selectedDay}</Text>
         </>
       </Button>
-      <Button disabled className={styles.buttonBox} size={"large"}>
+      <Button onClick={() => generatePdfInst()} className={styles.buttonBox} size={"large"}>
         <>
-          <Text keyboard>Breakfast count</Text>
-          <Text keyboard>{breakfastCount?.length || 0}</Text>
+          <Text keyboard>Inst QRcode</Text>
         </>
       </Button>
     </div>

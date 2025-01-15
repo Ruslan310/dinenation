@@ -137,8 +137,7 @@ const Checkout = () => {
               price: product.price,
               side_dish: isMain ? cartItem[DishType.SIDE]?.title : '',
               side_dish_type: isMain ? cartItem[DishType.SIDE]?.type : '',
-              // sauce: isMain ? cartItem.Sauce : '',
-              sauce: isMain ? cartItem.breakfast : '',
+              sauce: isMain ? cartItem.Sauce : '',
               combo_id: cartItem.id,
             };
           });
@@ -389,19 +388,11 @@ const Checkout = () => {
                                         </div>
                                       </div>
                                     }
-                                    {/*{cartItem.Sauce &&*/}
-                                    {/*  <div className={styles.sideBlock}>*/}
-                                    {/*    <p>{DishType.SAUCE}</p>*/}
-                                    {/*    <div className={styles.subTitleSauce}>*/}
-                                    {/*      <span>{cartItem.Sauce}</span>*/}
-                                    {/*    </div>*/}
-                                    {/*  </div>*/}
-                                    {/*}*/}
-                                    {cartItem.breakfast &&
+                                    {cartItem.Sauce &&
                                       <div className={styles.sideBlock}>
-                                        <p>Breakfast</p>
+                                        <p>{DishType.SAUCE}</p>
                                         <div className={styles.subTitleSauce}>
-                                          <CheckOutlined style={{ color: 'green'}} />
+                                          <span>{cartItem.Sauce}</span>
                                         </div>
                                       </div>
                                     }
@@ -430,18 +421,10 @@ const Checkout = () => {
                                         <span>{cartItem[DishType.SIDE]?.title}</span>
                                       </div>
                                     }
-                                    {/*{cartItem.Sauce &&*/}
-                                    {/*  <div className={styles.sideBlockMobile}>*/}
-                                    {/*    <p>{DishType.SAUCE}</p>*/}
-                                    {/*    <span>{cartItem.Sauce}</span>*/}
-                                    {/*  </div>*/}
-                                    {/*}*/}
-                                    {cartItem.breakfast &&
-                                      <div className={styles.sideBlock}>
-                                        <p>Breakfast</p>
-                                        <div className={styles.subTitleSauce}>
-                                          <CheckOutlined style={{ color: 'green'}} />
-                                        </div>
+                                    {cartItem.Sauce &&
+                                      <div className={styles.sideBlockMobile}>
+                                        <p>{DishType.SAUCE}</p>
+                                        <span>{cartItem.Sauce}</span>
                                       </div>
                                     }
                                   </div>

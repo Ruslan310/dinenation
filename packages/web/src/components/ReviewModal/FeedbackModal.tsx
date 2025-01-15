@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import styles from './FeedbackModal.module.css';
 import Button from "../Button/Button";
 import {Form, Input, message, Modal, Rate} from "antd";
@@ -6,8 +6,12 @@ import {Product} from "../../pages/OrderHistoryView/OrderHistoryView";
 import {colorTheme} from "../../utils/theme";
 import {useTypedMutation} from "@dinenation-postgresql/graphql/urql";
 import {MainContext} from "../../contexts/MainProvider";
+import UploadPicture from "../Form/UploadPicture";
+import UploadPictureReview from "../Form/UploadPictureReviews";
+import {sendBotMessage} from "../../utils/handle";
 
 const {TextArea} = Input;
+const FEEDBACK = import.meta.env?.VITE_CHAT_FEEDBACK
 
 interface Props {
   date: Product | undefined
@@ -24,12 +28,15 @@ interface ReviewFields extends FieldTypeReview {
   user_id: number;
   rate: number;
   review: string;
+  img: string;
   dish_name: string;
 }
 
 const ReviewModal = ({date, close}: Props) => {
   const [form] = Form.useForm();
   const {userData} = useContext(MainContext);
+  const [picture, setPicture] = useState('');
+  const [isLoadingImage, setLoadingImage] = useState(false);
 
   const [_, addReview] = useTypedMutation((opts: ReviewFields) => ({
     addReview: {
@@ -40,19 +47,35 @@ const ReviewModal = ({date, close}: Props) => {
 
   const reset = () => {
     form.resetFields();
+    setPicture('')
     close()
   }
 
   const submit = async () => {
     try {
-      if (userData?.id)
+      if (userData?.id && date?.sticker) {
+        const {rate, review} = form.getFieldsValue();
         await addReview({
           user_id: userData?.id,
           dish_name: date?.sticker,
-          ...form.getFieldsValue()
+          img: picture,
+          rate,
+          review,
         })
-      reset()
-      message.success({content: 'Review successfully saved!', duration: 2});
+
+        const mes = `-----Add Review-----
+${userData.email}
+👤 ${userData.first_name} ${userData.last_name}
+📞 ${userData.phone}
+🎟️ ${userData.coupon.title}
+${'⭐'.repeat(rate)} 
+🍽️ ${date?.sticker}
+💬 ${review}`;
+        await sendBotMessage(FEEDBACK, mes)
+
+        reset()
+        message.success({content: 'Review successfully saved!', duration: 2});
+      }
     } catch (err) {
       console.log('----err', err)
       message.error({content: "Something's wrong..", duration: 2});
@@ -96,8 +119,15 @@ const ReviewModal = ({date, close}: Props) => {
         >
           <TextArea rows={4} placeholder="Enter your text"/>
         </Form.Item>
+        <UploadPictureReview
+          label='Attach an image'
+          picture={picture}
+          setPicture={setPicture}
+          load={isLoadingImage}
+          setLoad={setLoadingImage}
+        />
         <Form.Item className={styles.buttonContainer}>
-          <Button disabled={_.fetching} loading={_.fetching} className={styles.submitButton} type="submit">
+          <Button disabled={_.fetching || isLoadingImage} loading={_.fetching} className={styles.submitButton} type="submit">
             <p>Send your feedback</p>
           </Button>
         </Form.Item>

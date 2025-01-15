@@ -11,8 +11,7 @@ import {adminKey, adminUrl} from "@dinenation-postgresql/functions/src/constants
 
 export const lineCart = '_tmcartepo_data';
 export const isOffice = "Office";
-// export const isSauce = "Sauce";
-export const isSauce = "Breakfast";
+export const isSauce = "Sauce";
 export const combo = 'Corporate Lunch Combo';
 const officeMail = 'delivery@dinenation.com'
 
@@ -400,6 +399,14 @@ export async function getOrderCustomerId(id: number, customer_id: number) {
 }
 
 export async function getUsersWithoutProcessingOrders() {
+  const excludedCouponIds = [
+    1, 199,
+  ]; // prod
+
+  // const excludedCouponIds = [
+  //   1, 100,
+  // ]; // dev
+
   const emails = await SQL.DB
     .selectFrom("users")
     .select(['email', "first_name"])
@@ -409,6 +416,7 @@ export async function getUsersWithoutProcessingOrders() {
         .whereRef("orders.customer_id" as any, "=", "users.id" as any)
         .where("orders.status", "=", "processing")
     )
+    .where("users.coupon_id", "not in", excludedCouponIds)
     .execute();
 
   return emails;

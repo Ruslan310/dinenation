@@ -142,6 +142,7 @@ export interface Review {
   dish_name: string;
   date_created: Generated<string>;
   date_updated: string;
+  img: Generated<string>;
 }
 
 export interface Sauces {

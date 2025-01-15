@@ -30,6 +30,7 @@ export function Api({ stack }: StackContext) {
         },
       },
       "POST /dishImage": "packages/functions/src/dishImage.main",
+      "POST /reviewImages": "packages/functions/src/reviewImages.main",
       "POST /userImage": "packages/functions/src/userImage.main",
       "GET /listImages": "packages/functions/src/listImages.main",
       "POST /send-email": "packages/functions/src/sendEmail.handler",
